@@ -66,7 +66,7 @@
       date: '2026-07-05',
       title: 'Quchen Radio 首个公开版本',
       items: [
-        '基于 Mineradio 进行品牌与代码重命名，全面替换为 Quchen Radio。',
+        '全新品牌与代码重构，Quchen Radio 正式发布。',
         '融合六音、Huibq、野花、野草、ikun、洛雪独家、聚合 API 共 7 款 LX Music 音源插件。',
         '软件内更新检查与下载源重定向到 quchenace/QUCHEN-Radio 仓库。',
         '新增官方网站，支持一键下载安装包与音源插件，无需跳转 GitHub 页面。',
