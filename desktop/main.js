@@ -1,7 +1,9 @@
-const { app, BrowserWindow, ipcMain, shell, screen, session, globalShortcut, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, screen, globalShortcut, dialog, Tray, Menu, nativeImage, desktopCapturer, session } = require('electron');
 const net = require('net');
 const path = require('path');
 const fs = require('fs');
+const { pathToFileURL } = require('url');
+const crypto = require('crypto');
 const { execFile, spawn } = require('child_process');
 
 let mainWindow = null;
@@ -12,6 +14,13 @@ let desktopLyricsState = {};
 let desktopLyricsUserBounds = null;
 let desktopLyricsProgrammaticMove = false;
 let desktopLyricsPointerCapture = false;
+let desktopLyricsDragging = false;
+let desktopLyricsExternalLeftDrag = false;
+let desktopLyricsPointerReleaseTimer = null;
+let desktopLyricsMoveTimer = null;
+let desktopLyricsPendingMove = { x: 0, y: 0 };
+let desktopLyricsMainMoveSuspended = false;
+let desktopLyricsMainMoveRestoreTimer = null;
 let desktopLyricsMouseIgnored = null;
 let desktopLyricsMousePoller = null;
 let desktopLyricsMousePollerBuffer = '';
@@ -22,7 +31,33 @@ let wallpaperState = {};
 let htmlFullscreenActive = false;
 let windowFullscreenActive = false;
 let mainWindowStateTimer = null;
+let tray = null;
+let trayPlaybackState = { title: '', artist: '', playing: false, volume: 80 };
+let closeToTrayEnabled = true;
+let appQuitting = false;
+let lxPlaybackLinked = false;
+let lxPauseBeforeQuitDone = false;
 const registeredGlobalHotkeys = new Map();
+const authorizedLocalMusicRoots = new Set();
+const mainWindowResizeStates = new Map();
+
+async function pauseLinkedLxPlayback() {
+  if (!lxPlaybackLinked) return true;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 1200);
+  try {
+    const response = await fetch('http://127.0.0.1:23330/pause', {
+      method: 'GET',
+      signal: controller.signal,
+      headers: { Accept: 'application/json, text/plain, */*' },
+    });
+    return response.ok;
+  } catch (_err) {
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 const WINDOWED_ASPECT = 16 / 9;
 const WINDOWED_SCALE = 3 / 4;
@@ -31,11 +66,31 @@ const MIN_WINDOWED_WIDTH = 960;
 const MIN_WINDOWED_HEIGHT = 540;
 const APP_NAME = 'Quchen Radio';
 const APP_USER_MODEL_ID = 'com.quchen.desktop';
+const APP_TRAY_GUID = '7e6162ca-f43f-4d0a-b5bb-8b8fcd17a865';
 const APP_ICON_ICO = path.join(__dirname, '..', 'build', 'icon.ico');
-const NETEASE_LOGIN_PARTITION = 'persist:quchen-netease-login';
-const NETEASE_LOGIN_URL = 'https://music.163.com/#/login';
-const QQ_LOGIN_PARTITION = 'persist:quchen-qqmusic-login';
-const QQ_LOGIN_URL = 'https://y.qq.com/n/ryqq/profile';
+const APP_TRAY_ICON_PNG = path.join(__dirname, '..', 'public', 'tray-icon.png');
+const LOCAL_FILE_TOKEN = crypto.randomBytes(16).toString('hex');
+const DESKTOP_SHELL_SETTINGS_FILE = 'desktop-shell-settings.json';
+const DESKTOP_UI_STATE_FILE = 'desktop-ui-state.json';
+const DESKTOP_UI_STATE_KEYS = new Set([
+  'apex-player-volume',
+  'quchen-lyric-layout-v1',
+  'quchen-playback-quality-v1',
+  'quchen-diy-player-mode-v1',
+  'quchen-playlist-panel-pinned-v1',
+  'quchen-user-capsule-auto-hide-v1',
+  'quchen-fx-fab-auto-hide-v1',
+  'quchen-controls-auto-hide-v1',
+  'quchen-free-camera-v1',
+  'quchen-local-library-folder-v1',
+  'quchen-local-library-folders-v2',
+  'quchen-hidden-wallpapers-v1',
+  'quchen-playback-session-v1',
+  'quchen-user-fx-archives-v1',
+  'quchen-hotkey-settings-v1',
+  'quchen-visual-guide-seen-v2',
+  'quchen-upload-tip-seen',
+]);
 
 const CHROMIUM_PERFORMANCE_SWITCHES = [
   ['autoplay-policy', 'no-user-gesture-required'],
@@ -55,40 +110,6 @@ for (const [name, value] of CHROMIUM_PERFORMANCE_SWITCHES) {
   else app.commandLine.appendSwitch(name, value);
 }
 const gotSingleInstanceLock = app.requestSingleInstanceLock();
-
-const QQ_LOGIN_COOKIE_PRIORITY = [
-  'uin',
-  'qqmusic_uin',
-  'wxuin',
-  'login_type',
-  'qm_keyst',
-  'qqmusic_key',
-  'p_skey',
-  'skey',
-  'psrf_qqopenid',
-  'psrf_qqunionid',
-  'psrf_qqaccess_token',
-  'psrf_qqrefresh_token',
-  'wxopenid',
-  'wxunionid',
-  'wxrefresh_token',
-  'wxskey',
-  'p_uin',
-  'ptcz',
-  'RK',
-];
-const NETEASE_LOGIN_COOKIE_PRIORITY = [
-  'MUSIC_U',
-  '__csrf',
-  'NMTID',
-  'MUSIC_A',
-  '__remember_me',
-  '_ntes_nuid',
-  '_ntes_nnid',
-  'WEVNSM',
-  'WNMCID',
-  'JSESSIONID-WYYY',
-];
 
 function findOpenPort(startPort) {
   return new Promise((resolve, reject) => {
@@ -123,6 +144,365 @@ function waitForServer(server) {
   });
 }
 
+const ENCRYPTED_AUDIO_EXTS = new Set(['.ncm', '.qmc0', '.qmc3', '.qmcflac', '.qmcogg', '.kgm', '.kgma', '.vpr', '.kwm', '.mflac', '.mgg']);
+const LOCAL_LIBRARY_EXTS = new Set(['.mp3', '.flac', '.wav', '.ogg', '.m4a', ...ENCRYPTED_AUDIO_EXTS, '.lrc', '.txt', '.jpg', '.jpeg', '.png', '.webp']);
+const LOCAL_LIBRARY_MIME = {
+  '.mp3': 'audio/mpeg',
+  '.flac': 'audio/flac',
+  '.wav': 'audio/wav',
+  '.ogg': 'audio/ogg',
+  '.m4a': 'audio/mp4',
+  '.ncm': 'application/x-encrypted-audio',
+  '.qmc0': 'application/x-encrypted-audio',
+  '.qmc3': 'application/x-encrypted-audio',
+  '.qmcflac': 'application/x-encrypted-audio',
+  '.qmcogg': 'application/x-encrypted-audio',
+  '.kgm': 'application/x-encrypted-audio',
+  '.kgma': 'application/x-encrypted-audio',
+  '.vpr': 'application/x-encrypted-audio',
+  '.kwm': 'application/x-encrypted-audio',
+  '.mflac': 'application/x-encrypted-audio',
+  '.mgg': 'application/x-encrypted-audio',
+  '.lrc': 'text/plain',
+  '.txt': 'text/plain',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.webp': 'image/webp',
+};
+
+function normalizeLocalMusicRoot(folderPath) {
+  const resolved = path.resolve(String(folderPath || ''));
+  const stat = fs.statSync(resolved);
+  if (!stat.isDirectory()) throw new Error('LOCAL_LIBRARY_NOT_DIRECTORY');
+  return resolved;
+}
+
+function rememberLocalMusicRoot(folderPath) {
+  const root = normalizeLocalMusicRoot(folderPath);
+  authorizedLocalMusicRoots.add(root);
+  return root;
+}
+
+function resolveAuthorizedLocalFile(filePath) {
+  const target = path.resolve(String(filePath || ''));
+  for (const root of authorizedLocalMusicRoots) {
+    if (target === root || target.startsWith(root + path.sep)) return target;
+  }
+  throw new Error('LOCAL_FILE_NOT_AUTHORIZED');
+}
+
+function localLibraryRelativePath(root, relPath) {
+  return path.join(path.basename(root), relPath).replace(/\\/g, '/');
+}
+
+function localFileProxyUrl(filePath) {
+  if (!mainServerPort) return pathToFileURL(filePath).href;
+  return `http://127.0.0.1:${mainServerPort}/api/local-file?token=${encodeURIComponent(LOCAL_FILE_TOKEN)}&path=${encodeURIComponent(filePath)}`;
+}
+async function validateLocalAudioFile(filePath, ext) {
+  if (ENCRYPTED_AUDIO_EXTS.has(ext)) {
+    return { playable:false, encrypted:true, code:'ENCRYPTED_AUDIO', error:'检测到平台加密音频；MR 不进行破解，请先从平台导出合法的普通音频文件' };
+  }
+  if (!['.mp3', '.flac', '.wav', '.ogg', '.m4a'].includes(ext)) return { playable:true, error:'' };
+  try {
+    const handle = await fs.promises.open(filePath, 'r');
+    const buffer = Buffer.alloc(256 * 1024);
+    let bytesRead = 0;
+    try { ({ bytesRead } = await handle.read(buffer, 0, buffer.length, 0)); } finally { await handle.close(); }
+    const data = buffer.subarray(0, bytesRead);
+    let valid = false;
+    if (ext === '.flac') valid = data.subarray(0, 4).toString('ascii') === 'fLaC';
+    else if (ext === '.wav') valid = data.subarray(0, 4).toString('ascii') === 'RIFF' && data.subarray(8, 12).toString('ascii') === 'WAVE';
+    else if (ext === '.ogg') valid = data.subarray(0, 4).toString('ascii') === 'OggS';
+    else if (ext === '.m4a') valid = data.subarray(4, 12).includes(Buffer.from('ftyp'));
+    else {
+      let start = 0;
+      if (data.subarray(0, 3).toString('ascii') === 'ID3' && data.length >= 10) {
+        start = 10 + ((data[6] & 0x7f) << 21) + ((data[7] & 0x7f) << 14) + ((data[8] & 0x7f) << 7) + (data[9] & 0x7f);
+      }
+      for (let i = Math.min(start, data.length); i + 1 < data.length; i++) {
+        if (data[i] === 0xff && (data[i + 1] & 0xe0) === 0xe0 && (data[i + 1] & 0x06) !== 0) { valid = true; break; }
+      }
+    }
+    return { playable:valid, error:valid ? '' : '音频数据损坏、加密或扩展名不正确' };
+  } catch (_error) {
+    return { playable:false, error:'文件无法读取' };
+  }
+}
+
+function findAudioSignature(data) {
+  const candidates = [];
+  const flac = data.indexOf(Buffer.from('fLaC'));
+  if (flac >= 0) candidates.push({ offset:flac, ext:'.flac' });
+  const ogg = data.indexOf(Buffer.from('OggS'));
+  if (ogg >= 0) candidates.push({ offset:ogg, ext:'.ogg' });
+  for (let i = 0; i + 12 <= data.length; i++) {
+    if (data.subarray(i, i + 4).toString('ascii') === 'RIFF' && data.subarray(i + 8, i + 12).toString('ascii') === 'WAVE') {
+      candidates.push({ offset:i, ext:'.wav' });
+      break;
+    }
+  }
+  const ftyp = data.indexOf(Buffer.from('ftyp'));
+  if (ftyp >= 4) candidates.push({ offset:ftyp - 4, ext:'.m4a' });
+  const id3 = data.indexOf(Buffer.from('ID3'));
+  if (id3 >= 0) candidates.push({ offset:id3, ext:'.mp3' });
+  for (let i = 0; i + 1 < data.length; i++) {
+    if (data[i] === 0xff && (data[i + 1] & 0xe0) === 0xe0 && (data[i + 1] & 0x06) !== 0) {
+      candidates.push({ offset:i, ext:'.mp3' });
+      break;
+    }
+  }
+  return candidates.sort((a, b) => a.offset - b.offset)[0] || null;
+}
+
+async function inspectLocalAudioForRepair(filePath) {
+  const abs = path.resolve(String(filePath || ''));
+  const ext = path.extname(abs).toLowerCase();
+  if (ENCRYPTED_AUDIO_EXTS.has(ext)) {
+    return { ok:false, code:'ENCRYPTED_AUDIO', encrypted:true, message:'检测到 NCM/QMC/KGM 等平台加密音频；MR 只识别并提示，不进行破解' };
+  }
+  const stat = await fs.promises.stat(abs);
+  const handle = await fs.promises.open(abs, 'r');
+  const buffer = Buffer.alloc(Math.min(stat.size, 1024 * 1024));
+  let bytesRead = 0;
+  try { ({ bytesRead } = await handle.read(buffer, 0, buffer.length, 0)); } finally { await handle.close(); }
+  const signature = findAudioSignature(buffer.subarray(0, bytesRead));
+  if (!signature) return { ok:false, code:'AUDIO_HEADER_INVALID', message:'未找到可识别的 MP3、FLAC、WAV、OGG 或 M4A 文件头' };
+  const repairNeeded = signature.offset > 0 || signature.ext !== ext;
+  return { ok:true, repairNeeded, offset:signature.offset, detectedExt:signature.ext, originalExt:ext };
+}
+
+function compatibleAudioCacheDir() {
+  const dir = path.join(app.getPath('userData'), 'compatible-audio');
+  fs.mkdirSync(dir, { recursive:true });
+  authorizedLocalMusicRoots.add(dir);
+  return dir;
+}
+
+async function preparedAudioEntry(filePath, suffix, ext, offset) {
+  const stat = await fs.promises.stat(filePath);
+  const key = crypto.createHash('sha1').update(path.resolve(filePath)).update(String(stat.size)).update(String(stat.mtimeMs)).update(String(offset || 0)).digest('hex');
+  const output = path.join(compatibleAudioCacheDir(), `${key}-${suffix}${ext}`);
+  if (!fs.existsSync(output)) {
+    await new Promise((resolve, reject) => {
+      const input = fs.createReadStream(filePath, { start:Math.max(0, Number(offset) || 0) });
+      const target = fs.createWriteStream(output, { flags:'wx' });
+      input.once('error', reject);
+      target.once('error', reject);
+      target.once('finish', resolve);
+      input.pipe(target);
+    }).catch(async error => {
+      if (error && error.code === 'EEXIST') return;
+      try { await fs.promises.unlink(output); } catch (_e) {}
+      throw error;
+    });
+  }
+  return localMusicEntryFromPath(output);
+}
+
+async function prepareLocalAudioForPlayback(filePath) {
+  try {
+    const inspection = await inspectLocalAudioForRepair(filePath);
+    if (!inspection.ok) return inspection;
+    if (!inspection.repairNeeded) return { ok:true, inspection, file:null };
+    const file = await preparedAudioEntry(filePath, 'header-fixed', inspection.detectedExt, inspection.offset);
+    return { ok:true, inspection, file, reused:!!file && fs.existsSync(file.fullPath) };
+  } catch (error) {
+    return { ok:false, code:'LOCAL_AUDIO_PREPARE_FAILED', message:error.message || '本地音频检查失败' };
+  }
+}
+
+function findFfmpegExecutable() {
+  const candidates = [
+    path.join(process.resourcesPath || '', 'ffmpeg.exe'),
+    path.join(process.resourcesPath || '', 'bin', 'ffmpeg.exe'),
+    path.join(path.dirname(process.execPath), 'ffmpeg.exe'),
+  ];
+  for (const candidate of candidates) if (candidate && fs.existsSync(candidate)) return candidate;
+  try {
+    const found = require('child_process').execFileSync('where.exe', ['ffmpeg.exe'], { encoding:'utf8', windowsHide:true, timeout:2500 })
+      .split(/\r?\n/).map(value => value.trim()).find(Boolean);
+    return found || '';
+  } catch (_error) {
+    return '';
+  }
+}
+
+async function transcodeLocalAudioForPlayback(filePath) {
+  const inspection = await inspectLocalAudioForRepair(filePath).catch(error => ({ ok:false, code:'LOCAL_AUDIO_INSPECT_FAILED', message:error.message }));
+  if (inspection.encrypted || inspection.code === 'ENCRYPTED_AUDIO') return inspection;
+  const ffmpeg = findFfmpegExecutable();
+  if (!ffmpeg) return { ok:false, code:'FFMPEG_NOT_FOUND', message:'未找到 ffmpeg.exe，无法创建兼容 WAV 副本' };
+  const stat = await fs.promises.stat(filePath);
+  const key = crypto.createHash('sha1').update(path.resolve(filePath)).update(String(stat.size)).update(String(stat.mtimeMs)).digest('hex');
+  const output = path.join(compatibleAudioCacheDir(), `${key}-decoded.wav`);
+  if (!fs.existsSync(output)) {
+    await new Promise((resolve, reject) => {
+      execFile(ffmpeg, ['-hide_banner', '-loglevel', 'error', '-y', '-i', filePath, '-vn', '-acodec', 'pcm_s16le', output], {
+        windowsHide:true,
+        timeout:120000,
+        maxBuffer:2 * 1024 * 1024,
+      }, error => error ? reject(error) : resolve());
+    }).catch(async error => {
+      try { await fs.promises.unlink(output); } catch (_e) {}
+      throw error;
+    });
+  }
+  return { ok:true, file:await localMusicEntryFromPath(output), reused:fs.existsSync(output) };
+}
+
+async function localMusicEntryFromPath(filePath, relativeRoot) {
+  const abs = path.resolve(String(filePath || ''));
+  const ext = path.extname(abs).toLowerCase();
+  if (!LOCAL_LIBRARY_EXTS.has(ext)) return null;
+  let stat;
+  try {
+    stat = await fs.promises.stat(abs);
+  } catch (_e) {
+    return null;
+  }
+  if (!stat.isFile()) return null;
+  const validation = await validateLocalAudioFile(abs, ext);
+  const root = relativeRoot ? path.resolve(relativeRoot) : path.dirname(abs);
+  rememberLocalMusicRoot(root);
+  const rel = path.relative(root, abs) || path.basename(abs);
+  const webkitRelativePath = localLibraryRelativePath(root, rel);
+  return {
+    fullPath: abs,
+    filePath: abs,
+    url: localFileProxyUrl(abs),
+    name: path.basename(abs),
+    relativePath: webkitRelativePath,
+    webkitRelativePath,
+    size: stat.size,
+    lastModified: Math.round(stat.mtimeMs),
+    type: LOCAL_LIBRARY_MIME[ext] || '',
+    playable: validation.playable,
+    validationError: validation.error,
+  };
+}
+
+async function scanLocalMusicFolder(folderPath) {
+  const root = rememberLocalMusicRoot(folderPath);
+  const files = [];
+  const stack = [''];
+  let visited = 0;
+  while (stack.length) {
+    const relDir = stack.pop();
+    const absDir = path.join(root, relDir);
+    let entries = [];
+    try {
+      entries = await fs.promises.readdir(absDir, { withFileTypes: true });
+    } catch (_e) {
+      continue;
+    }
+    entries.sort((a, b) => a.name.localeCompare(b.name, 'zh-Hans-CN', { numeric: true, sensitivity: 'base' }));
+    for (const entry of entries) {
+      visited += 1;
+      if (visited > 60000) break;
+      const rel = path.join(relDir, entry.name);
+      const abs = path.join(root, rel);
+      if (entry.isDirectory()) {
+        stack.push(rel);
+        continue;
+      }
+      if (!entry.isFile()) continue;
+      const ext = path.extname(entry.name).toLowerCase();
+      if (!LOCAL_LIBRARY_EXTS.has(ext)) continue;
+      let stat = null;
+      try {
+        stat = await fs.promises.stat(abs);
+      } catch (_e) {
+        continue;
+      }
+      const webkitRelativePath = localLibraryRelativePath(root, rel);
+      const validation = await validateLocalAudioFile(abs, ext);
+      files.push({
+        fullPath: abs,
+        filePath: abs,
+        url: localFileProxyUrl(abs),
+        name: entry.name,
+        relativePath: webkitRelativePath,
+        webkitRelativePath,
+        size: stat.size,
+        lastModified: Math.round(stat.mtimeMs),
+        type: LOCAL_LIBRARY_MIME[ext] || '',
+        playable: validation.playable,
+        validationError: validation.error,
+      });
+    }
+    if (visited > 60000) break;
+  }
+  return { ok: true, folderPath: root, files, truncated: visited > 60000 };
+}
+
+async function refreshLocalMusicFileEntries(folderPath, files) {
+  const root = rememberLocalMusicRoot(folderPath);
+  const list = Array.isArray(files) ? files : [];
+  const out = [];
+  for (const file of list) {
+    if (!file) continue;
+    const rawPath = file.fullPath || file.filePath || file.path || file.localFilePathAbsolute || '';
+    if (!rawPath) continue;
+    const abs = path.resolve(String(rawPath));
+    if (abs !== root && !abs.startsWith(root + path.sep)) continue;
+    const ext = path.extname(file.name || abs).toLowerCase();
+    if (!LOCAL_LIBRARY_EXTS.has(ext)) continue;
+    let stat = null;
+    try {
+      stat = await fs.promises.stat(abs);
+    } catch (_e) {
+      continue;
+    }
+    if (!stat.isFile()) continue;
+    out.push({
+      ...file,
+      fullPath: abs,
+      filePath: abs,
+      url: localFileProxyUrl(abs),
+      name: file.name || path.basename(abs),
+      relativePath: file.relativePath || file.webkitRelativePath || localLibraryRelativePath(root, path.relative(root, abs)),
+      webkitRelativePath: file.webkitRelativePath || file.relativePath || localLibraryRelativePath(root, path.relative(root, abs)),
+      size: stat.size,
+      lastModified: Math.round(stat.mtimeMs),
+      type: file.type || LOCAL_LIBRARY_MIME[ext] || '',
+    });
+  }
+  return { ok: true, folderPath: root, files: out, snapshot: true };
+}
+
+async function readAuthorizedLocalFileRange(filePath, start, end) {
+  const target = resolveAuthorizedLocalFile(filePath);
+  const stat = await fs.promises.stat(target);
+  if (!stat.isFile()) throw new Error('LOCAL_FILE_NOT_FOUND');
+  const fileSize = stat.size;
+  const from = Math.max(0, Math.min(fileSize, Number(start) || 0));
+  const requestedEnd = end == null ? fileSize : Number(end);
+  const to = Math.max(from, Math.min(fileSize, Number.isFinite(requestedEnd) ? requestedEnd : fileSize));
+  const maxBytes = 64 * 1024 * 1024;
+  const length = Math.min(maxBytes, to - from);
+  const handle = await fs.promises.open(target, 'r');
+  try {
+    const buffer = Buffer.alloc(length);
+    const result = await handle.read(buffer, 0, length, from);
+    return { ok: true, size: fileSize, start: from, end: from + result.bytesRead, base64: buffer.subarray(0, result.bytesRead).toString('base64') };
+  } finally {
+    await handle.close();
+  }
+}
+
+async function readAuthorizedLocalFileDataUrl(filePath) {
+  const target = resolveAuthorizedLocalFile(filePath);
+  const ext = path.extname(target).toLowerCase();
+  const mime = LOCAL_LIBRARY_MIME[ext] || 'application/octet-stream';
+  if (!mime.startsWith('image/')) throw new Error('LOCAL_FILE_NOT_IMAGE');
+  const stat = await fs.promises.stat(target);
+  if (!stat.isFile() || stat.size > 32 * 1024 * 1024) throw new Error('LOCAL_IMAGE_TOO_LARGE');
+  const buffer = await fs.promises.readFile(target);
+  return { ok: true, dataUrl: `data:${mime};base64,${buffer.toString('base64')}` };
+}
+
 function sendWindowState(win) {
   if (!win || win.isDestroyed()) return;
   win.webContents.send('desktop-window-state', getWindowState(win));
@@ -133,15 +513,15 @@ function sendGlobalHotkeyAction(action) {
   mainWindow.webContents.send('quchen-global-hotkey', { action });
 }
 
-function unregisterQuchenGlobalHotkeys() {
+function unregisterQuchenRadioGlobalHotkeys() {
   for (const accelerator of registeredGlobalHotkeys.keys()) {
     try { globalShortcut.unregister(accelerator); } catch (e) {}
   }
   registeredGlobalHotkeys.clear();
 }
 
-function configureQuchenGlobalHotkeys(bindings = []) {
-  unregisterQuchenGlobalHotkeys();
+function configureQuchenRadioGlobalHotkeys(bindings = []) {
+  unregisterQuchenRadioGlobalHotkeys();
   const results = [];
   const seen = new Set();
   for (const item of Array.isArray(bindings) ? bindings : []) {
@@ -261,11 +641,218 @@ function getSenderWindow(event) {
 
 function focusMainWindow() {
   if (!mainWindow || mainWindow.isDestroyed()) return false;
+  // Windows 隐藏到托盘时会同时从任务栏移除，恢复时必须显式加回来。
+  // 托盘的 click 事件在部分 Windows 隐藏图标面板中可能重复触发，
+  // 因此恢复操作必须保持幂等：无论触发一次还是多次，都只显示和置前窗口。
+  mainWindow.setSkipTaskbar(false);
   if (mainWindow.isMinimized()) mainWindow.restore();
   if (!mainWindow.isVisible()) mainWindow.show();
+  if (typeof mainWindow.moveTop === 'function') mainWindow.moveTop();
   mainWindow.focus();
   sendWindowState(mainWindow);
   return true;
+}
+
+function hideMainWindowToTray({ pauseLinked = false } = {}) {
+  if (!mainWindow || mainWindow.isDestroyed()) return false;
+  if (pauseLinked) pauseLinkedLxPlayback();
+  mainWindow.setSkipTaskbar(true);
+  mainWindow.hide();
+  sendWindowState(mainWindow);
+  return true;
+}
+
+function toggleMainWindowFromTray() {
+  // 左键托盘图标只恢复窗口，不再执行显示/隐藏切换。
+  // 隐藏仍由关闭按钮或托盘右键菜单完成，避免重复 click 导致刚显示又隐藏。
+  return focusMainWindow();
+}
+
+/**
+ * 读取桌面壳设置文件。托盘关闭策略需要早于前端加载生效，所以放在主进程持久化。
+ * @returns {{closeToTray?: boolean}} 已保存的桌面壳设置。
+ */
+function readDesktopShellSettings() {
+  try {
+    const file = path.join(app.getPath('userData'), DESKTOP_SHELL_SETTINGS_FILE);
+    if (!fs.existsSync(file)) return {};
+    return JSON.parse(fs.readFileSync(file, 'utf8')) || {};
+  } catch (_e) {
+    return {};
+  }
+}
+
+/**
+ * 写入桌面壳设置文件。该文件只保存主进程必须提前知道的窗口行为。
+ * @param {{closeToTray?: boolean}} patch 要覆盖的设置字段。
+ * @returns {{closeToTray?: boolean}} 写入后的完整设置。
+ */
+function writeDesktopShellSettings(patch) {
+  const file = path.join(app.getPath('userData'), DESKTOP_SHELL_SETTINGS_FILE);
+  const next = { ...readDesktopShellSettings(), ...(patch || {}) };
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, JSON.stringify(next, null, 2), 'utf8');
+  return next;
+}
+
+function desktopUiStatePath() {
+  return path.join(app.getPath('userData'), DESKTOP_UI_STATE_FILE);
+}
+
+function readDesktopUiState() {
+  try {
+    const file = desktopUiStatePath();
+    if (!fs.existsSync(file)) return { schema: 1, values: {}, updatedAt: 0 };
+    const data = JSON.parse(fs.readFileSync(file, 'utf8')) || {};
+    return {
+      schema: 1,
+      values: data.values && typeof data.values === 'object' ? data.values : {},
+      updatedAt: Number(data.updatedAt) || 0,
+    };
+  } catch (_e) {
+    return { schema: 1, values: {}, updatedAt: 0 };
+  }
+}
+
+function writeDesktopUiStatePatch(patch) {
+  const current = readDesktopUiState();
+  const values = { ...(current.values || {}) };
+  Object.entries(patch || {}).forEach(([key, value]) => {
+    if (!DESKTOP_UI_STATE_KEYS.has(key)) return;
+    if (value == null) {
+      delete values[key];
+      return;
+    }
+    const text = String(value);
+    if (text.length > 2 * 1024 * 1024) return;
+    values[key] = text;
+  });
+  const next = { schema: 1, updatedAt: Date.now(), values };
+  const file = desktopUiStatePath();
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, JSON.stringify(next, null, 2), 'utf8');
+  return next;
+}
+
+/**
+ * 应用已保存的桌面壳设置，确保关闭按钮行为在窗口创建前就确定。
+ * @returns {void}
+ */
+function applySavedDesktopShellSettings() {
+  const saved = readDesktopShellSettings();
+  if (typeof saved.closeToTray === 'boolean') closeToTrayEnabled = saved.closeToTray;
+}
+
+/**
+ * 读取 Windows 开机启动状态；开发环境和正式包都走 Electron 登录项接口。
+ * @returns {boolean} 当前账号登录后是否自动启动 Quchen Radio。
+ */
+function isStartupEnabled() {
+  if (process.platform !== 'win32') return false;
+  try {
+    return !!app.getLoginItemSettings().openAtLogin;
+  } catch (_e) {
+    return false;
+  }
+}
+
+/**
+ * 设置 Windows 开机启动。失败时直接抛错，由 IPC 返回明确错误。
+ * @param {boolean} enabled 是否开启开机启动。
+ * @returns {{ok:boolean, enabled:boolean}} 设置后的真实状态。
+ */
+function setStartupEnabled(enabled) {
+  if (process.platform !== 'win32') return { ok: false, enabled: false, unsupported: true };
+  app.setLoginItemSettings({
+    openAtLogin: !!enabled,
+    path: process.execPath,
+    args: [],
+  });
+  return { ok: true, enabled: isStartupEnabled() };
+}
+
+/**
+ * 根据当前状态重建托盘菜单，确保菜单勾选态和真实设置一致。
+ * @returns {void}
+ */
+function refreshTrayMenu() {
+  if (!tray) return;
+  const songLabel = trayPlaybackState.title
+    ? `${trayPlaybackState.title}${trayPlaybackState.artist ? ` - ${trayPlaybackState.artist}` : ''}`
+    : '暂无正在播放的歌曲';
+  const sendTrayCommand = (command, value) => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('quchen-tray-command', { command, value });
+    }
+  };
+  tray.setContextMenu(Menu.buildFromTemplate([
+    { label: songLabel.slice(0, 80), enabled: false },
+    { type: 'separator' },
+    { label: trayPlaybackState.playing ? '暂停' : '播放', click: () => sendTrayCommand('toggle-play') },
+    { label: '上一曲', click: () => sendTrayCommand('previous') },
+    { label: '下一曲', click: () => sendTrayCommand('next') },
+    {
+      label: `音量 ${Math.max(0, Math.min(100, Number(trayPlaybackState.volume) || 0))}%`,
+      submenu: [
+        { label: '音量 +10%', click: () => sendTrayCommand('volume', 10) },
+        { label: '音量 -10%', click: () => sendTrayCommand('volume', -10) },
+        { label: '静音 / 恢复', click: () => sendTrayCommand('mute') },
+      ],
+    },
+    { type: 'separator' },
+    { label: '显示 Quchen Radio', click: focusMainWindow },
+    { label: '隐藏到托盘', click: hideMainWindowToTray },
+    {
+      label: '关闭按钮隐藏到托盘',
+      type: 'checkbox',
+      checked: closeToTrayEnabled,
+      click: (item) => {
+        closeToTrayEnabled = !!item.checked;
+        writeDesktopShellSettings({ closeToTray: closeToTrayEnabled });
+        refreshTrayMenu();
+      },
+    },
+    {
+      label: '开机自动启动',
+      type: 'checkbox',
+      checked: isStartupEnabled(),
+      click: (item) => {
+        const result = setStartupEnabled(item.checked);
+        if (!result.ok) item.checked = false;
+        refreshTrayMenu();
+      },
+    },
+    { type: 'separator' },
+    {
+      label: '退出 Quchen Radio',
+      click: () => {
+        appQuitting = true;
+        app.quit();
+      },
+    },
+  ]));
+}
+
+/**
+ * 创建系统托盘入口。托盘用于恢复窗口、切换关闭到托盘和开机启动。
+ * @returns {void}
+ */
+function createTray() {
+  if (tray || process.platform !== 'win32') return;
+  const iconPath = fs.existsSync(APP_ICON_ICO)
+    ? APP_ICON_ICO
+    : (fs.existsSync(APP_TRAY_ICON_PNG) ? APP_TRAY_ICON_PNG : process.execPath);
+  let icon = nativeImage.createFromPath(iconPath);
+  if (icon.isEmpty() && iconPath !== process.execPath) icon = nativeImage.createFromPath(process.execPath);
+  if (!icon.isEmpty()) icon = icon.resize({ width: 16, height: 16, quality: 'best' });
+  tray = new Tray(icon.isEmpty() ? process.execPath : icon, APP_TRAY_GUID);
+  tray.setToolTip(`${APP_NAME}（单击显示窗口）`);
+  tray.on('click', focusMainWindow);
+  tray.on('double-click', focusMainWindow);
+  tray.on('right-click', () => {
+    if (tray) tray.popUpContextMenu();
+  });
+  refreshTrayMenu();
 }
 
 function getUpdateDownloadDir() {
@@ -309,311 +896,6 @@ function ensureDesktopShortcut() {
     console.warn('Desktop shortcut creation skipped:', e.message);
     return { ok: false, error: e.message || 'DESKTOP_SHORTCUT_FAILED' };
   }
-}
-
-function parseCookieHeader(cookieText) {
-  const out = {};
-  String(cookieText || '').split(';').forEach((part) => {
-    const raw = String(part || '').trim();
-    if (!raw) return;
-    const idx = raw.indexOf('=');
-    if (idx <= 0) return;
-    out[raw.slice(0, idx).trim()] = raw.slice(idx + 1).trim();
-  });
-  return out;
-}
-
-function qqCookieHasLogin(cookieText) {
-  const obj = parseCookieHeader(cookieText);
-  const rawUin = Number(obj.login_type) === 2
-    ? (obj.wxuin || obj.uin || obj.p_uin || '')
-    : (obj.uin || obj.qqmusic_uin || obj.wxuin || obj.p_uin || '');
-  const uin = String(rawUin).replace(/\D/g, '');
-  const musicKey = obj.qm_keyst || obj.qqmusic_key || obj.music_key || obj.p_skey || obj.skey ||
-    obj.psrf_qqaccess_token || obj.psrf_qqrefresh_token || obj.wxrefresh_token || obj.wxskey || '';
-  return !!(uin && musicKey);
-}
-
-function qqCookieHasPlaybackLogin(cookieText) {
-  const obj = parseCookieHeader(cookieText);
-  const rawUin = Number(obj.login_type) === 2
-    ? (obj.wxuin || obj.uin || obj.p_uin || '')
-    : (obj.uin || obj.qqmusic_uin || obj.wxuin || obj.p_uin || '');
-  const uin = String(rawUin).replace(/\D/g, '');
-  const playbackKey = obj.qm_keyst || obj.qqmusic_key || obj.music_key || obj.wxskey || '';
-  return !!(uin && playbackKey);
-}
-
-function neteaseCookieHasLogin(cookieText) {
-  const obj = parseCookieHeader(cookieText);
-  return !!obj.MUSIC_U;
-}
-
-function isQQCookieDomain(domain) {
-  const normalized = String(domain || '').replace(/^\./, '').toLowerCase();
-  return normalized === 'qq.com' || normalized.endsWith('.qq.com') || normalized.endsWith('qqmusic.qq.com');
-}
-
-function isNeteaseCookieDomain(domain) {
-  const normalized = String(domain || '').replace(/^\./, '').toLowerCase();
-  return normalized === '163.com' || normalized.endsWith('.163.com') ||
-    normalized === 'music.163.com' || normalized.endsWith('.music.163.com') ||
-    normalized === 'netease.com' || normalized.endsWith('.netease.com');
-}
-
-function buildCookieHeaderFor(cookies, isAllowedDomain, priority) {
-  const picked = new Map();
-  (cookies || []).forEach((cookie) => {
-    if (!cookie || !cookie.name || !isAllowedDomain(cookie.domain)) return;
-    picked.set(cookie.name, cookie.value || '');
-  });
-
-  const ordered = [];
-  (priority || []).forEach((name) => {
-    if (picked.has(name)) {
-      ordered.push([name, picked.get(name)]);
-      picked.delete(name);
-    }
-  });
-  picked.forEach((value, name) => ordered.push([name, value]));
-
-  return ordered
-    .filter(([name, value]) => name && value != null && String(value) !== '')
-    .map(([name, value]) => `${name}=${value}`)
-    .join('; ');
-}
-
-function buildCookieHeader(cookies) {
-  return buildCookieHeaderFor(cookies, isQQCookieDomain, QQ_LOGIN_COOKIE_PRIORITY);
-}
-
-async function readQQLoginCookieHeader(cookieSession) {
-  const cookies = await cookieSession.cookies.get({});
-  return buildCookieHeader(cookies);
-}
-
-async function readNeteaseLoginCookieHeader(cookieSession) {
-  const cookies = await cookieSession.cookies.get({});
-  return buildCookieHeaderFor(cookies, isNeteaseCookieDomain, NETEASE_LOGIN_COOKIE_PRIORITY);
-}
-
-async function openNeteaseMusicLoginWindow(owner) {
-  const cookieSession = session.fromPartition(NETEASE_LOGIN_PARTITION);
-  const initialCookie = await readNeteaseLoginCookieHeader(cookieSession);
-  if (neteaseCookieHasLogin(initialCookie)) return { ok: true, cookie: initialCookie, reused: true };
-
-  return new Promise((resolve) => {
-    let settled = false;
-    let pollTimer = null;
-
-    const loginWindow = new BrowserWindow({
-      width: 940,
-      height: 760,
-      minWidth: 780,
-      minHeight: 580,
-      parent: owner && !owner.isDestroyed() ? owner : undefined,
-      modal: false,
-      show: false,
-      autoHideMenuBar: true,
-      title: '网易云音乐登录',
-      backgroundColor: '#111111',
-      icon: APP_ICON_ICO,
-      webPreferences: {
-        partition: NETEASE_LOGIN_PARTITION,
-        contextIsolation: true,
-        nodeIntegration: false,
-        sandbox: true,
-      },
-    });
-
-    const finish = async (result) => {
-      if (settled) return;
-      settled = true;
-      if (pollTimer) clearInterval(pollTimer);
-      if (loginWindow && !loginWindow.isDestroyed()) {
-        loginWindow.close();
-      }
-      resolve(result);
-    };
-
-    const checkCookies = async () => {
-      try {
-        const cookie = await readNeteaseLoginCookieHeader(cookieSession);
-        if (neteaseCookieHasLogin(cookie)) {
-          finish({ ok: true, cookie });
-        }
-      } catch (e) {
-        console.warn('Netease login cookie check failed:', e.message);
-      }
-    };
-
-    loginWindow.webContents.setWindowOpenHandler(({ url }) => {
-      if (/^https?:\/\/([^/]+\.)?(163|music\.163|netease)\.com/i.test(url)) {
-        loginWindow.loadURL(url).catch((e) => console.warn('Netease login popup navigation failed:', e.message));
-      } else if (/^https?:\/\//i.test(url)) {
-        shell.openExternal(url).catch(() => {});
-      }
-      return { action: 'deny' };
-    });
-
-    loginWindow.webContents.on('did-finish-load', () => {
-      checkCookies();
-      loginWindow.webContents.executeJavaScript(`
-        setTimeout(() => {
-          const docs = [document];
-          document.querySelectorAll('iframe').forEach((frame) => {
-            try { if (frame.contentDocument) docs.push(frame.contentDocument); } catch (_) {}
-          });
-          for (const doc of docs) {
-            const nodes = Array.from(doc.querySelectorAll('a, button, span, div'));
-            const loginNode = nodes.find((node) => {
-              const text = (node.textContent || '').trim();
-              if (!/登录|立即登录/.test(text)) return false;
-              const rect = node.getBoundingClientRect();
-              return rect.width > 0 && rect.height > 0;
-            });
-            if (loginNode) { loginNode.click(); return true; }
-          }
-          return false;
-        }, 900);
-      `, true).catch(() => {});
-    });
-
-    loginWindow.on('ready-to-show', () => loginWindow.show());
-    loginWindow.on('closed', async () => {
-      if (settled) return;
-      if (pollTimer) clearInterval(pollTimer);
-      try {
-        const cookie = await readNeteaseLoginCookieHeader(cookieSession);
-        resolve(neteaseCookieHasLogin(cookie)
-          ? { ok: true, cookie, partial: !qqCookieHasPlaybackLogin(cookie) }
-          : { ok: false, cancelled: true, message: '网易云登录窗口已关闭' });
-      } catch (e) {
-        resolve({ ok: false, error: e.message || '网易云登录窗口已关闭' });
-      }
-    });
-
-    pollTimer = setInterval(checkCookies, 1200);
-    loginWindow.loadURL(NETEASE_LOGIN_URL).catch((e) => finish({ ok: false, error: e.message }));
-  });
-}
-
-async function openQQMusicLoginWindow(owner) {
-  const cookieSession = session.fromPartition(QQ_LOGIN_PARTITION);
-  const initialCookie = await readQQLoginCookieHeader(cookieSession);
-  if (qqCookieHasPlaybackLogin(initialCookie)) return { ok: true, cookie: initialCookie, reused: true };
-
-  return new Promise((resolve) => {
-    let settled = false;
-    let pollTimer = null;
-    let warmupStarted = false;
-
-    const loginWindow = new BrowserWindow({
-      width: 900,
-      height: 720,
-      minWidth: 760,
-      minHeight: 560,
-      parent: owner && !owner.isDestroyed() ? owner : undefined,
-      modal: false,
-      show: false,
-      autoHideMenuBar: true,
-      title: 'QQ 音乐登录',
-      backgroundColor: '#111111',
-      icon: APP_ICON_ICO,
-      webPreferences: {
-        partition: QQ_LOGIN_PARTITION,
-        contextIsolation: true,
-        nodeIntegration: false,
-        sandbox: true,
-      },
-    });
-
-    const finish = async (result) => {
-      if (settled) return;
-      settled = true;
-      if (pollTimer) clearInterval(pollTimer);
-      if (loginWindow && !loginWindow.isDestroyed()) {
-        loginWindow.close();
-      }
-      resolve(result);
-    };
-
-    const checkCookies = async () => {
-      try {
-        const cookie = await readQQLoginCookieHeader(cookieSession);
-        if (qqCookieHasPlaybackLogin(cookie)) {
-          finish({ ok: true, cookie });
-        } else if (qqCookieHasLogin(cookie) && !warmupStarted) {
-          warmupStarted = true;
-          setTimeout(() => {
-            if (!settled && loginWindow && !loginWindow.isDestroyed()) {
-              loginWindow.loadURL('https://y.qq.com/n/ryqq/player').catch((e) => console.warn('QQ login warmup navigation failed:', e.message));
-            }
-          }, 900);
-        }
-      } catch (e) {
-        console.warn('QQ login cookie check failed:', e.message);
-      }
-    };
-
-    loginWindow.webContents.setWindowOpenHandler(({ url }) => {
-      if (/^https?:\/\//i.test(url)) {
-        loginWindow.loadURL(url).catch((e) => console.warn('QQ login popup navigation failed:', e.message));
-      } else {
-        shell.openExternal(url).catch(() => {});
-      }
-      return { action: 'deny' };
-    });
-
-    loginWindow.webContents.on('did-finish-load', () => {
-      checkCookies();
-      loginWindow.webContents.executeJavaScript(`
-        setTimeout(() => {
-          const nodes = Array.from(document.querySelectorAll('a, button, span, div'));
-          const loginNode = nodes.find((node) => {
-            const text = (node.textContent || '').trim();
-            if (!/登录|登陆/.test(text)) return false;
-            const rect = node.getBoundingClientRect();
-            return rect.width > 0 && rect.height > 0;
-          });
-          if (loginNode) loginNode.click();
-        }, 700);
-      `, true).catch(() => {});
-    });
-
-    loginWindow.on('ready-to-show', () => loginWindow.show());
-    loginWindow.on('closed', async () => {
-      if (settled) return;
-      if (pollTimer) clearInterval(pollTimer);
-      try {
-        const cookie = await readQQLoginCookieHeader(cookieSession);
-        resolve(qqCookieHasLogin(cookie)
-          ? { ok: true, cookie }
-          : { ok: false, cancelled: true, message: 'QQ 登录窗口已关闭' });
-      } catch (e) {
-        resolve({ ok: false, error: e.message || 'QQ 登录窗口已关闭' });
-      }
-    });
-
-    pollTimer = setInterval(checkCookies, 1200);
-    loginWindow.loadURL(QQ_LOGIN_URL).catch((e) => finish({ ok: false, error: e.message }));
-  });
-}
-
-async function clearQQMusicLoginSession() {
-  const cookieSession = session.fromPartition(QQ_LOGIN_PARTITION);
-  await cookieSession.clearStorageData({
-    storages: ['cookies', 'localstorage', 'indexdb', 'cachestorage'],
-  });
-  return { ok: true };
-}
-
-async function clearNeteaseMusicLoginSession() {
-  const cookieSession = session.fromPartition(NETEASE_LOGIN_PARTITION);
-  await cookieSession.clearStorageData({
-    storages: ['cookies', 'localstorage', 'indexdb', 'cachestorage'],
-  });
-  return { ok: true };
 }
 
 function getWindowedBounds(win) {
@@ -768,10 +1050,59 @@ function rememberDesktopLyricsBounds() {
 function applyDesktopLyricsMouseBehavior() {
   if (!desktopLyricsWindow || desktopLyricsWindow.isDestroyed()) return;
   const locked = desktopLyricsState.clickThrough !== false;
-  const shouldIgnore = locked || !desktopLyricsPointerCapture;
+  const shouldIgnore = desktopLyricsExternalLeftDrag || locked || (!desktopLyricsPointerCapture && !desktopLyricsDragging);
   if (desktopLyricsMouseIgnored === shouldIgnore) return;
   desktopLyricsMouseIgnored = shouldIgnore;
   desktopLyricsWindow.setIgnoreMouseEvents(shouldIgnore, { forward: true });
+}
+
+function setDesktopLyricsPointerCapture(active) {
+  if (desktopLyricsPointerReleaseTimer) {
+    clearTimeout(desktopLyricsPointerReleaseTimer);
+    desktopLyricsPointerReleaseTimer = null;
+  }
+  if (active || desktopLyricsDragging) {
+    desktopLyricsPointerCapture = true;
+    applyDesktopLyricsMouseBehavior();
+    return;
+  }
+  // 鼠标在透明窗口边缘移动时会交替触发 enter/leave；短暂滞回可避免穿透状态频闪。
+  desktopLyricsPointerReleaseTimer = setTimeout(() => {
+    desktopLyricsPointerReleaseTimer = null;
+    if (desktopLyricsDragging) return;
+    desktopLyricsPointerCapture = false;
+    applyDesktopLyricsMouseBehavior();
+  }, 140);
+}
+
+function flushDesktopLyricsMove() {
+  desktopLyricsMoveTimer = null;
+  if (!desktopLyricsWindow || desktopLyricsWindow.isDestroyed()) {
+    desktopLyricsPendingMove = { x: 0, y: 0 };
+    return;
+  }
+  const dx = desktopLyricsPendingMove.x;
+  const dy = desktopLyricsPendingMove.y;
+  desktopLyricsPendingMove = { x: 0, y: 0 };
+  if (!dx && !dy) return;
+  const bounds = desktopLyricsWindow.getBounds();
+  const next = constrainDesktopLyricsBounds({
+    ...bounds,
+    x: Math.round(bounds.x + dx),
+    y: Math.round(bounds.y + dy),
+  });
+  desktopLyricsProgrammaticMove = true;
+  desktopLyricsWindow.setPosition(next.x, next.y, false);
+  desktopLyricsUserBounds = desktopLyricsWindow.getBounds();
+  setTimeout(() => {
+    desktopLyricsProgrammaticMove = false;
+  }, 48);
+}
+
+function queueDesktopLyricsMove(dx, dy) {
+  desktopLyricsPendingMove.x += clampNumber(dx, -160, 160, 0);
+  desktopLyricsPendingMove.y += clampNumber(dy, -160, 160, 0);
+  if (!desktopLyricsMoveTimer) desktopLyricsMoveTimer = setTimeout(flushDesktopLyricsMove, 16);
 }
 
 function desktopLyricsHotBoundsOnScreen() {
@@ -810,6 +1141,34 @@ function handleDesktopLyricsGlobalMiddleClick() {
   broadcastDesktopLyricsLockState();
 }
 
+function handleDesktopLyricsGlobalLeftButton(down) {
+  if (!desktopLyricsWindow || desktopLyricsWindow.isDestroyed() || !desktopLyricsState.enabled) {
+    desktopLyricsExternalLeftDrag = false;
+    return;
+  }
+  if (down) {
+    const point = screen.getCursorScreenPoint();
+    // 若按下瞬间歌词窗口正在穿透，事件必然属于下面的其他窗口；
+    // 即便坐标恰好落在歌词热区，也必须在松键前持续穿透。
+    desktopLyricsExternalLeftDrag = desktopLyricsMouseIgnored === true
+      || !pointInBounds(point, desktopLyricsHotBoundsOnScreen());
+    if (desktopLyricsExternalLeftDrag && desktopLyricsWindow.isVisible()) {
+      // Windows DWM may flicker when a transparent GPU overlay overlaps a
+      // moving Electron window. Remove the overlay from composition for the
+      // duration of the external drag, then restore it once.
+      desktopLyricsWindow.hide();
+    }
+  } else {
+    const shouldRestore = desktopLyricsExternalLeftDrag;
+    desktopLyricsExternalLeftDrag = false;
+    if (shouldRestore && !desktopLyricsMainMoveSuspended && desktopLyricsState.enabled && !desktopLyricsWindow.isDestroyed()) {
+      desktopLyricsWindow.showInactive();
+      sendDesktopLyricsState();
+    }
+  }
+  applyDesktopLyricsMouseBehavior();
+}
+
 function startDesktopLyricsMousePoller() {
   if (process.platform !== 'win32' || desktopLyricsMousePoller) return;
   const script = `
@@ -817,18 +1176,29 @@ $ErrorActionPreference = "SilentlyContinue"
 Add-Type @"
 using System;
 using System.Runtime.InteropServices;
-public class QuchenMousePoll {
+public class QuchenRadioMousePoll {
   [DllImport("user32.dll")] public static extern short GetAsyncKeyState(int vKey);
 }
 "@
 $prev = $false
+$leftPrev = $false
 while ($true) {
-  $down = (([QuchenMousePoll]::GetAsyncKeyState(4) -band 0x8000) -ne 0)
+  $down = (([QuchenRadioMousePoll]::GetAsyncKeyState(4) -band 0x8000) -ne 0)
+  $leftDown = (([QuchenRadioMousePoll]::GetAsyncKeyState(1) -band 0x8000) -ne 0)
   if ($down -and -not $prev) {
     [Console]::Out.WriteLine("MMB")
     [Console]::Out.Flush()
   }
+  if ($leftDown -and -not $leftPrev) {
+    [Console]::Out.WriteLine("LMB_DOWN")
+    [Console]::Out.Flush()
+  }
+  if (-not $leftDown -and $leftPrev) {
+    [Console]::Out.WriteLine("LMB_UP")
+    [Console]::Out.Flush()
+  }
   $prev = $down
+  $leftPrev = $leftDown
   Start-Sleep -Milliseconds 24
 }
 `;
@@ -843,6 +1213,8 @@ while ($true) {
       desktopLyricsMousePollerBuffer = lines.pop() || '';
       lines.forEach((line) => {
         if (line.trim() === 'MMB') handleDesktopLyricsGlobalMiddleClick();
+        else if (line.trim() === 'LMB_DOWN') handleDesktopLyricsGlobalLeftButton(true);
+        else if (line.trim() === 'LMB_UP') handleDesktopLyricsGlobalLeftButton(false);
       });
     });
     desktopLyricsMousePoller.on('exit', () => {
@@ -880,6 +1252,29 @@ function broadcastDesktopLyricsEnabledState(enabled) {
   if (mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.webContents.send('quchen-desktop-lyrics-enabled-state', { enabled: !!enabled });
   }
+}
+
+function suspendDesktopLyricsForMainWindowMove() {
+  if (desktopLyricsMainMoveRestoreTimer) {
+    clearTimeout(desktopLyricsMainMoveRestoreTimer);
+    desktopLyricsMainMoveRestoreTimer = null;
+  }
+  desktopLyricsMainMoveSuspended = true;
+  if (desktopLyricsWindow && !desktopLyricsWindow.isDestroyed() && desktopLyricsWindow.isVisible()) {
+    desktopLyricsWindow.hide();
+  }
+}
+
+function restoreDesktopLyricsAfterMainWindowMove(delay = 80) {
+  if (desktopLyricsMainMoveRestoreTimer) clearTimeout(desktopLyricsMainMoveRestoreTimer);
+  desktopLyricsMainMoveRestoreTimer = setTimeout(() => {
+    desktopLyricsMainMoveRestoreTimer = null;
+    desktopLyricsMainMoveSuspended = false;
+    if (!desktopLyricsState.enabled || !desktopLyricsWindow || desktopLyricsWindow.isDestroyed()) return;
+    desktopLyricsWindow.showInactive();
+    applyDesktopLyricsMouseBehavior();
+    sendDesktopLyricsState();
+  }, Math.max(0, delay));
 }
 
 function positionDesktopLyricsWindow(payload = desktopLyricsState, options = {}) {
@@ -949,11 +1344,20 @@ function createDesktopLyricsWindow(payload = {}) {
   positionDesktopLyricsWindow(desktopLyricsState, { force: yChanged || !desktopLyricsUserBounds });
   desktopLyricsWindow.once('ready-to-show', () => {
     if (!desktopLyricsWindow || desktopLyricsWindow.isDestroyed()) return;
+    if (desktopLyricsMainMoveSuspended) return;
     desktopLyricsWindow.showInactive();
     sendDesktopLyricsState();
   });
   desktopLyricsWindow.webContents.once('did-finish-load', sendDesktopLyricsState);
   desktopLyricsWindow.on('closed', () => {
+    if (desktopLyricsPointerReleaseTimer) clearTimeout(desktopLyricsPointerReleaseTimer);
+    if (desktopLyricsMoveTimer) clearTimeout(desktopLyricsMoveTimer);
+    desktopLyricsPointerReleaseTimer = null;
+    desktopLyricsMoveTimer = null;
+    desktopLyricsDragging = false;
+    desktopLyricsExternalLeftDrag = false;
+    desktopLyricsPointerCapture = false;
+    desktopLyricsPendingMove = { x: 0, y: 0 };
     desktopLyricsWindow = null;
     desktopLyricsMouseIgnored = null;
   });
@@ -964,7 +1368,17 @@ function createDesktopLyricsWindow(payload = {}) {
 
 function closeDesktopLyricsWindow() {
   desktopLyricsState = { ...desktopLyricsState, enabled: false };
+  if (desktopLyricsPointerReleaseTimer) clearTimeout(desktopLyricsPointerReleaseTimer);
+  if (desktopLyricsMoveTimer) clearTimeout(desktopLyricsMoveTimer);
+  desktopLyricsPointerReleaseTimer = null;
+  desktopLyricsMoveTimer = null;
+  desktopLyricsDragging = false;
+  desktopLyricsExternalLeftDrag = false;
   desktopLyricsPointerCapture = false;
+  desktopLyricsPendingMove = { x: 0, y: 0 };
+  if (desktopLyricsMainMoveRestoreTimer) clearTimeout(desktopLyricsMainMoveRestoreTimer);
+  desktopLyricsMainMoveRestoreTimer = null;
+  desktopLyricsMainMoveSuspended = false;
   desktopLyricsMouseIgnored = null;
   desktopLyricsHotBounds = null;
   stopDesktopLyricsMousePoller();
@@ -987,11 +1401,11 @@ function attachWallpaperToWorkerW(win) {
   const hwnd = nativeWindowHandleDecimal(win);
   const script = `
 $ErrorActionPreference = "Stop"
-if (-not ("QuchenNativeWin" -as [type])) {
+if (-not ("QuchenRadioNativeWin" -as [type])) {
 Add-Type @"
 using System;
 using System.Runtime.InteropServices;
-public class QuchenNativeWin {
+public class QuchenRadioNativeWin {
   public delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
   [DllImport("user32.dll", SetLastError=true)] public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
   [DllImport("user32.dll", SetLastError=true)] public static extern IntPtr FindWindowEx(IntPtr parent, IntPtr childAfter, string className, string windowName);
@@ -1002,23 +1416,23 @@ public class QuchenNativeWin {
 }
 "@
 }
-$progman = [QuchenNativeWin]::FindWindow("Progman", $null)
+$progman = [QuchenRadioNativeWin]::FindWindow("Progman", $null)
 $result = [IntPtr]::Zero
-[QuchenNativeWin]::SendMessageTimeout($progman, 0x052C, [IntPtr]::Zero, [IntPtr]::Zero, 0, 1000, [ref]$result) | Out-Null
+[QuchenRadioNativeWin]::SendMessageTimeout($progman, 0x052C, [IntPtr]::Zero, [IntPtr]::Zero, 0, 1000, [ref]$result) | Out-Null
 $script:workerw = [IntPtr]::Zero
-$enum = [QuchenNativeWin+EnumWindowsProc]{
+$enum = [QuchenRadioNativeWin+EnumWindowsProc]{
   param([IntPtr]$top, [IntPtr]$param)
-  $shell = [QuchenNativeWin]::FindWindowEx($top, [IntPtr]::Zero, "SHELLDLL_DefView", $null)
+  $shell = [QuchenRadioNativeWin]::FindWindowEx($top, [IntPtr]::Zero, "SHELLDLL_DefView", $null)
   if ($shell -ne [IntPtr]::Zero) {
-    $script:workerw = [QuchenNativeWin]::FindWindowEx([IntPtr]::Zero, $top, "WorkerW", $null)
+    $script:workerw = [QuchenRadioNativeWin]::FindWindowEx([IntPtr]::Zero, $top, "WorkerW", $null)
   }
   return $true
 }
-[QuchenNativeWin]::EnumWindows($enum, [IntPtr]::Zero) | Out-Null
+[QuchenRadioNativeWin]::EnumWindows($enum, [IntPtr]::Zero) | Out-Null
 if ($script:workerw -eq [IntPtr]::Zero) { $script:workerw = $progman }
 $target = [IntPtr]::new([Int64]${hwnd})
-[QuchenNativeWin]::SetParent($target, $script:workerw) | Out-Null
-[QuchenNativeWin]::SetWindowPos($target, [IntPtr]::Zero, 0, 0, 0, 0, 0x0013) | Out-Null
+[QuchenRadioNativeWin]::SetParent($target, $script:workerw) | Out-Null
+[QuchenRadioNativeWin]::SetWindowPos($target, [IntPtr]::Zero, 0, 0, 0, 0, 0x0013) | Out-Null
 `;
   execFile('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', script], {
     windowsHide: true,
@@ -1098,7 +1512,11 @@ function closeOverlayWindows() {
 }
 
 ipcMain.handle('desktop-window-minimize', (event) => {
-  getSenderWindow(event)?.minimize();
+  const win = getSenderWindow(event);
+  if (!win || win.isDestroyed()) return;
+  // 最小化始终保留在 Windows 任务栏；只有关闭按钮才隐藏到托盘。
+  win.setSkipTaskbar(false);
+  win.minimize();
 });
 
 ipcMain.handle('desktop-window-toggle-maximize', (event) => {
@@ -1121,8 +1539,93 @@ ipcMain.handle('desktop-window-close', (event) => {
   getSenderWindow(event)?.close();
 });
 
+ipcMain.handle('desktop-window-drag-state', (_event, active) => {
+  if (active) suspendDesktopLyricsForMainWindowMove();
+  else restoreDesktopLyricsAfterMainWindowMove(80);
+  return { ok:true, active:!!active };
+});
+
+ipcMain.on('desktop-window-resize-start', (event, payload = {}) => {
+  const win = getSenderWindow(event);
+  if (!win || win.isDestroyed() || win.isFullScreen() || win.isMaximized()) return;
+  const direction = String(payload.direction || '');
+  if (!/^(n|s|e|w|ne|nw|se|sw)$/.test(direction)) return;
+  mainWindowResizeStates.set(event.sender.id, {
+    win,
+    direction,
+    startX:Number(payload.screenX) || 0,
+    startY:Number(payload.screenY) || 0,
+    bounds:win.getBounds(),
+  });
+  suspendDesktopLyricsForMainWindowMove();
+});
+
+ipcMain.on('desktop-window-resize-update', (event, payload = {}) => {
+  const state = mainWindowResizeStates.get(event.sender.id);
+  if (!state || !state.win || state.win.isDestroyed()) return;
+  const dx = (Number(payload.screenX) || 0) - state.startX;
+  const dy = (Number(payload.screenY) || 0) - state.startY;
+  const start = state.bounds;
+  const direction = state.direction;
+  let x = start.x;
+  let y = start.y;
+  let width = start.width;
+  let height = start.height;
+  if (direction.includes('e')) width = start.width + dx;
+  if (direction.includes('s')) height = start.height + dy;
+  if (direction.includes('w')) { x = start.x + dx; width = start.width - dx; }
+  if (direction.includes('n')) { y = start.y + dy; height = start.height - dy; }
+  if (width < MIN_WINDOWED_WIDTH) {
+    if (direction.includes('w')) x = start.x + start.width - MIN_WINDOWED_WIDTH;
+    width = MIN_WINDOWED_WIDTH;
+  }
+  if (height < MIN_WINDOWED_HEIGHT) {
+    if (direction.includes('n')) y = start.y + start.height - MIN_WINDOWED_HEIGHT;
+    height = MIN_WINDOWED_HEIGHT;
+  }
+  state.win.setBounds({ x:Math.round(x), y:Math.round(y), width:Math.round(width), height:Math.round(height) }, false);
+});
+
+ipcMain.on('desktop-window-resize-end', (event) => {
+  mainWindowResizeStates.delete(event.sender.id);
+  restoreDesktopLyricsAfterMainWindowMove(80);
+});
+
+ipcMain.handle('quchen-lx-set-linked', (_event, linked) => {
+  lxPlaybackLinked = !!linked;
+  return { ok: true, linked: lxPlaybackLinked };
+});
+
+ipcMain.handle('quchen-tray-get-settings', () => {
+  return { ok: true, closeToTray: closeToTrayEnabled, startup: isStartupEnabled(), startupEnabled: isStartupEnabled() };
+});
+
+ipcMain.handle('quchen-tray-set-close-to-tray', (_event, enabled) => {
+  closeToTrayEnabled = !!enabled;
+  writeDesktopShellSettings({ closeToTray: closeToTrayEnabled });
+  refreshTrayMenu();
+  return { ok: true, closeToTray: closeToTrayEnabled };
+});
+
+ipcMain.handle('quchen-tray-update-playback', (_event, state = {}) => {
+  trayPlaybackState = {
+    title: String(state.title || '').slice(0, 120),
+    artist: String(state.artist || '').slice(0, 120),
+    playing: !!state.playing,
+    volume: Math.max(0, Math.min(100, Math.round(Number(state.volume) || 0))),
+  };
+  refreshTrayMenu();
+  return { ok: true };
+});
+
+ipcMain.handle('quchen-startup-set-enabled', (_event, enabled) => {
+  const result = setStartupEnabled(!!enabled);
+  refreshTrayMenu();
+  return result;
+});
+
 ipcMain.handle('quchen-hotkeys-configure-global', (_event, bindings) => {
-  return configureQuchenGlobalHotkeys(bindings);
+  return configureQuchenRadioGlobalHotkeys(bindings);
 });
 
 ipcMain.handle('quchen-export-json-file', async (event, payload = {}) => {
@@ -1130,7 +1633,7 @@ ipcMain.handle('quchen-export-json-file', async (event, payload = {}) => {
     const owner = getSenderWindow(event);
     const defaultName = String(payload.defaultName || 'quchen-export.json').replace(/[\\/:*?"<>|]+/g, '-');
     const result = await dialog.showSaveDialog(owner, {
-      title: '导出 Quchen 存档',
+      title: '导出 Quchen Radio 存档',
       defaultPath: defaultName.toLowerCase().endsWith('.json') ? defaultName : `${defaultName}.json`,
       filters: [{ name: 'JSON', extensions: ['json'] }],
     });
@@ -1147,7 +1650,7 @@ ipcMain.handle('quchen-import-json-file', async (event) => {
   try {
     const owner = getSenderWindow(event);
     const result = await dialog.showOpenDialog(owner, {
-      title: '导入 Quchen 存档',
+      title: '导入 Quchen Radio 存档',
       properties: ['openFile'],
       filters: [{ name: 'JSON', extensions: ['json'] }],
     });
@@ -1160,20 +1663,96 @@ ipcMain.handle('quchen-import-json-file', async (event) => {
   }
 });
 
-ipcMain.handle('netease-music-open-login', async (event) => {
-  return openNeteaseMusicLoginWindow(getSenderWindow(event));
+ipcMain.on('quchen-ui-state-read-sync', (event) => {
+  event.returnValue = readDesktopUiState().values || {};
 });
 
-ipcMain.handle('netease-music-clear-login', async () => {
-  return clearNeteaseMusicLoginSession();
+ipcMain.handle('quchen-ui-state-write', async (_event, patch) => {
+  try {
+    const state = writeDesktopUiStatePatch(patch || {});
+    return { ok: true, updatedAt: state.updatedAt };
+  } catch (e) {
+    return { ok: false, error: e.message || 'UI_STATE_WRITE_FAILED' };
+  }
 });
 
-ipcMain.handle('qq-music-open-login', async (event) => {
-  return openQQMusicLoginWindow(getSenderWindow(event));
+ipcMain.handle('quchen-local-music-choose-files', async (event) => {
+  try {
+    const owner = getSenderWindow(event);
+    const result = await dialog.showOpenDialog(owner, {
+      title: '选择本地音乐、歌词或封面文件',
+      properties: ['openFile', 'multiSelections'],
+      filters: [
+        { name: '音乐与配套文件', extensions: ['mp3', 'flac', 'wav', 'ogg', 'm4a', 'ncm', 'qmc0', 'qmc3', 'qmcflac', 'qmcogg', 'kgm', 'kgma', 'vpr', 'kwm', 'mflac', 'mgg', 'lrc', 'txt', 'jpg', 'jpeg', 'png', 'webp'] },
+        { name: '所有文件', extensions: ['*'] },
+      ],
+    });
+    if (result.canceled || !result.filePaths || !result.filePaths.length) return { ok:false, canceled:true, files:[] };
+    const files = (await Promise.all(result.filePaths.map(filePath => localMusicEntryFromPath(filePath)))).filter(Boolean);
+    return { ok:true, canceled:false, files };
+  } catch (e) {
+    return { ok:false, canceled:false, files:[], error:e.message || 'LOCAL_FILES_CHOOSE_FAILED' };
+  }
 });
 
-ipcMain.handle('qq-music-clear-login', async () => {
-  return clearQQMusicLoginSession();
+ipcMain.handle('quchen-local-music-choose-folder', async (event) => {
+  try {
+    const owner = getSenderWindow(event);
+    const result = await dialog.showOpenDialog(owner, {
+      title: '选择本地音乐文件夹',
+      properties: ['openDirectory'],
+    });
+    if (result.canceled || !result.filePaths || !result.filePaths[0]) return { ok: false, canceled: true };
+    return scanLocalMusicFolder(result.filePaths[0]);
+  } catch (e) {
+    return { ok: false, error: e.message || 'LOCAL_LIBRARY_CHOOSE_FAILED' };
+  }
+});
+
+ipcMain.handle('quchen-local-music-scan-folder', async (_event, folderPath) => {
+  try {
+    if (!folderPath) return { ok: false, error: 'LOCAL_LIBRARY_PATH_EMPTY' };
+    return await scanLocalMusicFolder(folderPath);
+  } catch (e) {
+    return { ok: false, error: e.message || 'LOCAL_LIBRARY_SCAN_FAILED' };
+  }
+});
+
+ipcMain.handle('quchen-local-music-refresh-entries', async (_event, folderPath, files) => {
+  try {
+    if (!folderPath) return { ok: false, error: 'LOCAL_LIBRARY_PATH_EMPTY' };
+    return await refreshLocalMusicFileEntries(folderPath, files);
+  } catch (e) {
+    return { ok: false, error: e.message || 'LOCAL_LIBRARY_REFRESH_FAILED' };
+  }
+});
+
+ipcMain.handle('quchen-local-audio-prepare', async (_event, filePath) => {
+  return prepareLocalAudioForPlayback(filePath);
+});
+
+ipcMain.handle('quchen-local-audio-transcode', async (_event, filePath) => {
+  try {
+    return await transcodeLocalAudioForPlayback(filePath);
+  } catch (error) {
+    return { ok:false, code:'FFMPEG_TRANSCODE_FAILED', message:error.message || 'FFmpeg 转换失败' };
+  }
+});
+
+ipcMain.handle('quchen-local-file-read-range', async (_event, filePath, start, end) => {
+  try {
+    return await readAuthorizedLocalFileRange(filePath, start, end);
+  } catch (e) {
+    return { ok: false, error: e.message || 'LOCAL_FILE_READ_FAILED' };
+  }
+});
+
+ipcMain.handle('quchen-local-file-read-data-url', async (_event, filePath) => {
+  try {
+    return await readAuthorizedLocalFileDataUrl(filePath);
+  } catch (e) {
+    return { ok: false, error: e.message || 'LOCAL_FILE_READ_FAILED' };
+  }
 });
 
 ipcMain.handle('quchen-open-update-installer', async (_event, filePath) => {
@@ -1199,6 +1778,15 @@ ipcMain.handle('quchen-restart-app', async () => {
   } catch (e) {
     return { ok: false, error: e.message || 'RESTART_FAILED' };
   }
+});
+
+ipcMain.handle('quchen-lx-open-scheme', async (_event, schemeUrl) => {
+  const target = String(schemeUrl || '').trim();
+  if (!/^lxmusic:\/\/(?:music|songlist|player)\//i.test(target)) {
+    throw new Error('LX_SCHEME_NOT_ALLOWED');
+  }
+  await shell.openExternal(target);
+  return { ok: true };
 });
 
 ipcMain.handle('quchen-desktop-lyrics-set-enabled', async (_event, enabled, payload) => {
@@ -1232,14 +1820,25 @@ ipcMain.handle('quchen-desktop-lyrics-update', async (_event, payload) => {
   }
 });
 
-ipcMain.handle('quchen-desktop-lyrics-set-dragging', async () => {
-  return { ok: true };
+ipcMain.handle('quchen-desktop-lyrics-set-dragging', async (_event, active) => {
+  desktopLyricsDragging = !!active;
+  if (desktopLyricsDragging) {
+    desktopLyricsExternalLeftDrag = false;
+    setDesktopLyricsPointerCapture(true);
+  } else {
+    if (desktopLyricsMoveTimer) {
+      clearTimeout(desktopLyricsMoveTimer);
+      desktopLyricsMoveTimer = null;
+      flushDesktopLyricsMove();
+    }
+    setDesktopLyricsPointerCapture(false);
+  }
+  return { ok: true, dragging: desktopLyricsDragging };
 });
 
 ipcMain.handle('quchen-desktop-lyrics-set-pointer-capture', async (_event, active) => {
   try {
-    desktopLyricsPointerCapture = !!active;
-    applyDesktopLyricsMouseBehavior();
+    setDesktopLyricsPointerCapture(!!active);
     return { ok: true };
   } catch (e) {
     return { ok: false, error: e.message || 'DESKTOP_LYRICS_POINTER_FAILED' };
@@ -1275,14 +1874,7 @@ ipcMain.handle('quchen-desktop-lyrics-move-by', async (_event, dx, dy) => {
   try {
     if (!desktopLyricsWindow || desktopLyricsWindow.isDestroyed()) return { ok: false, error: 'NO_DESKTOP_LYRICS_WINDOW' };
     if (desktopLyricsState.clickThrough !== false) return { ok: false, error: 'DESKTOP_LYRICS_LOCKED' };
-    const bounds = desktopLyricsWindow.getBounds();
-    const next = {
-      ...bounds,
-      x: Math.round(bounds.x + clampNumber(dx, -160, 160, 0)),
-      y: Math.round(bounds.y + clampNumber(dy, -160, 160, 0)),
-    };
-    desktopLyricsWindow.setBounds(next, false);
-    desktopLyricsUserBounds = desktopLyricsWindow.getBounds();
+    queueDesktopLyricsMove(dx, dy);
     return { ok: true };
   } catch (e) {
     return { ok: false, error: e.message || 'DESKTOP_LYRICS_MOVE_FAILED' };
@@ -1325,20 +1917,8 @@ async function createWindow() {
 
   process.env.HOST = '127.0.0.1';
   process.env.PORT = String(port);
-  process.env.COOKIE_FILE = path.join(app.getPath('userData'), '.cookie');
-  process.env.QQ_COOKIE_FILE = path.join(app.getPath('userData'), '.qq-cookie');
   process.env.QUCHEN_UPDATE_DIR = getUpdateDownloadDir();
-  try {
-    const legacyQQCookie = path.join(__dirname, '..', '.qq-cookie');
-    if (fs.existsSync(legacyQQCookie)) {
-      if (!fs.existsSync(process.env.QQ_COOKIE_FILE)) {
-        fs.copyFileSync(legacyQQCookie, process.env.QQ_COOKIE_FILE);
-      }
-      fs.unlinkSync(legacyQQCookie);
-    }
-  } catch (e) {
-    console.warn('QQ cookie migration skipped:', e.message);
-  }
+  process.env.QUCHEN_LOCAL_FILE_TOKEN = LOCAL_FILE_TOKEN;
 
   localServer = require(path.join(__dirname, '..', 'server.js'));
   await waitForServer(localServer);
@@ -1349,6 +1929,9 @@ async function createWindow() {
     ...initialBounds,
     minWidth: 960,
     minHeight: 540,
+    resizable: true,
+    maximizable: true,
+    thickFrame: true,
     show: false,
     frame: false,
     fullscreen: false,
@@ -1384,26 +1967,55 @@ async function createWindow() {
   });
 
   mainWindow.once('ready-to-show', () => {
+    mainWindow.setSkipTaskbar(false);
     mainWindow.show();
     sendWindowState(mainWindow);
   });
 
   mainWindow.on('maximize', () => sendWindowState(mainWindow));
   mainWindow.on('unmaximize', () => sendWindowState(mainWindow));
-  mainWindow.on('minimize', () => sendWindowState(mainWindow));
+  mainWindow.on('minimize', () => {
+    // 最小化是正常缩到任务栏，不受“关闭到托盘”设置影响。
+    mainWindow.setSkipTaskbar(false);
+    sendWindowState(mainWindow);
+  });
   mainWindow.on('restore', () => sendWindowState(mainWindow));
   mainWindow.on('show', () => sendWindowState(mainWindow));
   mainWindow.on('hide', () => sendWindowState(mainWindow));
   mainWindow.on('focus', () => sendWindowState(mainWindow));
   mainWindow.on('blur', () => sendWindowState(mainWindow));
-  mainWindow.on('move', () => scheduleWindowStateSend(mainWindow));
+  // Hide the transparent desktop-lyrics overlay for the complete native
+  // move/resize loop. This avoids Windows DWM flicker between two GPU windows.
+  if (process.platform === 'win32' && typeof mainWindow.hookWindowMessage === 'function') {
+    mainWindow.hookWindowMessage(0x00A1, () => { // WM_NCLBUTTONDOWN
+      suspendDesktopLyricsForMainWindowMove();
+      restoreDesktopLyricsAfterMainWindowMove(500);
+    });
+    mainWindow.hookWindowMessage(0x0216, () => suspendDesktopLyricsForMainWindowMove()); // WM_MOVING
+    mainWindow.hookWindowMessage(0x0231, () => suspendDesktopLyricsForMainWindowMove()); // WM_ENTERSIZEMOVE
+    mainWindow.hookWindowMessage(0x0232, () => restoreDesktopLyricsAfterMainWindowMove(80)); // WM_EXITSIZEMOVE
+  }
+  mainWindow.on('will-move', suspendDesktopLyricsForMainWindowMove);
+  mainWindow.on('move', () => {
+    suspendDesktopLyricsForMainWindowMove();
+    restoreDesktopLyricsAfterMainWindowMove(320);
+    scheduleWindowStateSend(mainWindow);
+  });
+  mainWindow.on('moved', () => restoreDesktopLyricsAfterMainWindowMove(80));
   mainWindow.on('resize', () => scheduleWindowStateSend(mainWindow));
+  mainWindow.on('close', (event) => {
+    if (!appQuitting && closeToTrayEnabled) {
+      event.preventDefault();
+      hideMainWindowToTray({ pauseLinked: true });
+    }
+  });
   mainWindow.on('closed', () => {
     if (mainWindowStateTimer) {
       clearTimeout(mainWindowStateTimer);
       mainWindowStateTimer = null;
     }
     closeOverlayWindows();
+    mainWindowResizeStates.clear();
     mainWindow = null;
   });
   mainWindow.on('enter-full-screen', () => {
@@ -1439,6 +2051,27 @@ if (!gotSingleInstanceLock) {
   });
 
   app.whenReady().then(async () => {
+    applySavedDesktopShellSettings();
+    session.defaultSession.setPermissionCheckHandler((_webContents, permission, requestingOrigin) => {
+      if (permission !== 'media') return false;
+      return /^http:\/\/127\.0\.0\.1:\d+\/?$/.test(String(requestingOrigin || ''));
+    });
+    session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
+      const url = webContents && !webContents.isDestroyed() ? webContents.getURL() : '';
+      callback(permission === 'media' && /^http:\/\/127\.0\.0\.1:\d+\//.test(String(url || '')));
+    });
+    session.defaultSession.setDisplayMediaRequestHandler((_request, callback) => {
+      desktopCapturer.getSources({ types: ['screen'], thumbnailSize: { width: 0, height: 0 } })
+        .then((sources) => {
+          const source = sources[0];
+          if (!source) {
+            callback({});
+            return;
+          }
+          callback({ video: source, audio: 'loopback' });
+        })
+        .catch(() => callback({}));
+    });
     screen.on('display-metrics-changed', () => {
       positionDesktopLyricsWindow();
       positionWallpaperWindow();
@@ -1446,7 +2079,9 @@ if (!gotSingleInstanceLock) {
     });
     screen.on('display-added', () => scheduleWindowStateSend(mainWindow));
     screen.on('display-removed', () => scheduleWindowStateSend(mainWindow));
+    createTray();
     await createWindow();
+    refreshTrayMenu();
   });
 
   app.on('activate', () => {
@@ -1455,11 +2090,24 @@ if (!gotSingleInstanceLock) {
   });
 
   app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') app.quit();
+    if (process.platform !== 'darwin' && (appQuitting || !closeToTrayEnabled)) app.quit();
   });
 
-  app.on('before-quit', () => {
-    unregisterQuchenGlobalHotkeys();
+  app.on('before-quit', (event) => {
+    if (lxPlaybackLinked && !lxPauseBeforeQuitDone) {
+      event.preventDefault();
+      appQuitting = true;
+      Promise.race([
+        pauseLinkedLxPlayback(),
+        new Promise(resolve => setTimeout(resolve, 1300)),
+      ]).finally(() => {
+        lxPauseBeforeQuitDone = true;
+        app.quit();
+      });
+      return;
+    }
+    appQuitting = true;
+    unregisterQuchenRadioGlobalHotkeys();
     closeOverlayWindows();
     if (localServer && localServer.close) localServer.close();
   });

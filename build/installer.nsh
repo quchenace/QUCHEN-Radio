@@ -27,53 +27,43 @@
 !endif
 !ifndef BUILD_UNINSTALLER
   !ifndef MUI_CUSTOMFUNCTION_GUIINIT
-    !define MUI_CUSTOMFUNCTION_GUIINIT QuchenGuiInit
+    !define MUI_CUSTOMFUNCTION_GUIINIT QuchenRadioGuiInit
   !endif
 !endif
 
 !include LogicLib.nsh
 !include FileFunc.nsh
-!include StdUtils.nsh
 !include nsDialogs.nsh
 !include WinMessages.nsh
 
 !define QUCHEN_INSTALL_MARKER ".quchen-install-root"
 
 !ifndef BUILD_UNINSTALLER
-  Var QuchenWelcomePage
-  Var QuchenHeroFont
-  Var QuchenTitleFont
-  Var QuchenBodyFont
-  Var QuchenSmallFont
-  Var QuchenDirectoryPage
-  Var QuchenDirectoryInput
+  Var QuchenRadioWelcomePage
+  Var QuchenRadioHeroFont
+  Var QuchenRadioTitleFont
+  Var QuchenRadioBodyFont
+  Var QuchenRadioSmallFont
+  Var QuchenRadioDirectoryPage
+  Var QuchenRadioDirectoryInput
 !endif
 
 !macro customInit
   !ifndef BUILD_UNINSTALLER
-    Call QuchenUsePreferredInstallDir
-    Call QuchenDisableUnsafeOldUninstallers
-    ${If} ${Silent}
-      Call QuchenValidateInstallDir
-    ${EndIf}
+    Call QuchenRadioUsePreferredInstallDir
   !endif
 !macroend
 
 !macro customInstall
-  FileOpen $0 "$INSTDIR\${QUCHEN_INSTALL_MARKER}" w
-  ${IfNot} ${Errors}
-    FileWrite $0 "Quchen Radio install root$\r$\n"
-    FileWrite $0 "appId=com.quchen.desktop$\r$\n"
-    FileClose $0
-  ${EndIf}
+  Call QuchenRadioWriteInstallMarker
 !macroend
 
-!macro customRemoveFiles
-  Call un.QuchenRemoveInstalledFiles
+!macro customUnInit
+  Call un.QuchenRadioAbortUnsafeUninstallRoot
 !macroend
 
 !macro customWelcomePage
-  Page custom QuchenWelcomeShow
+  Page custom QuchenRadioWelcomeShow
 !macroend
 
 !macro customInstallMode
@@ -81,12 +71,12 @@
 !macroend
 
 !macro customPageAfterChangeDir
-  Page custom QuchenDirectoryShow QuchenDirectoryLeave
+  Page custom QuchenRadioDirectoryShow QuchenRadioDirectoryLeave
 !macroend
 
 !macro customFinishPage
   !ifndef HIDE_RUN_AFTER_FINISH
-    Function QuchenFinishStartApp
+    Function QuchenRadioFinishStartApp
       ${If} ${isUpdated}
         StrCpy $1 "--updated"
       ${Else}
@@ -96,20 +86,20 @@
     FunctionEnd
 
     !define MUI_FINISHPAGE_RUN
-    !define MUI_FINISHPAGE_RUN_FUNCTION "QuchenFinishStartApp"
+    !define MUI_FINISHPAGE_RUN_FUNCTION "QuchenRadioFinishStartApp"
   !endif
-  !define MUI_PAGE_CUSTOMFUNCTION_SHOW QuchenTintCommonControls
+  !define MUI_PAGE_CUSTOMFUNCTION_SHOW QuchenRadioTintCommonControls
   !insertmacro MUI_PAGE_FINISH
 !macroend
 
 !ifndef BUILD_UNINSTALLER
-Function QuchenGuiInit
+Function QuchenRadioGuiInit
   System::Call 'dwmapi::DwmSetWindowAttribute(p $HWNDPARENT, i 20, *i 1, i 4) i .r0'
   System::Call 'dwmapi::DwmSetWindowAttribute(p $HWNDPARENT, i 19, *i 1, i 4) i .r0'
-  Call QuchenTintCommonControls
+  Call QuchenRadioTintCommonControls
 FunctionEnd
 
-Function QuchenTintCommonControls
+Function QuchenRadioTintCommonControls
   SetCtlColors $HWNDPARENT "111217" "FFFFFF"
 
   GetDlgItem $0 $HWNDPARENT 1
@@ -217,160 +207,33 @@ Function QuchenTintCommonControls
   ${EndIf}
 FunctionEnd
 
-Function QuchenUsePreferredInstallDir
+Function QuchenRadioUsePreferredInstallDir
   ${GetParameters} $R0
   ClearErrors
   ${GetOptions} $R0 "/D=" $R1
   ${IfNot} ${Errors}
   ${AndIf} $R1 != ""
-    StrCpy $INSTDIR "$R1"
+    Push "$R1"
+    Call QuchenRadioNormalizeInstallDir
+    Pop $INSTDIR
   ${Else}
-    Call QuchenUseRegisteredInstallDir
-    Pop $R2
-    ${If} $R2 != "1"
-      Call QuchenUseFirstAvailableInstallDir
-    ${EndIf}
+    StrCpy $INSTDIR "C:\Quchen-Radio"
   ${EndIf}
-  Push "$INSTDIR"
-  Call QuchenNormalizeInstallDir
-  Pop $INSTDIR
 FunctionEnd
 
-Function QuchenUseFirstAvailableInstallDir
-  IfFileExists "D:\*.*" driveD 0
-  IfFileExists "E:\*.*" driveE 0
-  IfFileExists "F:\*.*" driveF 0
-  IfFileExists "G:\*.*" driveG 0
-  IfFileExists "H:\*.*" driveH 0
-  IfFileExists "I:\*.*" driveI 0
-  IfFileExists "J:\*.*" driveJ 0
-  IfFileExists "K:\*.*" driveK 0
-  IfFileExists "L:\*.*" driveL 0
-  IfFileExists "M:\*.*" driveM 0
-  IfFileExists "N:\*.*" driveN 0
-  IfFileExists "O:\*.*" driveO 0
-  IfFileExists "P:\*.*" driveP 0
-  IfFileExists "Q:\*.*" driveQ 0
-  IfFileExists "R:\*.*" driveR 0
-  IfFileExists "S:\*.*" driveS 0
-  IfFileExists "T:\*.*" driveT 0
-  IfFileExists "U:\*.*" driveU 0
-  IfFileExists "V:\*.*" driveV 0
-  IfFileExists "W:\*.*" driveW 0
-  IfFileExists "X:\*.*" driveX 0
-  IfFileExists "Y:\*.*" driveY 0
-  IfFileExists "Z:\*.*" driveZ 0
-  StrCpy $INSTDIR "C:\Quchen-Radio"
-  Return
-
-  driveD:
-    StrCpy $INSTDIR "D:\Quchen-Radio"
-    Return
-  driveE:
-    StrCpy $INSTDIR "E:\Quchen-Radio"
-    Return
-  driveF:
-    StrCpy $INSTDIR "F:\Quchen-Radio"
-    Return
-  driveG:
-    StrCpy $INSTDIR "G:\Quchen-Radio"
-    Return
-  driveH:
-    StrCpy $INSTDIR "H:\Quchen-Radio"
-    Return
-  driveI:
-    StrCpy $INSTDIR "I:\Quchen-Radio"
-    Return
-  driveJ:
-    StrCpy $INSTDIR "J:\Quchen-Radio"
-    Return
-  driveK:
-    StrCpy $INSTDIR "K:\Quchen-Radio"
-    Return
-  driveL:
-    StrCpy $INSTDIR "L:\Quchen-Radio"
-    Return
-  driveM:
-    StrCpy $INSTDIR "M:\Quchen-Radio"
-    Return
-  driveN:
-    StrCpy $INSTDIR "N:\Quchen-Radio"
-    Return
-  driveO:
-    StrCpy $INSTDIR "O:\Quchen-Radio"
-    Return
-  driveP:
-    StrCpy $INSTDIR "P:\Quchen-Radio"
-    Return
-  driveQ:
-    StrCpy $INSTDIR "Q:\Quchen-Radio"
-    Return
-  driveR:
-    StrCpy $INSTDIR "R:\Quchen-Radio"
-    Return
-  driveS:
-    StrCpy $INSTDIR "S:\Quchen-Radio"
-    Return
-  driveT:
-    StrCpy $INSTDIR "T:\Quchen-Radio"
-    Return
-  driveU:
-    StrCpy $INSTDIR "U:\Quchen-Radio"
-    Return
-  driveV:
-    StrCpy $INSTDIR "V:\Quchen-Radio"
-    Return
-  driveW:
-    StrCpy $INSTDIR "W:\Quchen-Radio"
-    Return
-  driveX:
-    StrCpy $INSTDIR "X:\Quchen-Radio"
-    Return
-  driveY:
-    StrCpy $INSTDIR "Y:\Quchen-Radio"
-    Return
-  driveZ:
-    StrCpy $INSTDIR "Z:\Quchen-Radio"
-    Return
-FunctionEnd
-
-Function QuchenHasPreferredInstallDrive
-  IfFileExists "D:\*.*" hasPreferred 0
-  IfFileExists "E:\*.*" hasPreferred 0
-  IfFileExists "F:\*.*" hasPreferred 0
-  IfFileExists "G:\*.*" hasPreferred 0
-  IfFileExists "H:\*.*" hasPreferred 0
-  IfFileExists "I:\*.*" hasPreferred 0
-  IfFileExists "J:\*.*" hasPreferred 0
-  IfFileExists "K:\*.*" hasPreferred 0
-  IfFileExists "L:\*.*" hasPreferred 0
-  IfFileExists "M:\*.*" hasPreferred 0
-  IfFileExists "N:\*.*" hasPreferred 0
-  IfFileExists "O:\*.*" hasPreferred 0
-  IfFileExists "P:\*.*" hasPreferred 0
-  IfFileExists "Q:\*.*" hasPreferred 0
-  IfFileExists "R:\*.*" hasPreferred 0
-  IfFileExists "S:\*.*" hasPreferred 0
-  IfFileExists "T:\*.*" hasPreferred 0
-  IfFileExists "U:\*.*" hasPreferred 0
-  IfFileExists "V:\*.*" hasPreferred 0
-  IfFileExists "W:\*.*" hasPreferred 0
-  IfFileExists "X:\*.*" hasPreferred 0
-  IfFileExists "Y:\*.*" hasPreferred 0
-  IfFileExists "Z:\*.*" hasPreferred 0
-  Push "0"
-  Return
-
-  hasPreferred:
-    Push "1"
-    Return
-FunctionEnd
-
-Function QuchenNormalizeInstallDir
+Function QuchenRadioNormalizeInstallDir
   Exch $0
-  Push "$0"
-  Call QuchenTrimInstallDir
-  Pop $0
+  ${If} $0 == ""
+    StrCpy $0 "C:\Quchen-Radio"
+    Exch $0
+    Return
+  ${EndIf}
+
+  StrCpy $4 "$0" 1 -1
+  ${If} $4 == "\"
+    StrCpy $0 "$0" -1
+  ${EndIf}
+
   StrLen $1 "$0"
   ${If} $1 == 2
     StrCpy $2 "$0" 1 1
@@ -384,640 +247,157 @@ Function QuchenNormalizeInstallDir
     ${AndIf} $3 == "\"
       StrCpy $0 "$0Quchen-Radio"
     ${EndIf}
-  ${EndIf}
-
-  StrLen $1 "$0"
-  StrCpy $2 "$0" 13 -13
-  ${If} $1 < 13
-  ${OrIf} $2 != "\Quchen-Radio"
-  ${AndIf} $2 != "\quchen-radio"
-    StrCpy $0 "$0\Quchen-Radio"
-  ${EndIf}
-  Exch $0
-FunctionEnd
-
-Function QuchenTrimInstallDir
-  Exch $0
-
-  trim:
-    StrLen $1 "$0"
-    ${If} $1 > 3
-      StrCpy $2 "$0" 1 -1
-      ${If} $2 == "\"
-        StrCpy $0 "$0" -1
-        Goto trim
-      ${EndIf}
-    ${EndIf}
-
-  Exch $0
-FunctionEnd
-
-Function QuchenInstallDirLooksOwned
-  Exch $0
-  StrCpy $1 "0"
-
-  IfFileExists "$0\${QUCHEN_INSTALL_MARKER}" 0 +2
-    StrCpy $1 "1"
-
-  StrCpy $0 "$1"
-  Exch $0
-FunctionEnd
-
-Function QuchenExistingInstallPathCanBeAdopted
-  Exch $0
-  StrCpy $1 "0"
-
-  ${If} $0 == ""
-    Goto done
-  ${EndIf}
-
-  Push "$0"
-  Call QuchenTrimInstallDir
-  Pop $2
-  ${If} $2 == ""
-    Goto done
-  ${EndIf}
-
-  Push "$2"
-  Call QuchenNormalizeInstallDir
-  Pop $3
-  ${If} $2 != $3
-    Goto done
-  ${EndIf}
-
-  IfFileExists "$2\*.*" 0 done
-  IfFileExists "$2\${QUCHEN_INSTALL_MARKER}" adopt 0
-  IfFileExists "$2\${PRODUCT_FILENAME}.exe" adopt 0
-  IfFileExists "$2\resources\app.asar" adopt 0
-  IfFileExists "$2\resources\app\package.json" adopt 0
-  IfFileExists "$2\resources\app\server.js" adopt 0
-  Goto done
-
-  adopt:
-    StrCpy $1 "1"
-
-  done:
-    StrCpy $0 "$1"
-    Exch $0
-FunctionEnd
-
-Function QuchenUseRegisteredInstallDir
-  ReadRegStr $0 HKCU "Software\${APP_GUID}" InstallLocation
-  Push "$0"
-  Call QuchenExistingInstallPathCanBeAdopted
-  Pop $1
-  ${If} $1 == "1"
-    Push "$0"
-    Call QuchenNormalizeInstallDir
-    Pop $INSTDIR
-    Push "1"
-    Return
-  ${EndIf}
-
-  ReadRegStr $0 HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${UNINSTALL_APP_KEY}" InstallLocation
-  Push "$0"
-  Call QuchenExistingInstallPathCanBeAdopted
-  Pop $1
-  ${If} $1 == "1"
-    Push "$0"
-    Call QuchenNormalizeInstallDir
-    Pop $INSTDIR
-    Push "1"
-    Return
-  ${EndIf}
-
-  ReadRegStr $0 HKLM "Software\${APP_GUID}" InstallLocation
-  Push "$0"
-  Call QuchenExistingInstallPathCanBeAdopted
-  Pop $1
-  ${If} $1 == "1"
-    Push "$0"
-    Call QuchenNormalizeInstallDir
-    Pop $INSTDIR
-    Push "1"
-    Return
-  ${EndIf}
-
-  ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${UNINSTALL_APP_KEY}" InstallLocation
-  Push "$0"
-  Call QuchenExistingInstallPathCanBeAdopted
-  Pop $1
-  ${If} $1 == "1"
-    Push "$0"
-    Call QuchenNormalizeInstallDir
-    Pop $INSTDIR
-    Push "1"
-    Return
-  ${EndIf}
-
-  Push "0"
-FunctionEnd
-
-Function QuchenRegisteredInstallDirCanBeAdopted
-  Exch $0
-  StrCpy $1 "0"
-
-  ${If} $0 == ""
-    Goto done
-  ${EndIf}
-
-  Push "$0"
-  Call QuchenNormalizeInstallDir
-  Pop $2
-
-  ReadRegStr $3 HKCU "Software\${APP_GUID}" InstallLocation
-  Push "$3"
-  Call QuchenExistingInstallPathCanBeAdopted
-  Pop $4
-  ${If} $4 == "1"
-    Push "$3"
-    Call QuchenNormalizeInstallDir
-    Pop $5
-    ${If} $5 == $2
-      StrCpy $1 "1"
-      Goto done
+  ${Else}
+    ${GetFileName} "$0" $2
+    ${If} $2 != "Quchen-Radio"
+    ${AndIf} $2 != "quchen-radio"
+      StrCpy $0 "$0\Quchen-Radio"
     ${EndIf}
   ${EndIf}
-
-  ReadRegStr $3 HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${UNINSTALL_APP_KEY}" InstallLocation
-  Push "$3"
-  Call QuchenExistingInstallPathCanBeAdopted
-  Pop $4
-  ${If} $4 == "1"
-    Push "$3"
-    Call QuchenNormalizeInstallDir
-    Pop $5
-    ${If} $5 == $2
-      StrCpy $1 "1"
-      Goto done
-    ${EndIf}
-  ${EndIf}
-
-  ReadRegStr $3 HKLM "Software\${APP_GUID}" InstallLocation
-  Push "$3"
-  Call QuchenExistingInstallPathCanBeAdopted
-  Pop $4
-  ${If} $4 == "1"
-    Push "$3"
-    Call QuchenNormalizeInstallDir
-    Pop $5
-    ${If} $5 == $2
-      StrCpy $1 "1"
-      Goto done
-    ${EndIf}
-  ${EndIf}
-
-  ReadRegStr $3 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${UNINSTALL_APP_KEY}" InstallLocation
-  Push "$3"
-  Call QuchenExistingInstallPathCanBeAdopted
-  Pop $4
-  ${If} $4 == "1"
-    Push "$3"
-    Call QuchenNormalizeInstallDir
-    Pop $5
-    ${If} $5 == $2
-      StrCpy $1 "1"
-      Goto done
-    ${EndIf}
-  ${EndIf}
-
-  done:
-    StrCpy $0 "$1"
-    Exch $0
-FunctionEnd
-
-Function QuchenInstallDirIsEmpty
   Exch $0
-  FindFirst $1 $2 "$0\*.*"
-  StrCpy $3 "1"
-
-  loop:
-    StrCmp $2 "" done
-    StrCmp $2 "." next
-    StrCmp $2 ".." next
-    StrCpy $3 "0"
-    Goto done
-
-  next:
-    FindNext $1 $2
-    Goto loop
-
-  done:
-    FindClose $1
-    StrCpy $0 "$3"
-    Exch $0
 FunctionEnd
 
-Function QuchenOldInstallPathNeedsQuarantine
-  Exch $0
-  StrCpy $1 "0"
-
-  ${If} $0 == ""
-    Goto done
-  ${EndIf}
-
-  Push "$0"
-  Call QuchenTrimInstallDir
-  Pop $2
-  Push "$2"
-  Call QuchenNormalizeInstallDir
-  Pop $3
-
-  ${If} $2 != $3
-    StrCpy $1 "1"
-    Goto done
-  ${EndIf}
-
-  IfFileExists "$2\${QUCHEN_INSTALL_MARKER}" done 0
-  Push "$2"
-  Call QuchenExistingInstallPathCanBeAdopted
-  Pop $4
-  ${If} $4 == "1"
-    Goto done
-  ${EndIf}
-
-  StrCpy $1 "1"
-
-  done:
-    StrCpy $0 "$1"
-    Exch $0
-FunctionEnd
-
-Function QuchenDisableUnsafeOldUninstallers
-  StrCpy $2 "0"
-
-  ReadRegStr $0 HKCU "Software\${APP_GUID}" InstallLocation
-  Push "$0"
-  Call QuchenDeleteLegacyUninstallerFileIfMissingMarker
-  Push "$0"
-  Call QuchenOldInstallPathNeedsQuarantine
-  Pop $1
-  ${If} $1 == "1"
-    DetailPrint "Skip unsafe legacy Quchen Radio uninstaller: $0"
-    StrCpy $2 "1"
-  ${EndIf}
-
-  ReadRegStr $0 HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${UNINSTALL_APP_KEY}" InstallLocation
-  Push "$0"
-  Call QuchenDeleteLegacyUninstallerFileIfMissingMarker
-  Push "$0"
-  Call QuchenOldInstallPathNeedsQuarantine
-  Pop $1
-  ${If} $1 == "1"
-    DetailPrint "Skip unsafe legacy Quchen Radio uninstaller: $0"
-    StrCpy $2 "1"
-  ${EndIf}
-
-  ${If} $2 == "1"
-    DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${UNINSTALL_APP_KEY}"
-    DeleteRegKey HKCU "Software\${APP_GUID}"
-  ${EndIf}
-
-  StrCpy $2 "0"
-
-  ReadRegStr $0 HKLM "Software\${APP_GUID}" InstallLocation
-  Push "$0"
-  Call QuchenDeleteLegacyUninstallerFileIfMissingMarker
-  Push "$0"
-  Call QuchenOldInstallPathNeedsQuarantine
-  Pop $1
-  ${If} $1 == "1"
-    DetailPrint "Skip unsafe legacy Quchen Radio uninstaller: $0"
-    StrCpy $2 "1"
-  ${EndIf}
-
-  ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${UNINSTALL_APP_KEY}" InstallLocation
-  Push "$0"
-  Call QuchenDeleteLegacyUninstallerFileIfMissingMarker
-  Push "$0"
-  Call QuchenOldInstallPathNeedsQuarantine
-  Pop $1
-  ${If} $1 == "1"
-    DetailPrint "Skip unsafe legacy Quchen Radio uninstaller: $0"
-    StrCpy $2 "1"
-  ${EndIf}
-
-  ${If} $2 == "1"
-    DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${UNINSTALL_APP_KEY}"
-    DeleteRegKey HKLM "Software\${APP_GUID}"
-  ${EndIf}
-FunctionEnd
-
-Function QuchenDeleteLegacyUninstallerFileIfMissingMarker
-  Pop $0
-  ${If} $0 != ""
-    Push "$0"
-    Call QuchenTrimInstallDir
-    Pop $1
-    ${If} $1 != ""
-      IfFileExists "$1\${QUCHEN_INSTALL_MARKER}" done 0
-      DetailPrint "Remove legacy Quchen Radio uninstaller file: $1"
-      Delete "$1\Uninstall ${PRODUCT_FILENAME}.exe"
-    ${EndIf}
-  ${EndIf}
-
-  done:
-FunctionEnd
-
-Function QuchenValidateInstallDir
-  Push "$INSTDIR"
-  Call QuchenNormalizeInstallDir
-  Pop $INSTDIR
-
-  Push "$INSTDIR"
-  Call QuchenRegisteredInstallDirCanBeAdopted
-  Pop $3
-
-  Push "$INSTDIR"
-  Call QuchenExistingInstallPathCanBeAdopted
-  Pop $4
-
-  StrCpy $0 "$INSTDIR" 1 0
-  StrCpy $1 "$INSTDIR" 1 1
-  ${If} $1 == ":"
-    ${If} $0 == "C"
-    ${OrIf} $0 == "c"
-      Call QuchenHasPreferredInstallDrive
-      Pop $2
-      ${If} $2 == "1"
-      ${AndIf} $3 != "1"
-      ${AndIf} $4 != "1"
-        MessageBox MB_ICONSTOP|MB_OK "检测到这台电脑还有 D-Z 盘，Quchen 不安装到 C 盘。请改选 D 盘或其它非 C 盘的 Quchen 文件夹。$\r$\n$\r$\n如果电脑只有 C 盘，安装器会自动放行 C:\Quchen-Radio。"
-        Abort
-      ${EndIf}
-    ${EndIf}
-  ${EndIf}
-
-  StrLen $0 "$INSTDIR"
-  StrCpy $1 "$INSTDIR" 13 -13
-  ${If} $0 < 13
-  ${OrIf} $1 != "\Quchen-Radio"
-  ${AndIf} $1 != "\quchen-radio"
-    MessageBox MB_ICONSTOP|MB_OK "安装目录必须是独立的 Quchen 文件夹。请选择一个上级目录，安装器会自动创建 Quchen 子文件夹。"
+Function QuchenRadioWriteInstallMarker
+  CreateDirectory "$INSTDIR"
+  ClearErrors
+  FileOpen $0 "$INSTDIR\${QUCHEN_INSTALL_MARKER}" w
+  ${If} ${Errors}
+    MessageBox MB_ICONSTOP|MB_OK "无法写入安装目录安全标记，安装已停止。请选择可写入的 Quchen Radio 专用文件夹。"
     Abort
   ${EndIf}
-
-  IfFileExists "$INSTDIR\*.*" 0 valid
-
-  Push "$INSTDIR"
-  Call QuchenInstallDirLooksOwned
-  Pop $0
-  ${If} $0 == "1"
-    Goto valid
-  ${EndIf}
-
-  ${If} $3 == "1"
-    Goto valid
-  ${EndIf}
-
-  ${If} $4 == "1"
-    Goto valid
-  ${EndIf}
-
-  Push "$INSTDIR"
-  Call QuchenInstallDirIsEmpty
-  Pop $0
-  ${If} $0 == "1"
-    Goto valid
-  ${EndIf}
-
-  MessageBox MB_ICONSTOP|MB_OK "为避免卸载时误删其它文件，Quchen 不能安装到已有文件的非专属目录。请新建或选择一个空的 Quchen 文件夹。$\r$\n$\r$\n当前路径：$INSTDIR"
-  Abort
-
-  valid:
+  FileWrite $0 "Quchen Radio install root marker.$\r$\n"
+  FileClose $0
 FunctionEnd
-Function QuchenWelcomeShow
-  Call QuchenUsePreferredInstallDir
+!endif
+
+!ifdef BUILD_UNINSTALLER
+Function un.QuchenRadioAbortUnsafeUninstallRoot
+  ${GetFileName} "$INSTDIR" $0
+  ${If} $0 != "Quchen-Radio"
+  ${AndIf} $0 != "quchen-radio"
+    MessageBox MB_ICONSTOP|MB_OK "卸载已中止：$INSTDIR 不是 Quchen Radio 专用安装目录。为避免误删用户文件，请手动删除 Quchen Radio 程序文件。"
+    Abort
+  ${EndIf}
+  IfFileExists "$INSTDIR\${QUCHEN_INSTALL_MARKER}" safe 0
+  MessageBox MB_ICONSTOP|MB_OK "卸载已中止：$INSTDIR 不是 Quchen Radio 专用安装目录，缺少安全标记 ${QUCHEN_INSTALL_MARKER}。为避免误删用户文件，请手动删除 Quchen Radio 程序文件。"
+  Abort
+safe:
+FunctionEnd
+!endif
+
+!ifndef BUILD_UNINSTALLER
+Function QuchenRadioWelcomeShow
+  Call QuchenRadioUsePreferredInstallDir
 
   nsDialogs::Create 1018
-  Pop $QuchenWelcomePage
-  ${If} $QuchenWelcomePage == error
+  Pop $QuchenRadioWelcomePage
+  ${If} $QuchenRadioWelcomePage == error
     Abort
   ${EndIf}
 
-  SetCtlColors $QuchenWelcomePage "111217" "FFFFFF"
-  CreateFont $QuchenHeroFont "Microsoft YaHei UI" 24 700
-  CreateFont $QuchenTitleFont "Microsoft YaHei UI" 11 700
-  CreateFont $QuchenBodyFont "Microsoft YaHei UI" 9 400
-  CreateFont $QuchenSmallFont "Microsoft YaHei UI" 8 400
+  SetCtlColors $QuchenRadioWelcomePage "111217" "FFFFFF"
+  CreateFont $QuchenRadioHeroFont "Microsoft YaHei UI" 24 700
+  CreateFont $QuchenRadioTitleFont "Microsoft YaHei UI" 11 700
+  CreateFont $QuchenRadioBodyFont "Microsoft YaHei UI" 9 400
+  CreateFont $QuchenRadioSmallFont "Microsoft YaHei UI" 8 400
 
   ${NSD_CreateLabel} 22u 20u 82u 10u "QUCHEN"
   Pop $0
-  SendMessage $0 ${WM_SETFONT} $QuchenSmallFont 1
+  SendMessage $0 ${WM_SETFONT} $QuchenRadioSmallFont 1
   SetCtlColors $0 "3257F7" "FFFFFF"
 
-  ${NSD_CreateLabel} 22u 42u 226u 30u "Quchen 安装"
+  ${NSD_CreateLabel} 22u 42u 226u 30u "Quchen Radio 安装"
   Pop $0
-  SendMessage $0 ${WM_SETFONT} $QuchenHeroFont 1
+  SendMessage $0 ${WM_SETFONT} $QuchenRadioHeroFont 1
   SetCtlColors $0 "111217" "FFFFFF"
 
   ${NSD_CreateLabel} 22u 78u 36u 2u ""
   Pop $0
   SetCtlColors $0 "" "3257F7"
 
-  ${NSD_CreateLabel} 22u 96u 238u 24u "为这台电脑安装 Quchen。默认安装到 D:\Quchen-Radio，下一步可以自由选择其它位置。"
+  ${NSD_CreateLabel} 22u 96u 238u 24u "为这台电脑安装 Quchen Radio。默认安装到 C:\Quchen-Radio；选择其它位置时会自动落入专用 Quchen Radio 子文件夹。"
   Pop $0
-  SendMessage $0 ${WM_SETFONT} $QuchenBodyFont 1
+  SendMessage $0 ${WM_SETFONT} $QuchenRadioBodyFont 1
   SetCtlColors $0 "4B5263" "FFFFFF"
 
   ${NSD_CreateLabel} 22u 130u 238u 12u "默认位置：$INSTDIR"
   Pop $0
-  SendMessage $0 ${WM_SETFONT} $QuchenTitleFont 1
+  SendMessage $0 ${WM_SETFONT} $QuchenRadioTitleFont 1
   SetCtlColors $0 "3257F7" "FFFFFF"
 
   nsDialogs::Show
 FunctionEnd
 
-Function QuchenDirectoryBrowse
-  nsDialogs::SelectFolderDialog "选择 Quchen 安装文件夹" "$INSTDIR"
+Function QuchenRadioDirectoryBrowse
+  nsDialogs::SelectFolderDialog "选择 Quchen Radio 安装文件夹" "$INSTDIR"
   Pop $0
   ${If} $0 != error
   ${AndIf} $0 != ""
     Push "$0"
-    Call QuchenNormalizeInstallDir
+    Call QuchenRadioNormalizeInstallDir
     Pop $0
     StrCpy $INSTDIR "$0"
-    SendMessage $QuchenDirectoryInput ${WM_SETTEXT} 0 "STR:$INSTDIR"
+    SendMessage $QuchenRadioDirectoryInput ${WM_SETTEXT} 0 "STR:$INSTDIR"
   ${EndIf}
 FunctionEnd
 
-Function QuchenDirectoryShow
-  Call QuchenUsePreferredInstallDir
+Function QuchenRadioDirectoryShow
+  Call QuchenRadioUsePreferredInstallDir
 
   nsDialogs::Create 1018
-  Pop $QuchenDirectoryPage
-  ${If} $QuchenDirectoryPage == error
+  Pop $QuchenRadioDirectoryPage
+  ${If} $QuchenRadioDirectoryPage == error
     Abort
   ${EndIf}
 
-  SetCtlColors $QuchenDirectoryPage "111217" "FFFFFF"
-  CreateFont $QuchenTitleFont "Microsoft YaHei UI" 15 700
-  CreateFont $QuchenBodyFont "Microsoft YaHei UI" 9 400
-  CreateFont $QuchenSmallFont "Microsoft YaHei UI" 8 500
+  SetCtlColors $QuchenRadioDirectoryPage "111217" "FFFFFF"
+  CreateFont $QuchenRadioTitleFont "Microsoft YaHei UI" 15 700
+  CreateFont $QuchenRadioBodyFont "Microsoft YaHei UI" 9 400
+  CreateFont $QuchenRadioSmallFont "Microsoft YaHei UI" 8 500
 
   ${NSD_CreateLabel} 22u 12u 238u 20u "选择安装位置"
   Pop $0
-  SendMessage $0 ${WM_SETFONT} $QuchenTitleFont 1
+  SendMessage $0 ${WM_SETFONT} $QuchenRadioTitleFont 1
   SetCtlColors $0 "111217" "FFFFFF"
 
-  ${NSD_CreateLabel} 22u 40u 238u 24u "你可以使用默认路径，也可以选择其它磁盘或文件夹。安装器会自动创建缺失的目录。"
+  ${NSD_CreateLabel} 22u 40u 238u 24u "你可以使用默认路径，也可以选择其它磁盘或文件夹。安装器会自动创建专用 Quchen Radio 子目录，避免卸载时影响其它文件。"
   Pop $0
-  SendMessage $0 ${WM_SETFONT} $QuchenBodyFont 1
+  SendMessage $0 ${WM_SETFONT} $QuchenRadioBodyFont 1
   SetCtlColors $0 "4B5263" "FFFFFF"
 
   ${NSD_CreateLabel} 22u 76u 238u 10u "安装目录"
   Pop $0
-  SendMessage $0 ${WM_SETFONT} $QuchenSmallFont 1
+  SendMessage $0 ${WM_SETFONT} $QuchenRadioSmallFont 1
   SetCtlColors $0 "3257F7" "FFFFFF"
 
   ${NSD_CreateText} 22u 94u 178u 15u "$INSTDIR"
-  Pop $QuchenDirectoryInput
-  SendMessage $QuchenDirectoryInput ${WM_SETFONT} $QuchenBodyFont 1
-  SetCtlColors $QuchenDirectoryInput "111217" "FFFFFF"
+  Pop $QuchenRadioDirectoryInput
+  SendMessage $QuchenRadioDirectoryInput ${WM_SETFONT} $QuchenRadioBodyFont 1
+  SetCtlColors $QuchenRadioDirectoryInput "111217" "FFFFFF"
 
   ${NSD_CreateBrowseButton} 210u 93u 50u 17u "浏览..."
   Pop $0
-  SendMessage $0 ${WM_SETFONT} $QuchenSmallFont 1
-  ${NSD_OnClick} $0 QuchenDirectoryBrowse
+  SendMessage $0 ${WM_SETFONT} $QuchenRadioSmallFont 1
+  ${NSD_OnClick} $0 QuchenRadioDirectoryBrowse
 
-  ${NSD_CreateLabel} 22u 122u 238u 12u "默认推荐：D:\Quchen-Radio；选盘符会自动建文件夹。"
+  ${NSD_CreateLabel} 22u 122u 238u 12u "默认推荐：C:\Quchen-Radio；选择现有文件夹会自动追加 Quchen Radio。"
   Pop $0
-  SendMessage $0 ${WM_SETFONT} $QuchenSmallFont 1
+  SendMessage $0 ${WM_SETFONT} $QuchenRadioSmallFont 1
   SetCtlColors $0 "6B7280" "FFFFFF"
 
   nsDialogs::Show
 FunctionEnd
 
-Function QuchenDirectoryLeave
-  ${NSD_GetText} $QuchenDirectoryInput $0
+Function QuchenRadioDirectoryLeave
+  ${NSD_GetText} $QuchenRadioDirectoryInput $0
   ${If} $0 == ""
     MessageBox MB_ICONEXCLAMATION|MB_OK "请选择安装文件夹。"
     Abort
   ${EndIf}
   Push "$0"
-  Call QuchenNormalizeInstallDir
+  Call QuchenRadioNormalizeInstallDir
   Pop $0
   StrCpy $INSTDIR "$0"
-  SendMessage $QuchenDirectoryInput ${WM_SETTEXT} 0 "STR:$INSTDIR"
-  Call QuchenValidateInstallDir
-FunctionEnd
-!endif
-
-!ifdef BUILD_UNINSTALLER
-!macro customUnInit
-  Call un.QuchenValidateUninstallDir
-!macroend
-
-Function un.QuchenInstallDirLooksOwned
-  Exch $0
-  StrCpy $1 "0"
-
-  IfFileExists "$0\${QUCHEN_INSTALL_MARKER}" 0 +2
-    StrCpy $1 "1"
-
-  StrCpy $0 "$1"
-  Exch $0
-FunctionEnd
-
-Function un.QuchenNormalizeInstallDir
-  Exch $0
-  Push "$0"
-  Call un.QuchenTrimInstallDir
-  Pop $0
-  StrLen $1 "$0"
-  ${If} $1 == 2
-    StrCpy $2 "$0" 1 1
-    ${If} $2 == ":"
-      StrCpy $0 "$0\Quchen-Radio"
-    ${EndIf}
-  ${ElseIf} $1 == 3
-    StrCpy $2 "$0" 1 1
-    StrCpy $3 "$0" 1 2
-    ${If} $2 == ":"
-    ${AndIf} $3 == "\"
-      StrCpy $0 "$0Quchen-Radio"
-    ${EndIf}
-  ${EndIf}
-
-  StrLen $1 "$0"
-  StrCpy $2 "$0" 13 -13
-  ${If} $1 < 13
-  ${OrIf} $2 != "\Quchen-Radio"
-  ${AndIf} $2 != "\quchen-radio"
-    StrCpy $0 "$0\Quchen-Radio"
-  ${EndIf}
-  Exch $0
-FunctionEnd
-
-Function un.QuchenTrimInstallDir
-  Exch $0
-
-  trim:
-    StrLen $1 "$0"
-    ${If} $1 > 3
-      StrCpy $2 "$0" 1 -1
-      ${If} $2 == "\"
-        StrCpy $0 "$0" -1
-        Goto trim
-      ${EndIf}
-    ${EndIf}
-
-  Exch $0
-FunctionEnd
-
-Function un.QuchenValidateUninstallDir
-  Push "$INSTDIR"
-  Call un.QuchenTrimInstallDir
-  Pop $0
-  Push "$0"
-  Call un.QuchenNormalizeInstallDir
-  Pop $1
-  ${If} $0 != $1
-    MessageBox MB_OK|MB_ICONSTOP "当前卸载路径不是 Quchen 专属目录，已阻止卸载以避免误删其它文件。$\r$\n$\r$\n当前路径：$INSTDIR$\r$\n安全路径应为：$0"
-    SetErrorLevel 2
-    Quit
-  ${EndIf}
-  StrCpy $INSTDIR "$0"
-
-  Push "$INSTDIR"
-  Call un.QuchenInstallDirLooksOwned
-  Pop $0
-  ${If} $0 != "1"
-    MessageBox MB_OK|MB_ICONSTOP "无法确认当前目录属于 Quchen，已阻止卸载以避免误删其它文件。$\r$\n$\r$\n当前路径：$INSTDIR"
-    SetErrorLevel 2
-    Quit
-  ${EndIf}
-FunctionEnd
-
-Function un.QuchenRemoveInstalledFiles
-  SetOutPath $TEMP
-
-  Delete "$INSTDIR\${PRODUCT_FILENAME}.exe"
-  Delete "$INSTDIR\Uninstall ${PRODUCT_FILENAME}.exe"
-  Delete "$INSTDIR\uninstallerIcon.ico"
-
-  Delete "$INSTDIR\chrome_100_percent.pak"
-  Delete "$INSTDIR\chrome_200_percent.pak"
-  Delete "$INSTDIR\d3dcompiler_47.dll"
-  Delete "$INSTDIR\dxcompiler.dll"
-  Delete "$INSTDIR\dxil.dll"
-  Delete "$INSTDIR\ffmpeg.dll"
-  Delete "$INSTDIR\icudtl.dat"
-  Delete "$INSTDIR\libEGL.dll"
-  Delete "$INSTDIR\libGLESv2.dll"
-  Delete "$INSTDIR\LICENSE.electron.txt"
-  Delete "$INSTDIR\LICENSES.chromium.html"
-  Delete "$INSTDIR\resources.pak"
-  Delete "$INSTDIR\snapshot_blob.bin"
-  Delete "$INSTDIR\v8_context_snapshot.bin"
-  Delete "$INSTDIR\vk_swiftshader.dll"
-  Delete "$INSTDIR\vk_swiftshader_icd.json"
-  Delete "$INSTDIR\vulkan-1.dll"
-
-  RMDir "$INSTDIR\locales"
-  RMDir "$INSTDIR\resources"
-  RMDir "$INSTDIR\swiftshader"
-
-  RMDir "$INSTDIR"
+  SendMessage $QuchenRadioDirectoryInput ${WM_SETTEXT} 0 "STR:$INSTDIR"
 FunctionEnd
 !endif

@@ -1,76 +1,26 @@
 {
-  "name": "quchen-radio",
+  "name": "quchen",
   "productName": "Quchen Radio",
-  "version": "1.0.0",
-  "description": "Quchen Radio 沉浸式音乐播放器，融合天气电台、歌词舞台、粒子视觉和 3D 歌单架。",
-  "author": "Quchen",
+  "version": "1.5.1",
+  "description": "可独立运行的本地音乐播放器、跨平台歌单工具与桌面音乐可视化应用。",
+  "author": "Quchen Radio contributors",
+  "license": "MIT",
   "main": "desktop/main.js",
-  "private": true,
+  "homepage": "https://github.com/quchenace/QUCHEN-Radio",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/quchenace/QUCHEN-Radio.git"
+  },
+  "bugs": {
+    "url": "https://github.com/quchenace/QUCHEN-Radio/issues"
+  },
   "scripts": {
     "start": "electron .",
-    "build:win": "electron-builder --win nsis",
-    "build:win:dir": "electron-builder --win dir",
-    "website": "node website-server.js"
+    "dev": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
   },
-  "build": {
-    "appId": "com.quchen.radio",
-    "productName": "Quchen Radio",
-    "directories": {
-      "output": "dist",
-      "buildResources": "build"
-    },
-    "afterPack": "build/after-pack.js",
-    "toolsets": {
-      "winCodeSign": "1.1.0"
-    },
-    "files": [
-      "desktop/**/*",
-      "public/**/*",
-      "build/**/*",
-      "server.js",
-      "dj-analyzer.js",
-      "package.json",
-      "!public/index.*.html",
-      "public/index.html"
-    ],
-    "asar": false,
-    "win": {
-      "executableName": "Quchen-Radio",
-      "icon": "build/icon.ico",
-      "signAndEditExecutable": false,
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        }
-      ]
-    },
-    "nsis": {
-      "oneClick": false,
-      "perMachine": false,
-      "allowToChangeInstallationDirectory": false,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "Quchen Radio",
-      "installerIcon": "build/icon.ico",
-      "uninstallerIcon": "build/icon.ico",
-      "installerSidebar": "build/installerSidebar.bmp",
-      "uninstallerSidebar": "build/installerSidebar.bmp",
-      "installerHeader": "build/installerHeader.bmp",
-      "include": "build/installer.nsh",
-      "artifactName": "Quchen-Radio-${version}-Setup.${ext}"
-    },
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "quchenace",
-        "repo": "QUCHEN-Radio"
-      }
-    ]
-  },
-  "quchenRadio": {
+  "quchen": {
     "update": {
       "provider": "github",
       "owner": "quchenace",
@@ -86,12 +36,38 @@
   },
   "dependencies": {
     "gsap": "^3.15.0",
-    "mpg123-decoder": "^1.0.3",
-    "NeteaseCloudMusicApi": "^4.32.0"
+    "mpg123-decoder": "^1.0.3"
   },
   "devDependencies": {
-    "electron": "^42.4.1",
-    "electron-builder": "^26.15.3",
-    "rcedit": "^5.0.2"
+    "electron": "^39.8.5",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "com.quchen.radio",
+    "productName": "Quchen Radio",
+    "artifactName": "Quchen-Radio-${version}-Setup.${ext}",
+    "asar": false,
+    "directories": {
+      "buildResources": "build",
+      "output": "dist"
+    },
+    "files": [
+      "desktop/**/*",
+      "public/**/*",
+      "server.js",
+      "lx-source-host.js",
+      "lx-search.js",
+      "platform-playlist-import.js",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "include": "build/installer.nsh"
+    }
   }
 }
