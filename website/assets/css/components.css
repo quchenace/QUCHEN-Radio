@@ -1,0 +1,250 @@
+/* ============================================================
+   Quchen Radio · components.css
+   按钮、卡片、玻璃面板、Toast 等可复用组件
+   ============================================================ */
+
+/* ---------- 按钮 ---------- */
+.btn {
+  --btn-h: 40px;
+  --btn-px: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  height: var(--btn-h);
+  padding: 0 var(--btn-px);
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.01em;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--dur-base) var(--ease-out);
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+}
+
+.btn--sm { --btn-h: 34px; --btn-px: 14px; font-size: var(--fs-xs); }
+.btn--lg { --btn-h: 48px; --btn-px: 24px; font-size: var(--fs-md); }
+.btn--xl { --btn-h: 56px; --btn-px: 28px; font-size: var(--fs-lg); }
+.btn--block { display: flex; width: 100%; }
+
+.btn__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1em;
+  height: 1.1em;
+  font-size: 1.05em;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+.btn:hover .btn__icon { transform: translateX(2px); }
+.btn[data-action*="download"]:hover .btn__icon { transform: translateY(2px); }
+
+/* 主按钮 - 金色渐变 */
+.btn--primary {
+  background: var(--gradient-accent);
+  color: #1a1410;
+  font-weight: var(--fw-semibold);
+  box-shadow: 0 4px 16px rgba(212, 165, 116, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.btn--primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), transparent 50%);
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+
+.btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(212, 165, 116, 0.40), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.btn--primary:hover::before { opacity: 1; }
+
+.btn--primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(212, 165, 116, 0.3);
+}
+
+/* 幽灵按钮 - 玻璃描边 */
+.btn--ghost {
+  background: var(--surface-glass);
+  color: var(--text-1);
+  border: 1px solid var(--border-2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.btn--ghost:hover {
+  background: var(--surface-3);
+  border-color: var(--border-3);
+  color: var(--accent-bright);
+  transform: translateY(-1px);
+}
+
+.btn--ghost:active {
+  transform: translateY(0);
+}
+
+/* 加载状态 */
+.btn.is-loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.btn.is-loading .btn__icon {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------- 卡片基础 ---------- */
+.card {
+  background: var(--surface-glass);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-xl);
+  padding: var(--sp-6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: all var(--dur-base) var(--ease-out);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+
+.card:hover {
+  border-color: var(--border-3);
+  background: var(--surface-glass-strong);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.card:hover::before { opacity: 1; }
+
+/* ---------- 玻璃面板 ---------- */
+.glass-panel {
+  background: var(--surface-glass);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-2xl);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ---------- 徽章 ---------- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 6px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-full);
+  font-size: var(--fs-xs);
+  color: var(--text-2);
+  font-weight: var(--fw-medium);
+}
+
+.badge__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--accent-bright);
+  box-shadow: 0 0 8px var(--accent-glow);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.85); }
+}
+
+/* ---------- Toast 通知 ---------- */
+.toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(120%);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: 14px 22px;
+  background: var(--surface-glass-strong);
+  border: 1px solid var(--border-3);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-lg);
+  color: var(--text-1);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  z-index: 1000;
+  opacity: 0;
+  transition: all var(--dur-base) var(--ease-out);
+  pointer-events: none;
+  max-width: 90vw;
+}
+
+.toast.is-visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.toast--error .toast__icon { color: #ff6b6b; }
+.toast--success .toast__icon { color: #4ade80; }
+.toast--info .toast__icon { color: var(--accent-bright); }
+
+/* ---------- 标签 ---------- */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-dim);
+  color: var(--accent-bright);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  font-family: var(--font-mono);
+}
+
+/* ---------- 滚动揭示动画 ---------- */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity var(--dur-slow) var(--ease-out),
+    transform var(--dur-slow) var(--ease-out);
+}
+
+[data-reveal].is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+[data-reveal-delay="1"] { transition-delay: 80ms; }
+[data-reveal-delay="2"] { transition-delay: 160ms; }
+[data-reveal-delay="3"] { transition-delay: 240ms; }
+[data-reveal-delay="4"] { transition-delay: 320ms; }
+[data-reveal-delay="5"] { transition-delay: 400ms; }
+[data-reveal-delay="6"] { transition-delay: 480ms; }

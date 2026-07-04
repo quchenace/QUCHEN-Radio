@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0a0f" />
+  <title>Quchen Radio · 沉浸式音乐播放器</title>
+  <meta name="description" content="Quchen Radio 是一款 Windows 桌面沉浸式音乐播放器，融合天气电台、搜索播放、歌词舞台、粒子视觉和 3D 歌单架。" />
+  <meta name="author" content="Quchen" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Quchen Radio · 沉浸式音乐播放器" />
+  <meta property="og:description" content="融合天气电台、歌词舞台、粒子视觉和 3D 歌单架的私人音乐空间。" />
+  <meta property="og:type" content="website" />
+
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/sections.css" />
+  <link rel="stylesheet" href="assets/css/responsive.css" />
+</head>
+<body>
+  <!-- 粒子背景画布 -->
+  <canvas id="bg-particles" aria-hidden="true"></canvas>
+
+  <!-- 导航 -->
+  <nav class="nav" id="nav">
+    <div class="nav__inner">
+      <a class="nav__brand" href="#hero" aria-label="Quchen Radio 首页">
+        <span class="nav__logo" aria-hidden="true">
+          <svg viewBox="0 0 48 48" width="32" height="32">
+            <defs>
+              <linearGradient id="navLogoGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#e8c896" />
+                <stop offset="100%" stop-color="#d4a574" />
+              </linearGradient>
+            </defs>
+            <circle cx="24" cy="24" r="22" fill="none" stroke="url(#navLogoGrad)" stroke-width="1.5" opacity="0.6" />
+            <path d="M16 16 Q24 8 32 16 Q40 24 32 32 Q24 40 16 32 Q8 24 16 16 Z" fill="none" stroke="url(#navLogoGrad)" stroke-width="2" />
+            <circle cx="24" cy="24" r="4" fill="url(#navLogoGrad)" />
+          </svg>
+        </span>
+        <span class="nav__title">Quchen Radio</span>
+      </a>
+      <ul class="nav__menu">
+        <li><a href="#features">特性</a></li>
+        <li><a href="#sources">音源插件</a></li>
+        <li><a href="#download">下载</a></li>
+        <li><a href="#changelog">更新日志</a></li>
+      </ul>
+      <div class="nav__actions">
+        <button class="btn btn--ghost btn--sm" data-action="check-update" type="button">
+          <span class="btn__icon" aria-hidden="true">↻</span>
+          <span class="btn__label">检查更新</span>
+        </button>
+        <a class="btn btn--primary btn--sm" href="#download">
+          <span class="btn__label">立即下载</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero" id="hero">
+      <div class="hero__bg-gradient" aria-hidden="true"></div>
+      <div class="hero__content">
+        <div class="hero__badge">
+          <span class="hero__badge-dot" aria-hidden="true"></span>
+          <span id="hero-version">v1.0.0</span> · 全新发布
+        </div>
+        <h1 class="hero__title">
+          <span class="hero__title-line">沉浸式音乐</span>
+          <span class="hero__title-line hero__title-line--accent">不止于听</span>
+        </h1>
+        <p class="hero__subtitle">
+          天气电台、歌词舞台、粒子视觉与 3D 歌单架，组合成一个更接近现场感的私人音乐空间。
+        </p>
+        <div class="hero__cta">
+          <button class="btn btn--primary btn--lg" data-action="download-installer" type="button">
+            <span class="btn__icon" aria-hidden="true">⬇</span>
+            <span class="btn__label">下载 Windows 安装包</span>
+          </button>
+          <a class="btn btn--ghost btn--lg" href="#features">
+            <span class="btn__label">查看特性</span>
+            <span class="btn__icon" aria-hidden="true">→</span>
+          </a>
+        </div>
+        <div class="hero__meta">
+          <div class="hero__meta-item">
+            <span class="hero__meta-label">系统</span>
+            <span class="hero__meta-value">Windows 10/11 · x64</span>
+          </div>
+          <div class="hero__meta-item">
+            <span class="hero__meta-label">版本</span>
+            <span class="hero__meta-value" id="hero-meta-version">1.0.0</span>
+          </div>
+          <div class="hero__meta-item">
+            <span class="hero__meta-label">协议</span>
+            <span class="hero__meta-value">GPL-3.0</span>
+          </div>
+          <div class="hero__meta-item">
+            <span class="hero__meta-label">大小</span>
+            <span class="hero__meta-value" id="hero-meta-size">约 95 MB</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero__scroll" aria-hidden="true">
+        <span class="hero__scroll-line"></span>
+        <span class="hero__scroll-text">向下滚动</span>
+      </div>
+    </section>
+
+    <!-- 特性 -->
+    <section class="section" id="features">
+      <div class="section__header">
+        <span class="section__eyebrow">核心特性</span>
+        <h2 class="section__title">把音乐做成一场现场</h2>
+        <p class="section__desc">每一项特性都为了让听觉、视觉和情感同时被唤起。</p>
+      </div>
+      <div class="features-grid" id="features-grid">
+        <!-- 特性卡片由 JS 动态生成 -->
+      </div>
+    </section>
+
+    <!-- 视觉预览 -->
+    <section class="section section--preview" id="preview">
+      <div class="section__header">
+        <span class="section__eyebrow">视觉预览</span>
+        <h2 class="section__title">第一眼就知道它不一样</h2>
+      </div>
+      <div class="preview-frame">
+        <div class="preview-frame__inner">
+          <div class="preview-canvas" id="preview-canvas">
+            <div class="preview-orb"></div>
+            <div class="preview-rings">
+              <span></span><span></span><span></span>
+            </div>
+            <div class="preview-grid"></div>
+            <div class="preview-lyrics">
+              <span>夜色温柔</span>
+              <span class="preview-lyrics__active">把所有情绪交给这首歌</span>
+              <span>不要说话</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 音源插件 -->
+    <section class="section" id="sources">
+      <div class="section__header">
+        <span class="section__eyebrow">LX Music 音源</span>
+        <h2 class="section__title">七款音源插件，一键导入</h2>
+        <p class="section__desc">
+          适配 <a class="inline-link" href="https://github.com/lyswhut/lx-music-desktop" target="_blank" rel="noopener">LX Music 桌面版</a>，
+          点击下方按钮即可下载插件文件，导入后即可使用。
+        </p>
+      </div>
+      <div class="sources-grid" id="sources-grid">
+        <!-- 音源卡片由 JS 动态生成 -->
+      </div>
+      <p class="sources-note">
+        <strong>使用说明：</strong> 下载 .js 文件后，在 LX Music 桌面版「设置 → 音乐来源 → 自定义源管理」中导入。
+        所有插件均来自社区，仅供学习研究，请遵守对应平台的用户协议与版权规则。
+      </p>
+    </section>
+
+    <!-- 下载 -->
+    <section class="section section--download" id="download">
+      <div class="download-card">
+        <div class="download-card__left">
+          <span class="download-card__badge">最新版本</span>
+          <h2 class="download-card__title">立即下载 Quchen Radio</h2>
+          <p class="download-card__desc">
+            点击下方按钮直接下载安装包，无需跳转 GitHub 页面。
+            安装时请确认文件名为 <code>Quchen-Radio-<span id="download-version">1.0.0</span>-Setup.exe</code>。
+          </p>
+          <ul class="download-card__list">
+            <li><span class="check" aria-hidden="true">✓</span> Windows 10/11 (x64) 完整支持</li>
+            <li><span class="check" aria-hidden="true">✓</span> 软件内自动检查更新</li>
+            <li><span class="check" aria-hidden="true">✓</span> 网易云音乐 / QQ 音乐接入</li>
+            <li><span class="check" aria-hidden="true">✓</span> 沉浸式 3D 歌单架与粒子视觉</li>
+          </ul>
+        </div>
+        <div class="download-card__right">
+          <div class="download-card__version">
+            <span class="download-card__version-label">当前版本</span>
+            <span class="download-card__version-num" id="download-version-large">1.0.0</span>
+          </div>
+          <button class="btn btn--primary btn--xl btn--block" data-action="download-installer" type="button">
+            <span class="btn__icon" aria-hidden="true">⬇</span>
+            <span class="btn__label">下载安装包</span>
+          </button>
+          <button class="btn btn--ghost btn--block" data-action="check-update" type="button">
+            <span class="btn__icon" aria-hidden="true">↻</span>
+            <span class="btn__label">检查最新版本</span>
+          </button>
+          <p class="download-card__hint" id="download-status">准备就绪</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 更新日志 -->
+    <section class="section" id="changelog">
+      <div class="section__header">
+        <span class="section__eyebrow">更新日志</span>
+        <h2 class="section__title">每次更新都在变得更好</h2>
+      </div>
+      <div class="changelog" id="changelog-list">
+        <!-- 由 JS 动态生成 -->
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="footer__brand">
+        <div class="footer__logo">Quchen Radio</div>
+        <p class="footer__tagline">沉浸式音乐播放器 · 基于 Mineradio 衍生</p>
+      </div>
+      <div class="footer__links">
+        <div class="footer__col">
+          <h4 class="footer__col-title">产品</h4>
+          <a href="#features">特性</a>
+          <a href="#download">下载</a>
+          <a href="#changelog">更新日志</a>
+        </div>
+        <div class="footer__col">
+          <h4 class="footer__col-title">音源</h4>
+          <a href="#sources">六音音源</a>
+          <a href="#sources">Huibq 源</a>
+          <a href="#sources">洛雪独家</a>
+        </div>
+        <div class="footer__col">
+          <h4 class="footer__col-title">相关</h4>
+          <a href="https://github.com/lyswhut/lx-music-desktop" target="_blank" rel="noopener">LX Music 桌面版</a>
+          <a href="https://github.com/XxHuberrr/Mineradio" target="_blank" rel="noopener">原始 Mineradio</a>
+          <a href="https://github.com/pdone/lx-music-source" target="_blank" rel="noopener">lx-music-source</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <p>© <span id="footer-year">2026</span> Quchen Radio · GPL-3.0 License</p>
+      <p class="footer__disclaimer">
+        本软件不是网易云音乐、QQ 音乐或腾讯音乐娱乐集团的官方客户端。
+        第三方平台接入仅用于个人学习与本地客户端体验，请遵守对应平台协议。
+      </p>
+    </div>
+  </footer>
+
+  <!-- 通知组件 -->
+  <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true">
+    <span class="toast__icon" aria-hidden="true">✓</span>
+    <span class="toast__msg" id="toast-msg">操作成功</span>
+  </div>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/particles.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
