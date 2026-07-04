@@ -1,4 +1,4 @@
-﻿const { app, BrowserWindow, ipcMain, shell, screen, session, globalShortcut, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, screen, session, globalShortcut, dialog } = require('electron');
 const net = require('net');
 const path = require('path');
 const fs = require('fs');
@@ -30,11 +30,11 @@ const WINDOWED_MARGIN = 32;
 const MIN_WINDOWED_WIDTH = 960;
 const MIN_WINDOWED_HEIGHT = 540;
 const APP_NAME = 'Quchen Radio';
-const APP_USER_MODEL_ID = 'com.mineradio.desktop';
+const APP_USER_MODEL_ID = 'com.quchen.desktop';
 const APP_ICON_ICO = path.join(__dirname, '..', 'build', 'icon.ico');
-const NETEASE_LOGIN_PARTITION = 'persist:mineradio-netease-login';
+const NETEASE_LOGIN_PARTITION = 'persist:quchen-netease-login';
 const NETEASE_LOGIN_URL = 'https://music.163.com/#/login';
-const QQ_LOGIN_PARTITION = 'persist:mineradio-qqmusic-login';
+const QQ_LOGIN_PARTITION = 'persist:quchen-qqmusic-login';
 const QQ_LOGIN_URL = 'https://y.qq.com/n/ryqq/profile';
 
 const CHROMIUM_PERFORMANCE_SWITCHES = [
@@ -130,7 +130,7 @@ function sendWindowState(win) {
 
 function sendGlobalHotkeyAction(action) {
   if (!mainWindow || mainWindow.isDestroyed() || !action) return;
-  mainWindow.webContents.send('mineradio-global-hotkey', { action });
+  mainWindow.webContents.send('quchen-global-hotkey', { action });
 }
 
 function unregisterQuchenGlobalHotkeys() {
@@ -274,8 +274,8 @@ function getUpdateDownloadDir() {
 
 function shouldEnsureDesktopShortcut() {
   if (process.platform !== 'win32') return false;
-  if (process.env.MINERADIO_NO_DESKTOP_SHORTCUT === '1') return false;
-  return app.isPackaged || process.env.MINERADIO_CREATE_DESKTOP_SHORTCUT === '1';
+  if (process.env.QUCHEN_NO_DESKTOP_SHORTCUT === '1') return false;
+  return app.isPackaged || process.env.QUCHEN_CREATE_DESKTOP_SHORTCUT === '1';
 }
 
 function ensureDesktopShortcut() {
@@ -871,14 +871,14 @@ function stopDesktopLyricsMousePoller() {
 function broadcastDesktopLyricsLockState() {
   const locked = desktopLyricsState.clickThrough !== false;
   if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send('mineradio-desktop-lyrics-lock-state', { locked });
+    mainWindow.webContents.send('quchen-desktop-lyrics-lock-state', { locked });
   }
   sendDesktopLyricsState();
 }
 
 function broadcastDesktopLyricsEnabledState(enabled) {
   if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send('mineradio-desktop-lyrics-enabled-state', { enabled: !!enabled });
+    mainWindow.webContents.send('quchen-desktop-lyrics-enabled-state', { enabled: !!enabled });
   }
 }
 
@@ -893,7 +893,7 @@ function positionDesktopLyricsWindow(payload = desktopLyricsState, options = {})
 
 function sendDesktopLyricsState() {
   if (!desktopLyricsWindow || desktopLyricsWindow.isDestroyed()) return;
-  desktopLyricsWindow.webContents.send('mineradio-desktop-lyrics-state', desktopLyricsState);
+  desktopLyricsWindow.webContents.send('quchen-desktop-lyrics-state', desktopLyricsState);
 }
 
 function createDesktopLyricsWindow(payload = {}) {
@@ -1036,7 +1036,7 @@ function positionWallpaperWindow() {
 
 function sendWallpaperState() {
   if (!wallpaperWindow || wallpaperWindow.isDestroyed()) return;
-  wallpaperWindow.webContents.send('mineradio-wallpaper-state', wallpaperState);
+  wallpaperWindow.webContents.send('quchen-wallpaper-state', wallpaperState);
 }
 
 function createWallpaperWindow(payload = {}) {
@@ -1121,14 +1121,14 @@ ipcMain.handle('desktop-window-close', (event) => {
   getSenderWindow(event)?.close();
 });
 
-ipcMain.handle('mineradio-hotkeys-configure-global', (_event, bindings) => {
+ipcMain.handle('quchen-hotkeys-configure-global', (_event, bindings) => {
   return configureQuchenGlobalHotkeys(bindings);
 });
 
-ipcMain.handle('mineradio-export-json-file', async (event, payload = {}) => {
+ipcMain.handle('quchen-export-json-file', async (event, payload = {}) => {
   try {
     const owner = getSenderWindow(event);
-    const defaultName = String(payload.defaultName || 'mineradio-export.json').replace(/[\\/:*?"<>|]+/g, '-');
+    const defaultName = String(payload.defaultName || 'quchen-export.json').replace(/[\\/:*?"<>|]+/g, '-');
     const result = await dialog.showSaveDialog(owner, {
       title: '导出 Quchen 存档',
       defaultPath: defaultName.toLowerCase().endsWith('.json') ? defaultName : `${defaultName}.json`,
@@ -1143,7 +1143,7 @@ ipcMain.handle('mineradio-export-json-file', async (event, payload = {}) => {
   }
 });
 
-ipcMain.handle('mineradio-import-json-file', async (event) => {
+ipcMain.handle('quchen-import-json-file', async (event) => {
   try {
     const owner = getSenderWindow(event);
     const result = await dialog.showOpenDialog(owner, {
@@ -1176,7 +1176,7 @@ ipcMain.handle('qq-music-clear-login', async () => {
   return clearQQMusicLoginSession();
 });
 
-ipcMain.handle('mineradio-open-update-installer', async (_event, filePath) => {
+ipcMain.handle('quchen-open-update-installer', async (_event, filePath) => {
   try {
     const target = path.resolve(String(filePath || ''));
     const updateDir = path.resolve(getUpdateDownloadDir());
@@ -1191,7 +1191,7 @@ ipcMain.handle('mineradio-open-update-installer', async (_event, filePath) => {
   }
 });
 
-ipcMain.handle('mineradio-restart-app', async () => {
+ipcMain.handle('quchen-restart-app', async () => {
   try {
     app.relaunch();
     app.exit(0);
@@ -1201,7 +1201,7 @@ ipcMain.handle('mineradio-restart-app', async () => {
   }
 });
 
-ipcMain.handle('mineradio-desktop-lyrics-set-enabled', async (_event, enabled, payload) => {
+ipcMain.handle('quchen-desktop-lyrics-set-enabled', async (_event, enabled, payload) => {
   try {
     if (enabled) {
       createDesktopLyricsWindow(payload || {});
@@ -1215,7 +1215,7 @@ ipcMain.handle('mineradio-desktop-lyrics-set-enabled', async (_event, enabled, p
   }
 });
 
-ipcMain.handle('mineradio-desktop-lyrics-update', async (_event, payload) => {
+ipcMain.handle('quchen-desktop-lyrics-update', async (_event, payload) => {
   try {
     const nextState = { ...desktopLyricsState, ...(payload || {}) };
     if (nextState.enabled) {
@@ -1232,11 +1232,11 @@ ipcMain.handle('mineradio-desktop-lyrics-update', async (_event, payload) => {
   }
 });
 
-ipcMain.handle('mineradio-desktop-lyrics-set-dragging', async () => {
+ipcMain.handle('quchen-desktop-lyrics-set-dragging', async () => {
   return { ok: true };
 });
 
-ipcMain.handle('mineradio-desktop-lyrics-set-pointer-capture', async (_event, active) => {
+ipcMain.handle('quchen-desktop-lyrics-set-pointer-capture', async (_event, active) => {
   try {
     desktopLyricsPointerCapture = !!active;
     applyDesktopLyricsMouseBehavior();
@@ -1246,7 +1246,7 @@ ipcMain.handle('mineradio-desktop-lyrics-set-pointer-capture', async (_event, ac
   }
 });
 
-ipcMain.handle('mineradio-desktop-lyrics-set-hot-bounds', async (_event, bounds) => {
+ipcMain.handle('quchen-desktop-lyrics-set-hot-bounds', async (_event, bounds) => {
   try {
     const left = clampNumber(bounds && bounds.left, -2000, 4000, 0);
     const top = clampNumber(bounds && bounds.top, -2000, 4000, 0);
@@ -1259,7 +1259,7 @@ ipcMain.handle('mineradio-desktop-lyrics-set-hot-bounds', async (_event, bounds)
   }
 });
 
-ipcMain.handle('mineradio-desktop-lyrics-set-lock-state', async (_event, locked) => {
+ipcMain.handle('quchen-desktop-lyrics-set-lock-state', async (_event, locked) => {
   try {
     desktopLyricsState = { ...desktopLyricsState, clickThrough: !!locked };
     if (desktopLyricsState.clickThrough !== false) desktopLyricsPointerCapture = false;
@@ -1271,7 +1271,7 @@ ipcMain.handle('mineradio-desktop-lyrics-set-lock-state', async (_event, locked)
   }
 });
 
-ipcMain.handle('mineradio-desktop-lyrics-move-by', async (_event, dx, dy) => {
+ipcMain.handle('quchen-desktop-lyrics-move-by', async (_event, dx, dy) => {
   try {
     if (!desktopLyricsWindow || desktopLyricsWindow.isDestroyed()) return { ok: false, error: 'NO_DESKTOP_LYRICS_WINDOW' };
     if (desktopLyricsState.clickThrough !== false) return { ok: false, error: 'DESKTOP_LYRICS_LOCKED' };
@@ -1289,7 +1289,7 @@ ipcMain.handle('mineradio-desktop-lyrics-move-by', async (_event, dx, dy) => {
   }
 });
 
-ipcMain.handle('mineradio-wallpaper-set-enabled', async (_event, enabled, payload) => {
+ipcMain.handle('quchen-wallpaper-set-enabled', async (_event, enabled, payload) => {
   try {
     if (enabled) createWallpaperWindow(payload || {});
     else closeWallpaperWindow();
@@ -1299,7 +1299,7 @@ ipcMain.handle('mineradio-wallpaper-set-enabled', async (_event, enabled, payloa
   }
 });
 
-ipcMain.handle('mineradio-wallpaper-update', async (_event, payload) => {
+ipcMain.handle('quchen-wallpaper-update', async (_event, payload) => {
   try {
     wallpaperState = { ...wallpaperState, ...(payload || {}) };
     if (wallpaperState.enabled) {

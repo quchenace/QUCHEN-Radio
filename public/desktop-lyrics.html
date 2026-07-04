@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
@@ -1188,10 +1188,10 @@
         }
       });
     }
-    window.__mineradioDesktopLyricsApplyState = applyState;
+    window.__quchenDesktopLyricsApplyState = applyState;
     window.addEventListener('message', function(event){
       var data = event && event.data;
-      if (!data || data.type !== 'mineradio-desktop-lyrics-state') return;
+      if (!data || data.type !== 'quchen-desktop-lyrics-state') return;
       applyState(data.payload || {});
     });
     window.addEventListener('resize', resize);

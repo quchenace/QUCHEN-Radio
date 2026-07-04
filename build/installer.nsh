@@ -1,4 +1,4 @@
-﻿!ifndef MUI_BGCOLOR
+!ifndef MUI_BGCOLOR
   !define MUI_BGCOLOR "FFFFFF"
 !endif
 !ifndef MUI_TEXTCOLOR
@@ -37,7 +37,7 @@
 !include nsDialogs.nsh
 !include WinMessages.nsh
 
-!define MINERADIO_INSTALL_MARKER ".mineradio-install-root"
+!define QUCHEN_INSTALL_MARKER ".quchen-install-root"
 
 !ifndef BUILD_UNINSTALLER
   Var QuchenWelcomePage
@@ -60,10 +60,10 @@
 !macroend
 
 !macro customInstall
-  FileOpen $0 "$INSTDIR\${MINERADIO_INSTALL_MARKER}" w
+  FileOpen $0 "$INSTDIR\${QUCHEN_INSTALL_MARKER}" w
   ${IfNot} ${Errors}
     FileWrite $0 "Quchen Radio install root$\r$\n"
-    FileWrite $0 "appId=com.mineradio.desktop$\r$\n"
+    FileWrite $0 "appId=com.quchen.desktop$\r$\n"
     FileClose $0
   ${EndIf}
 !macroend
@@ -387,10 +387,10 @@ Function QuchenNormalizeInstallDir
   ${EndIf}
 
   StrLen $1 "$0"
-  StrCpy $2 "$0" 10 -10
-  ${If} $1 < 10
-  ${OrIf} $2 != "\Quchen"
-  ${AndIf} $2 != "\mineradio"
+  StrCpy $2 "$0" 13 -13
+  ${If} $1 < 13
+  ${OrIf} $2 != "\Quchen-Radio"
+  ${AndIf} $2 != "\quchen-radio"
     StrCpy $0 "$0\Quchen-Radio"
   ${EndIf}
   Exch $0
@@ -416,7 +416,7 @@ Function QuchenInstallDirLooksOwned
   Exch $0
   StrCpy $1 "0"
 
-  IfFileExists "$0\${MINERADIO_INSTALL_MARKER}" 0 +2
+  IfFileExists "$0\${QUCHEN_INSTALL_MARKER}" 0 +2
     StrCpy $1 "1"
 
   StrCpy $0 "$1"
@@ -446,7 +446,7 @@ Function QuchenExistingInstallPathCanBeAdopted
   ${EndIf}
 
   IfFileExists "$2\*.*" 0 done
-  IfFileExists "$2\${MINERADIO_INSTALL_MARKER}" adopt 0
+  IfFileExists "$2\${QUCHEN_INSTALL_MARKER}" adopt 0
   IfFileExists "$2\${PRODUCT_FILENAME}.exe" adopt 0
   IfFileExists "$2\resources\app.asar" adopt 0
   IfFileExists "$2\resources\app\package.json" adopt 0
@@ -628,7 +628,7 @@ Function QuchenOldInstallPathNeedsQuarantine
     Goto done
   ${EndIf}
 
-  IfFileExists "$2\${MINERADIO_INSTALL_MARKER}" done 0
+  IfFileExists "$2\${QUCHEN_INSTALL_MARKER}" done 0
   Push "$2"
   Call QuchenExistingInstallPathCanBeAdopted
   Pop $4
@@ -710,7 +710,7 @@ Function QuchenDeleteLegacyUninstallerFileIfMissingMarker
     Call QuchenTrimInstallDir
     Pop $1
     ${If} $1 != ""
-      IfFileExists "$1\${MINERADIO_INSTALL_MARKER}" done 0
+      IfFileExists "$1\${QUCHEN_INSTALL_MARKER}" done 0
       DetailPrint "Remove legacy Quchen Radio uninstaller file: $1"
       Delete "$1\Uninstall ${PRODUCT_FILENAME}.exe"
     ${EndIf}
@@ -749,10 +749,10 @@ Function QuchenValidateInstallDir
   ${EndIf}
 
   StrLen $0 "$INSTDIR"
-  StrCpy $1 "$INSTDIR" 10 -10
-  ${If} $0 < 10
-  ${OrIf} $1 != "\Quchen"
-  ${AndIf} $1 != "\mineradio"
+  StrCpy $1 "$INSTDIR" 13 -13
+  ${If} $0 < 13
+  ${OrIf} $1 != "\Quchen-Radio"
+  ${AndIf} $1 != "\quchen-radio"
     MessageBox MB_ICONSTOP|MB_OK "安装目录必须是独立的 Quchen 文件夹。请选择一个上级目录，安装器会自动创建 Quchen 子文件夹。"
     Abort
   ${EndIf}
@@ -801,7 +801,7 @@ Function QuchenWelcomeShow
   CreateFont $QuchenBodyFont "Microsoft YaHei UI" 9 400
   CreateFont $QuchenSmallFont "Microsoft YaHei UI" 8 400
 
-  ${NSD_CreateLabel} 22u 20u 82u 10u "MINERADIO"
+  ${NSD_CreateLabel} 22u 20u 82u 10u "QUCHEN"
   Pop $0
   SendMessage $0 ${WM_SETFONT} $QuchenSmallFont 1
   SetCtlColors $0 "3257F7" "FFFFFF"
@@ -912,7 +912,7 @@ Function un.QuchenInstallDirLooksOwned
   Exch $0
   StrCpy $1 "0"
 
-  IfFileExists "$0\${MINERADIO_INSTALL_MARKER}" 0 +2
+  IfFileExists "$0\${QUCHEN_INSTALL_MARKER}" 0 +2
     StrCpy $1 "1"
 
   StrCpy $0 "$1"
@@ -940,10 +940,10 @@ Function un.QuchenNormalizeInstallDir
   ${EndIf}
 
   StrLen $1 "$0"
-  StrCpy $2 "$0" 10 -10
-  ${If} $1 < 10
-  ${OrIf} $2 != "\Quchen"
-  ${AndIf} $2 != "\mineradio"
+  StrCpy $2 "$0" 13 -13
+  ${If} $1 < 13
+  ${OrIf} $2 != "\Quchen-Radio"
+  ${AndIf} $2 != "\quchen-radio"
     StrCpy $0 "$0\Quchen-Radio"
   ${EndIf}
   Exch $0
