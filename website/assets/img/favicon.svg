@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a1410" />
+      <stop offset="100%" stop-color="#0a0a0f" />
+    </linearGradient>
+    <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e8c896" />
+      <stop offset="100%" stop-color="#d4a574" />
+    </linearGradient>
+    <radialGradient id="orbGrad" cx="0.35" cy="0.35" r="0.7">
+      <stop offset="0%" stop-color="#fff0d8" />
+      <stop offset="40%" stop-color="#e8c896" />
+      <stop offset="100%" stop-color="#b8865c" />
+    </radialGradient>
+  </defs>
+  <rect width="48" height="48" rx="10" fill="url(#bgGrad)" />
+  <circle cx="24" cy="24" r="20" fill="none" stroke="url(#ringGrad)" stroke-width="1" opacity="0.45" />
+  <path d="M14 18 Q24 8 34 18 Q40 24 34 30 Q24 40 14 30 Q8 24 14 18 Z" fill="none" stroke="url(#ringGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="24" cy="24" r="6" fill="url(#orbGrad)" />
+  <circle cx="22" cy="22" r="1.6" fill="#fff7e8" opacity="0.9" />
+</svg>

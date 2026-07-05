@@ -1,0 +1,2114 @@
+const { app, BrowserWindow, ipcMain, shell, screen, globalShortcut, dialog, Tray, Menu, nativeImage, desktopCapturer, session } = require('electron');
+const net = require('net');
+const path = require('path');
+const fs = require('fs');
+const { pathToFileURL } = require('url');
+const crypto = require('crypto');
+const { execFile, spawn } = require('child_process');
+
+let mainWindow = null;
+let localServer = null;
+let mainServerPort = 0;
+let desktopLyricsWindow = null;
+let desktopLyricsState = {};
+let desktopLyricsUserBounds = null;
+let desktopLyricsProgrammaticMove = false;
+let desktopLyricsPointerCapture = false;
+let desktopLyricsDragging = false;
+let desktopLyricsExternalLeftDrag = false;
+let desktopLyricsPointerReleaseTimer = null;
+let desktopLyricsMoveTimer = null;
+let desktopLyricsPendingMove = { x: 0, y: 0 };
+let desktopLyricsMainMoveSuspended = false;
+let desktopLyricsMainMoveRestoreTimer = null;
+let desktopLyricsMouseIgnored = null;
+let desktopLyricsMousePoller = null;
+let desktopLyricsMousePollerBuffer = '';
+let desktopLyricsHotBounds = null;
+let desktopLyricsLastMiddleAt = 0;
+let wallpaperWindow = null;
+let wallpaperState = {};
+let htmlFullscreenActive = false;
+let windowFullscreenActive = false;
+let mainWindowStateTimer = null;
+let tray = null;
+let trayPlaybackState = { title: '', artist: '', playing: false, volume: 80 };
+let closeToTrayEnabled = true;
+let appQuitting = false;
+let lxPlaybackLinked = false;
+let lxPauseBeforeQuitDone = false;
+const registeredGlobalHotkeys = new Map();
+const authorizedLocalMusicRoots = new Set();
+const mainWindowResizeStates = new Map();
+
+async function pauseLinkedLxPlayback() {
+  if (!lxPlaybackLinked) return true;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 1200);
+  try {
+    const response = await fetch('http://127.0.0.1:23330/pause', {
+      method: 'GET',
+      signal: controller.signal,
+      headers: { Accept: 'application/json, text/plain, */*' },
+    });
+    return response.ok;
+  } catch (_err) {
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+const WINDOWED_ASPECT = 16 / 9;
+const WINDOWED_SCALE = 3 / 4;
+const WINDOWED_MARGIN = 32;
+const MIN_WINDOWED_WIDTH = 960;
+const MIN_WINDOWED_HEIGHT = 540;
+const APP_NAME = 'QuchenRadio';
+const APP_USER_MODEL_ID = 'com.quchen.desktop';
+const APP_TRAY_GUID = '7e6162ca-f43f-4d0a-b5bb-8b8fcd17a865';
+const APP_ICON_ICO = path.join(__dirname, '..', 'build', 'icon.ico');
+const APP_TRAY_ICON_PNG = path.join(__dirname, '..', 'public', 'tray-icon.png');
+const LOCAL_FILE_TOKEN = crypto.randomBytes(16).toString('hex');
+const DESKTOP_SHELL_SETTINGS_FILE = 'desktop-shell-settings.json';
+const DESKTOP_UI_STATE_FILE = 'desktop-ui-state.json';
+const DESKTOP_UI_STATE_KEYS = new Set([
+  'apex-player-volume',
+  'quchen-lyric-layout-v1',
+  'quchen-playback-quality-v1',
+  'quchen-diy-player-mode-v1',
+  'quchen-playlist-panel-pinned-v1',
+  'quchen-user-capsule-auto-hide-v1',
+  'quchen-fx-fab-auto-hide-v1',
+  'quchen-controls-auto-hide-v1',
+  'quchen-free-camera-v1',
+  'quchen-local-library-folder-v1',
+  'quchen-local-library-folders-v2',
+  'quchen-hidden-wallpapers-v1',
+  'quchen-playback-session-v1',
+  'quchen-user-fx-archives-v1',
+  'quchen-hotkey-settings-v1',
+  'quchen-visual-guide-seen-v2',
+  'quchen-upload-tip-seen',
+]);
+
+const CHROMIUM_PERFORMANCE_SWITCHES = [
+  ['autoplay-policy', 'no-user-gesture-required'],
+  ['ignore-gpu-blocklist'],
+  ['enable-gpu-rasterization'],
+  ['enable-oop-rasterization'],
+  ['enable-zero-copy'],
+  ['enable-accelerated-2d-canvas'],
+  ['disable-background-timer-throttling'],
+  ['disable-renderer-backgrounding'],
+  ['disable-backgrounding-occluded-windows'],
+  ['force_high_performance_gpu'],
+  ['use-angle', 'd3d11'],
+];
+for (const [name, value] of CHROMIUM_PERFORMANCE_SWITCHES) {
+  if (value == null) app.commandLine.appendSwitch(name);
+  else app.commandLine.appendSwitch(name, value);
+}
+const gotSingleInstanceLock = app.requestSingleInstanceLock();
+
+function findOpenPort(startPort) {
+  return new Promise((resolve, reject) => {
+    function tryPort(port) {
+      const tester = net.createServer();
+
+      tester.once('error', (err) => {
+        if (err.code === 'EADDRINUSE' || err.code === 'EACCES') {
+          tryPort(port + 1);
+          return;
+        }
+        reject(err);
+      });
+
+      tester.once('listening', () => {
+        tester.close(() => resolve(port));
+      });
+
+      tester.listen(port, '127.0.0.1');
+    }
+
+    tryPort(startPort);
+  });
+}
+
+function waitForServer(server) {
+  if (!server || server.listening) return Promise.resolve();
+
+  return new Promise((resolve, reject) => {
+    server.once('listening', resolve);
+    server.once('error', reject);
+  });
+}
+
+const ENCRYPTED_AUDIO_EXTS = new Set(['.ncm', '.qmc0', '.qmc3', '.qmcflac', '.qmcogg', '.kgm', '.kgma', '.vpr', '.kwm', '.mflac', '.mgg']);
+const LOCAL_LIBRARY_EXTS = new Set(['.mp3', '.flac', '.wav', '.ogg', '.m4a', ...ENCRYPTED_AUDIO_EXTS, '.lrc', '.txt', '.jpg', '.jpeg', '.png', '.webp']);
+const LOCAL_LIBRARY_MIME = {
+  '.mp3': 'audio/mpeg',
+  '.flac': 'audio/flac',
+  '.wav': 'audio/wav',
+  '.ogg': 'audio/ogg',
+  '.m4a': 'audio/mp4',
+  '.ncm': 'application/x-encrypted-audio',
+  '.qmc0': 'application/x-encrypted-audio',
+  '.qmc3': 'application/x-encrypted-audio',
+  '.qmcflac': 'application/x-encrypted-audio',
+  '.qmcogg': 'application/x-encrypted-audio',
+  '.kgm': 'application/x-encrypted-audio',
+  '.kgma': 'application/x-encrypted-audio',
+  '.vpr': 'application/x-encrypted-audio',
+  '.kwm': 'application/x-encrypted-audio',
+  '.mflac': 'application/x-encrypted-audio',
+  '.mgg': 'application/x-encrypted-audio',
+  '.lrc': 'text/plain',
+  '.txt': 'text/plain',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.webp': 'image/webp',
+};
+
+function normalizeLocalMusicRoot(folderPath) {
+  const resolved = path.resolve(String(folderPath || ''));
+  const stat = fs.statSync(resolved);
+  if (!stat.isDirectory()) throw new Error('LOCAL_LIBRARY_NOT_DIRECTORY');
+  return resolved;
+}
+
+function rememberLocalMusicRoot(folderPath) {
+  const root = normalizeLocalMusicRoot(folderPath);
+  authorizedLocalMusicRoots.add(root);
+  return root;
+}
+
+function resolveAuthorizedLocalFile(filePath) {
+  const target = path.resolve(String(filePath || ''));
+  for (const root of authorizedLocalMusicRoots) {
+    if (target === root || target.startsWith(root + path.sep)) return target;
+  }
+  throw new Error('LOCAL_FILE_NOT_AUTHORIZED');
+}
+
+function localLibraryRelativePath(root, relPath) {
+  return path.join(path.basename(root), relPath).replace(/\\/g, '/');
+}
+
+function localFileProxyUrl(filePath) {
+  if (!mainServerPort) return pathToFileURL(filePath).href;
+  return `http://127.0.0.1:${mainServerPort}/api/local-file?token=${encodeURIComponent(LOCAL_FILE_TOKEN)}&path=${encodeURIComponent(filePath)}`;
+}
+async function validateLocalAudioFile(filePath, ext) {
+  if (ENCRYPTED_AUDIO_EXTS.has(ext)) {
+    return { playable:false, encrypted:true, code:'ENCRYPTED_AUDIO', error:'检测到平台加密音频；MR 不进行破解，请先从平台导出合法的普通音频文件' };
+  }
+  if (!['.mp3', '.flac', '.wav', '.ogg', '.m4a'].includes(ext)) return { playable:true, error:'' };
+  try {
+    const handle = await fs.promises.open(filePath, 'r');
+    const buffer = Buffer.alloc(256 * 1024);
+    let bytesRead = 0;
+    try { ({ bytesRead } = await handle.read(buffer, 0, buffer.length, 0)); } finally { await handle.close(); }
+    const data = buffer.subarray(0, bytesRead);
+    let valid = false;
+    if (ext === '.flac') valid = data.subarray(0, 4).toString('ascii') === 'fLaC';
+    else if (ext === '.wav') valid = data.subarray(0, 4).toString('ascii') === 'RIFF' && data.subarray(8, 12).toString('ascii') === 'WAVE';
+    else if (ext === '.ogg') valid = data.subarray(0, 4).toString('ascii') === 'OggS';
+    else if (ext === '.m4a') valid = data.subarray(4, 12).includes(Buffer.from('ftyp'));
+    else {
+      let start = 0;
+      if (data.subarray(0, 3).toString('ascii') === 'ID3' && data.length >= 10) {
+        start = 10 + ((data[6] & 0x7f) << 21) + ((data[7] & 0x7f) << 14) + ((data[8] & 0x7f) << 7) + (data[9] & 0x7f);
+      }
+      for (let i = Math.min(start, data.length); i + 1 < data.length; i++) {
+        if (data[i] === 0xff && (data[i + 1] & 0xe0) === 0xe0 && (data[i + 1] & 0x06) !== 0) { valid = true; break; }
+      }
+    }
+    return { playable:valid, error:valid ? '' : '音频数据损坏、加密或扩展名不正确' };
+  } catch (_error) {
+    return { playable:false, error:'文件无法读取' };
+  }
+}
+
+function findAudioSignature(data) {
+  const candidates = [];
+  const flac = data.indexOf(Buffer.from('fLaC'));
+  if (flac >= 0) candidates.push({ offset:flac, ext:'.flac' });
+  const ogg = data.indexOf(Buffer.from('OggS'));
+  if (ogg >= 0) candidates.push({ offset:ogg, ext:'.ogg' });
+  for (let i = 0; i + 12 <= data.length; i++) {
+    if (data.subarray(i, i + 4).toString('ascii') === 'RIFF' && data.subarray(i + 8, i + 12).toString('ascii') === 'WAVE') {
+      candidates.push({ offset:i, ext:'.wav' });
+      break;
+    }
+  }
+  const ftyp = data.indexOf(Buffer.from('ftyp'));
+  if (ftyp >= 4) candidates.push({ offset:ftyp - 4, ext:'.m4a' });
+  const id3 = data.indexOf(Buffer.from('ID3'));
+  if (id3 >= 0) candidates.push({ offset:id3, ext:'.mp3' });
+  for (let i = 0; i + 1 < data.length; i++) {
+    if (data[i] === 0xff && (data[i + 1] & 0xe0) === 0xe0 && (data[i + 1] & 0x06) !== 0) {
+      candidates.push({ offset:i, ext:'.mp3' });
+      break;
+    }
+  }
+  return candidates.sort((a, b) => a.offset - b.offset)[0] || null;
+}
+
+async function inspectLocalAudioForRepair(filePath) {
+  const abs = path.resolve(String(filePath || ''));
+  const ext = path.extname(abs).toLowerCase();
+  if (ENCRYPTED_AUDIO_EXTS.has(ext)) {
+    return { ok:false, code:'ENCRYPTED_AUDIO', encrypted:true, message:'检测到 NCM/QMC/KGM 等平台加密音频；MR 只识别并提示，不进行破解' };
+  }
+  const stat = await fs.promises.stat(abs);
+  const handle = await fs.promises.open(abs, 'r');
+  const buffer = Buffer.alloc(Math.min(stat.size, 1024 * 1024));
+  let bytesRead = 0;
+  try { ({ bytesRead } = await handle.read(buffer, 0, buffer.length, 0)); } finally { await handle.close(); }
+  const signature = findAudioSignature(buffer.subarray(0, bytesRead));
+  if (!signature) return { ok:false, code:'AUDIO_HEADER_INVALID', message:'未找到可识别的 MP3、FLAC、WAV、OGG 或 M4A 文件头' };
+  const repairNeeded = signature.offset > 0 || signature.ext !== ext;
+  return { ok:true, repairNeeded, offset:signature.offset, detectedExt:signature.ext, originalExt:ext };
+}
+
+function compatibleAudioCacheDir() {
+  const dir = path.join(app.getPath('userData'), 'compatible-audio');
+  fs.mkdirSync(dir, { recursive:true });
+  authorizedLocalMusicRoots.add(dir);
+  return dir;
+}
+
+async function preparedAudioEntry(filePath, suffix, ext, offset) {
+  const stat = await fs.promises.stat(filePath);
+  const key = crypto.createHash('sha1').update(path.resolve(filePath)).update(String(stat.size)).update(String(stat.mtimeMs)).update(String(offset || 0)).digest('hex');
+  const output = path.join(compatibleAudioCacheDir(), `${key}-${suffix}${ext}`);
+  if (!fs.existsSync(output)) {
+    await new Promise((resolve, reject) => {
+      const input = fs.createReadStream(filePath, { start:Math.max(0, Number(offset) || 0) });
+      const target = fs.createWriteStream(output, { flags:'wx' });
+      input.once('error', reject);
+      target.once('error', reject);
+      target.once('finish', resolve);
+      input.pipe(target);
+    }).catch(async error => {
+      if (error && error.code === 'EEXIST') return;
+      try { await fs.promises.unlink(output); } catch (_e) {}
+      throw error;
+    });
+  }
+  return localMusicEntryFromPath(output);
+}
+
+async function prepareLocalAudioForPlayback(filePath) {
+  try {
+    const inspection = await inspectLocalAudioForRepair(filePath);
+    if (!inspection.ok) return inspection;
+    if (!inspection.repairNeeded) return { ok:true, inspection, file:null };
+    const file = await preparedAudioEntry(filePath, 'header-fixed', inspection.detectedExt, inspection.offset);
+    return { ok:true, inspection, file, reused:!!file && fs.existsSync(file.fullPath) };
+  } catch (error) {
+    return { ok:false, code:'LOCAL_AUDIO_PREPARE_FAILED', message:error.message || '本地音频检查失败' };
+  }
+}
+
+function findFfmpegExecutable() {
+  const candidates = [
+    path.join(process.resourcesPath || '', 'ffmpeg.exe'),
+    path.join(process.resourcesPath || '', 'bin', 'ffmpeg.exe'),
+    path.join(path.dirname(process.execPath), 'ffmpeg.exe'),
+  ];
+  for (const candidate of candidates) if (candidate && fs.existsSync(candidate)) return candidate;
+  try {
+    const found = require('child_process').execFileSync('where.exe', ['ffmpeg.exe'], { encoding:'utf8', windowsHide:true, timeout:2500 })
+      .split(/\r?\n/).map(value => value.trim()).find(Boolean);
+    return found || '';
+  } catch (_error) {
+    return '';
+  }
+}
+
+async function transcodeLocalAudioForPlayback(filePath) {
+  const inspection = await inspectLocalAudioForRepair(filePath).catch(error => ({ ok:false, code:'LOCAL_AUDIO_INSPECT_FAILED', message:error.message }));
+  if (inspection.encrypted || inspection.code === 'ENCRYPTED_AUDIO') return inspection;
+  const ffmpeg = findFfmpegExecutable();
+  if (!ffmpeg) return { ok:false, code:'FFMPEG_NOT_FOUND', message:'未找到 ffmpeg.exe，无法创建兼容 WAV 副本' };
+  const stat = await fs.promises.stat(filePath);
+  const key = crypto.createHash('sha1').update(path.resolve(filePath)).update(String(stat.size)).update(String(stat.mtimeMs)).digest('hex');
+  const output = path.join(compatibleAudioCacheDir(), `${key}-decoded.wav`);
+  if (!fs.existsSync(output)) {
+    await new Promise((resolve, reject) => {
+      execFile(ffmpeg, ['-hide_banner', '-loglevel', 'error', '-y', '-i', filePath, '-vn', '-acodec', 'pcm_s16le', output], {
+        windowsHide:true,
+        timeout:120000,
+        maxBuffer:2 * 1024 * 1024,
+      }, error => error ? reject(error) : resolve());
+    }).catch(async error => {
+      try { await fs.promises.unlink(output); } catch (_e) {}
+      throw error;
+    });
+  }
+  return { ok:true, file:await localMusicEntryFromPath(output), reused:fs.existsSync(output) };
+}
+
+async function localMusicEntryFromPath(filePath, relativeRoot) {
+  const abs = path.resolve(String(filePath || ''));
+  const ext = path.extname(abs).toLowerCase();
+  if (!LOCAL_LIBRARY_EXTS.has(ext)) return null;
+  let stat;
+  try {
+    stat = await fs.promises.stat(abs);
+  } catch (_e) {
+    return null;
+  }
+  if (!stat.isFile()) return null;
+  const validation = await validateLocalAudioFile(abs, ext);
+  const root = relativeRoot ? path.resolve(relativeRoot) : path.dirname(abs);
+  rememberLocalMusicRoot(root);
+  const rel = path.relative(root, abs) || path.basename(abs);
+  const webkitRelativePath = localLibraryRelativePath(root, rel);
+  return {
+    fullPath: abs,
+    filePath: abs,
+    url: localFileProxyUrl(abs),
+    name: path.basename(abs),
+    relativePath: webkitRelativePath,
+    webkitRelativePath,
+    size: stat.size,
+    lastModified: Math.round(stat.mtimeMs),
+    type: LOCAL_LIBRARY_MIME[ext] || '',
+    playable: validation.playable,
+    validationError: validation.error,
+  };
+}
+
+async function scanLocalMusicFolder(folderPath) {
+  const root = rememberLocalMusicRoot(folderPath);
+  const files = [];
+  const stack = [''];
+  let visited = 0;
+  while (stack.length) {
+    const relDir = stack.pop();
+    const absDir = path.join(root, relDir);
+    let entries = [];
+    try {
+      entries = await fs.promises.readdir(absDir, { withFileTypes: true });
+    } catch (_e) {
+      continue;
+    }
+    entries.sort((a, b) => a.name.localeCompare(b.name, 'zh-Hans-CN', { numeric: true, sensitivity: 'base' }));
+    for (const entry of entries) {
+      visited += 1;
+      if (visited > 60000) break;
+      const rel = path.join(relDir, entry.name);
+      const abs = path.join(root, rel);
+      if (entry.isDirectory()) {
+        stack.push(rel);
+        continue;
+      }
+      if (!entry.isFile()) continue;
+      const ext = path.extname(entry.name).toLowerCase();
+      if (!LOCAL_LIBRARY_EXTS.has(ext)) continue;
+      let stat = null;
+      try {
+        stat = await fs.promises.stat(abs);
+      } catch (_e) {
+        continue;
+      }
+      const webkitRelativePath = localLibraryRelativePath(root, rel);
+      const validation = await validateLocalAudioFile(abs, ext);
+      files.push({
+        fullPath: abs,
+        filePath: abs,
+        url: localFileProxyUrl(abs),
+        name: entry.name,
+        relativePath: webkitRelativePath,
+        webkitRelativePath,
+        size: stat.size,
+        lastModified: Math.round(stat.mtimeMs),
+        type: LOCAL_LIBRARY_MIME[ext] || '',
+        playable: validation.playable,
+        validationError: validation.error,
+      });
+    }
+    if (visited > 60000) break;
+  }
+  return { ok: true, folderPath: root, files, truncated: visited > 60000 };
+}
+
+async function refreshLocalMusicFileEntries(folderPath, files) {
+  const root = rememberLocalMusicRoot(folderPath);
+  const list = Array.isArray(files) ? files : [];
+  const out = [];
+  for (const file of list) {
+    if (!file) continue;
+    const rawPath = file.fullPath || file.filePath || file.path || file.localFilePathAbsolute || '';
+    if (!rawPath) continue;
+    const abs = path.resolve(String(rawPath));
+    if (abs !== root && !abs.startsWith(root + path.sep)) continue;
+    const ext = path.extname(file.name || abs).toLowerCase();
+    if (!LOCAL_LIBRARY_EXTS.has(ext)) continue;
+    let stat = null;
+    try {
+      stat = await fs.promises.stat(abs);
+    } catch (_e) {
+      continue;
+    }
+    if (!stat.isFile()) continue;
+    out.push({
+      ...file,
+      fullPath: abs,
+      filePath: abs,
+      url: localFileProxyUrl(abs),
+      name: file.name || path.basename(abs),
+      relativePath: file.relativePath || file.webkitRelativePath || localLibraryRelativePath(root, path.relative(root, abs)),
+      webkitRelativePath: file.webkitRelativePath || file.relativePath || localLibraryRelativePath(root, path.relative(root, abs)),
+      size: stat.size,
+      lastModified: Math.round(stat.mtimeMs),
+      type: file.type || LOCAL_LIBRARY_MIME[ext] || '',
+    });
+  }
+  return { ok: true, folderPath: root, files: out, snapshot: true };
+}
+
+async function readAuthorizedLocalFileRange(filePath, start, end) {
+  const target = resolveAuthorizedLocalFile(filePath);
+  const stat = await fs.promises.stat(target);
+  if (!stat.isFile()) throw new Error('LOCAL_FILE_NOT_FOUND');
+  const fileSize = stat.size;
+  const from = Math.max(0, Math.min(fileSize, Number(start) || 0));
+  const requestedEnd = end == null ? fileSize : Number(end);
+  const to = Math.max(from, Math.min(fileSize, Number.isFinite(requestedEnd) ? requestedEnd : fileSize));
+  const maxBytes = 64 * 1024 * 1024;
+  const length = Math.min(maxBytes, to - from);
+  const handle = await fs.promises.open(target, 'r');
+  try {
+    const buffer = Buffer.alloc(length);
+    const result = await handle.read(buffer, 0, length, from);
+    return { ok: true, size: fileSize, start: from, end: from + result.bytesRead, base64: buffer.subarray(0, result.bytesRead).toString('base64') };
+  } finally {
+    await handle.close();
+  }
+}
+
+async function readAuthorizedLocalFileDataUrl(filePath) {
+  const target = resolveAuthorizedLocalFile(filePath);
+  const ext = path.extname(target).toLowerCase();
+  const mime = LOCAL_LIBRARY_MIME[ext] || 'application/octet-stream';
+  if (!mime.startsWith('image/')) throw new Error('LOCAL_FILE_NOT_IMAGE');
+  const stat = await fs.promises.stat(target);
+  if (!stat.isFile() || stat.size > 32 * 1024 * 1024) throw new Error('LOCAL_IMAGE_TOO_LARGE');
+  const buffer = await fs.promises.readFile(target);
+  return { ok: true, dataUrl: `data:${mime};base64,${buffer.toString('base64')}` };
+}
+
+function sendWindowState(win) {
+  if (!win || win.isDestroyed()) return;
+  win.webContents.send('desktop-window-state', getWindowState(win));
+}
+
+function sendGlobalHotkeyAction(action) {
+  if (!mainWindow || mainWindow.isDestroyed() || !action) return;
+  mainWindow.webContents.send('quchen-global-hotkey', { action });
+}
+
+function unregisterQuchenRadioGlobalHotkeys() {
+  for (const accelerator of registeredGlobalHotkeys.keys()) {
+    try { globalShortcut.unregister(accelerator); } catch (e) {}
+  }
+  registeredGlobalHotkeys.clear();
+}
+
+function configureQuchenRadioGlobalHotkeys(bindings = []) {
+  unregisterQuchenRadioGlobalHotkeys();
+  const results = [];
+  const seen = new Set();
+  for (const item of Array.isArray(bindings) ? bindings : []) {
+    const action = item && String(item.action || '').trim();
+    const accelerator = item && String(item.accelerator || '').trim();
+    if (!action || !accelerator || seen.has(accelerator)) continue;
+    seen.add(accelerator);
+    let registered = false;
+    try {
+      registered = globalShortcut.register(accelerator, () => sendGlobalHotkeyAction(action));
+    } catch (error) {
+      registered = false;
+    }
+    if (registered) {
+      registeredGlobalHotkeys.set(accelerator, action);
+      results.push({ action, accelerator, ok: true });
+    } else {
+      results.push({
+        action,
+        accelerator,
+        ok: false,
+        conflict: {
+          sourceName: '系统 / 其他软件',
+          sourceIcon: 'warning',
+          reason: '该组合键已被占用或被系统保留',
+        },
+      });
+    }
+  }
+  return { ok: true, results };
+}
+
+function scheduleWindowStateSend(win, delay = 80) {
+  if (!win || win.isDestroyed()) return;
+  if (mainWindowStateTimer) clearTimeout(mainWindowStateTimer);
+  mainWindowStateTimer = setTimeout(() => {
+    mainWindowStateTimer = null;
+    sendWindowState(win);
+  }, delay);
+}
+
+function rectsOverlapOnY(a, b) {
+  if (!a || !b) return false;
+  const aTop = Number(a.y) || 0;
+  const bTop = Number(b.y) || 0;
+  const aBottom = aTop + (Number(a.height) || 0);
+  const bBottom = bTop + (Number(b.height) || 0);
+  return aBottom > bTop && bBottom > aTop;
+}
+
+function getDisplayState(win) {
+  const displays = screen.getAllDisplays();
+  const primary = screen.getPrimaryDisplay();
+  const display = win && !win.isDestroyed()
+    ? screen.getDisplayMatching(win.getBounds())
+    : primary;
+  const bounds = display && display.bounds ? display.bounds : primary.bounds;
+  const displayId = display && display.id;
+  const primaryId = primary && primary.id;
+  const edgeTolerance = 2;
+  const hasDisplayOnLeft = displays.some((candidate) => {
+    if (!candidate || candidate.id === displayId || !candidate.bounds) return false;
+    return rectsOverlapOnY(bounds, candidate.bounds)
+      && Math.abs((candidate.bounds.x + candidate.bounds.width) - bounds.x) <= edgeTolerance;
+  });
+  const hasDisplayOnRight = displays.some((candidate) => {
+    if (!candidate || candidate.id === displayId || !candidate.bounds) return false;
+    return rectsOverlapOnY(bounds, candidate.bounds)
+      && Math.abs((bounds.x + bounds.width) - candidate.bounds.x) <= edgeTolerance;
+  });
+  return {
+    displayId,
+    primaryDisplayId: primaryId,
+    isPrimaryDisplay: !!(display && primary && display.id === primary.id),
+    hasDisplayOnLeft,
+    hasDisplayOnRight,
+    displayBounds: bounds ? {
+      x: bounds.x,
+      y: bounds.y,
+      width: bounds.width,
+      height: bounds.height,
+    } : null,
+  };
+}
+
+function getWindowState(win) {
+  if (!win || win.isDestroyed()) return {
+    isMaximized: false,
+    isNativeFullScreen: false,
+    isHtmlFullScreen: false,
+    isWindowFullScreen: false,
+    isFullScreen: false,
+    isMinimized: false,
+    isVisible: false,
+    isFocused: false,
+    isPrimaryDisplay: true,
+    hasDisplayOnLeft: false,
+    hasDisplayOnRight: false,
+    displayBounds: null,
+  };
+  return {
+    isMaximized: win.isMaximized(),
+    isNativeFullScreen: win.isFullScreen(),
+    isHtmlFullScreen: htmlFullscreenActive,
+    isWindowFullScreen: windowFullscreenActive,
+    isFullScreen: win.isFullScreen() || htmlFullscreenActive || windowFullscreenActive,
+    isMinimized: win.isMinimized(),
+    isVisible: win.isVisible(),
+    isFocused: win.isFocused(),
+    ...getDisplayState(win),
+  };
+}
+
+function getSenderWindow(event) {
+  return BrowserWindow.fromWebContents(event.sender);
+}
+
+function focusMainWindow() {
+  if (!mainWindow || mainWindow.isDestroyed()) return false;
+  // Windows 隐藏到托盘时会同时从任务栏移除，恢复时必须显式加回来。
+  // 托盘的 click 事件在部分 Windows 隐藏图标面板中可能重复触发，
+  // 因此恢复操作必须保持幂等：无论触发一次还是多次，都只显示和置前窗口。
+  mainWindow.setSkipTaskbar(false);
+  if (mainWindow.isMinimized()) mainWindow.restore();
+  if (!mainWindow.isVisible()) mainWindow.show();
+  if (typeof mainWindow.moveTop === 'function') mainWindow.moveTop();
+  mainWindow.focus();
+  sendWindowState(mainWindow);
+  return true;
+}
+
+function hideMainWindowToTray({ pauseLinked = false } = {}) {
+  if (!mainWindow || mainWindow.isDestroyed()) return false;
+  if (pauseLinked) pauseLinkedLxPlayback();
+  mainWindow.setSkipTaskbar(true);
+  mainWindow.hide();
+  sendWindowState(mainWindow);
+  return true;
+}
+
+function toggleMainWindowFromTray() {
+  // 左键托盘图标只恢复窗口，不再执行显示/隐藏切换。
+  // 隐藏仍由关闭按钮或托盘右键菜单完成，避免重复 click 导致刚显示又隐藏。
+  return focusMainWindow();
+}
+
+/**
+ * 读取桌面壳设置文件。托盘关闭策略需要早于前端加载生效，所以放在主进程持久化。
+ * @returns {{closeToTray?: boolean}} 已保存的桌面壳设置。
+ */
+function readDesktopShellSettings() {
+  try {
+    const file = path.join(app.getPath('userData'), DESKTOP_SHELL_SETTINGS_FILE);
+    if (!fs.existsSync(file)) return {};
+    return JSON.parse(fs.readFileSync(file, 'utf8')) || {};
+  } catch (_e) {
+    return {};
+  }
+}
+
+/**
+ * 写入桌面壳设置文件。该文件只保存主进程必须提前知道的窗口行为。
+ * @param {{closeToTray?: boolean}} patch 要覆盖的设置字段。
+ * @returns {{closeToTray?: boolean}} 写入后的完整设置。
+ */
+function writeDesktopShellSettings(patch) {
+  const file = path.join(app.getPath('userData'), DESKTOP_SHELL_SETTINGS_FILE);
+  const next = { ...readDesktopShellSettings(), ...(patch || {}) };
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, JSON.stringify(next, null, 2), 'utf8');
+  return next;
+}
+
+function desktopUiStatePath() {
+  return path.join(app.getPath('userData'), DESKTOP_UI_STATE_FILE);
+}
+
+function readDesktopUiState() {
+  try {
+    const file = desktopUiStatePath();
+    if (!fs.existsSync(file)) return { schema: 1, values: {}, updatedAt: 0 };
+    const data = JSON.parse(fs.readFileSync(file, 'utf8')) || {};
+    return {
+      schema: 1,
+      values: data.values && typeof data.values === 'object' ? data.values : {},
+      updatedAt: Number(data.updatedAt) || 0,
+    };
+  } catch (_e) {
+    return { schema: 1, values: {}, updatedAt: 0 };
+  }
+}
+
+function writeDesktopUiStatePatch(patch) {
+  const current = readDesktopUiState();
+  const values = { ...(current.values || {}) };
+  Object.entries(patch || {}).forEach(([key, value]) => {
+    if (!DESKTOP_UI_STATE_KEYS.has(key)) return;
+    if (value == null) {
+      delete values[key];
+      return;
+    }
+    const text = String(value);
+    if (text.length > 2 * 1024 * 1024) return;
+    values[key] = text;
+  });
+  const next = { schema: 1, updatedAt: Date.now(), values };
+  const file = desktopUiStatePath();
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, JSON.stringify(next, null, 2), 'utf8');
+  return next;
+}
+
+/**
+ * 应用已保存的桌面壳设置，确保关闭按钮行为在窗口创建前就确定。
+ * @returns {void}
+ */
+function applySavedDesktopShellSettings() {
+  const saved = readDesktopShellSettings();
+  if (typeof saved.closeToTray === 'boolean') closeToTrayEnabled = saved.closeToTray;
+}
+
+/**
+ * 读取 Windows 开机启动状态；开发环境和正式包都走 Electron 登录项接口。
+ * @returns {boolean} 当前账号登录后是否自动启动 QuchenRadio。
+ */
+function isStartupEnabled() {
+  if (process.platform !== 'win32') return false;
+  try {
+    return !!app.getLoginItemSettings().openAtLogin;
+  } catch (_e) {
+    return false;
+  }
+}
+
+/**
+ * 设置 Windows 开机启动。失败时直接抛错，由 IPC 返回明确错误。
+ * @param {boolean} enabled 是否开启开机启动。
+ * @returns {{ok:boolean, enabled:boolean}} 设置后的真实状态。
+ */
+function setStartupEnabled(enabled) {
+  if (process.platform !== 'win32') return { ok: false, enabled: false, unsupported: true };
+  app.setLoginItemSettings({
+    openAtLogin: !!enabled,
+    path: process.execPath,
+    args: [],
+  });
+  return { ok: true, enabled: isStartupEnabled() };
+}
+
+/**
+ * 根据当前状态重建托盘菜单，确保菜单勾选态和真实设置一致。
+ * @returns {void}
+ */
+function refreshTrayMenu() {
+  if (!tray) return;
+  const songLabel = trayPlaybackState.title
+    ? `${trayPlaybackState.title}${trayPlaybackState.artist ? ` - ${trayPlaybackState.artist}` : ''}`
+    : '暂无正在播放的歌曲';
+  const sendTrayCommand = (command, value) => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('quchen-tray-command', { command, value });
+    }
+  };
+  tray.setContextMenu(Menu.buildFromTemplate([
+    { label: songLabel.slice(0, 80), enabled: false },
+    { type: 'separator' },
+    { label: trayPlaybackState.playing ? '暂停' : '播放', click: () => sendTrayCommand('toggle-play') },
+    { label: '上一曲', click: () => sendTrayCommand('previous') },
+    { label: '下一曲', click: () => sendTrayCommand('next') },
+    {
+      label: `音量 ${Math.max(0, Math.min(100, Number(trayPlaybackState.volume) || 0))}%`,
+      submenu: [
+        { label: '音量 +10%', click: () => sendTrayCommand('volume', 10) },
+        { label: '音量 -10%', click: () => sendTrayCommand('volume', -10) },
+        { label: '静音 / 恢复', click: () => sendTrayCommand('mute') },
+      ],
+    },
+    { type: 'separator' },
+    { label: '显示 QuchenRadio', click: focusMainWindow },
+    { label: '隐藏到托盘', click: hideMainWindowToTray },
+    {
+      label: '关闭按钮隐藏到托盘',
+      type: 'checkbox',
+      checked: closeToTrayEnabled,
+      click: (item) => {
+        closeToTrayEnabled = !!item.checked;
+        writeDesktopShellSettings({ closeToTray: closeToTrayEnabled });
+        refreshTrayMenu();
+      },
+    },
+    {
+      label: '开机自动启动',
+      type: 'checkbox',
+      checked: isStartupEnabled(),
+      click: (item) => {
+        const result = setStartupEnabled(item.checked);
+        if (!result.ok) item.checked = false;
+        refreshTrayMenu();
+      },
+    },
+    { type: 'separator' },
+    {
+      label: '退出 QuchenRadio',
+      click: () => {
+        appQuitting = true;
+        app.quit();
+      },
+    },
+  ]));
+}
+
+/**
+ * 创建系统托盘入口。托盘用于恢复窗口、切换关闭到托盘和开机启动。
+ * @returns {void}
+ */
+function createTray() {
+  if (tray || process.platform !== 'win32') return;
+  const iconPath = fs.existsSync(APP_ICON_ICO)
+    ? APP_ICON_ICO
+    : (fs.existsSync(APP_TRAY_ICON_PNG) ? APP_TRAY_ICON_PNG : process.execPath);
+  let icon = nativeImage.createFromPath(iconPath);
+  if (icon.isEmpty() && iconPath !== process.execPath) icon = nativeImage.createFromPath(process.execPath);
+  if (!icon.isEmpty()) icon = icon.resize({ width: 16, height: 16, quality: 'best' });
+  tray = new Tray(icon.isEmpty() ? process.execPath : icon, APP_TRAY_GUID);
+  tray.setToolTip(`${APP_NAME}（单击显示窗口）`);
+  tray.on('click', focusMainWindow);
+  tray.on('double-click', focusMainWindow);
+  tray.on('right-click', () => {
+    if (tray) tray.popUpContextMenu();
+  });
+  refreshTrayMenu();
+}
+
+function getUpdateDownloadDir() {
+  return path.join(app.getPath('userData'), 'updates');
+}
+
+function shouldEnsureDesktopShortcut() {
+  if (process.platform !== 'win32') return false;
+  if (process.env.QUCHEN_NO_DESKTOP_SHORTCUT === '1') return false;
+  return app.isPackaged || process.env.QUCHEN_CREATE_DESKTOP_SHORTCUT === '1';
+}
+
+function ensureDesktopShortcut() {
+  if (!shouldEnsureDesktopShortcut()) return { ok: false, skipped: true };
+  try {
+    const shortcutPath = path.join(app.getPath('desktop'), `${APP_NAME}.lnk`);
+    const target = process.execPath;
+    const shortcut = {
+      target,
+      cwd: path.dirname(target),
+      args: '',
+      description: 'QuchenRadio desktop music player',
+      icon: fs.existsSync(APP_ICON_ICO) ? APP_ICON_ICO : target,
+      iconIndex: 0,
+      appUserModelId: APP_USER_MODEL_ID,
+    };
+
+    if (fs.existsSync(shortcutPath) && shell.readShortcutLink) {
+      try {
+        const existing = shell.readShortcutLink(shortcutPath);
+        if (existing && path.resolve(existing.target || '') === path.resolve(target) && String(existing.args || '') === '') {
+          return { ok: true, path: shortcutPath, existing: true };
+        }
+      } catch (_) {}
+      shell.writeShortcutLink(shortcutPath, 'replace', shortcut);
+    } else {
+      shell.writeShortcutLink(shortcutPath, 'create', shortcut);
+    }
+    return { ok: true, path: shortcutPath, created: true };
+  } catch (e) {
+    console.warn('Desktop shortcut creation skipped:', e.message);
+    return { ok: false, error: e.message || 'DESKTOP_SHORTCUT_FAILED' };
+  }
+}
+
+function getWindowedBounds(win) {
+  const display = win && !win.isDestroyed()
+    ? screen.getDisplayMatching(win.getBounds())
+    : screen.getPrimaryDisplay();
+  const area = display.workArea;
+  const basis = display.bounds || area;
+  const maxWidth = Math.max(640, area.width - WINDOWED_MARGIN);
+  const maxHeight = Math.max(360, area.height - WINDOWED_MARGIN);
+
+  let width = Math.round(basis.width * WINDOWED_SCALE);
+  let height = Math.round(width / WINDOWED_ASPECT);
+  const scaledHeight = Math.round(basis.height * WINDOWED_SCALE);
+
+  if (height > scaledHeight) {
+    height = scaledHeight;
+    width = Math.round(height * WINDOWED_ASPECT);
+  }
+
+  if (width < MIN_WINDOWED_WIDTH && maxWidth >= MIN_WINDOWED_WIDTH && maxHeight >= MIN_WINDOWED_HEIGHT) {
+    width = MIN_WINDOWED_WIDTH;
+    height = MIN_WINDOWED_HEIGHT;
+  }
+
+  if (width > maxWidth) {
+    width = maxWidth;
+    height = Math.round(width / WINDOWED_ASPECT);
+  }
+  if (height > maxHeight) {
+    height = maxHeight;
+    width = Math.round(height * WINDOWED_ASPECT);
+  }
+
+  width = Math.round(width);
+  height = Math.round(height);
+
+  return {
+    x: Math.round(area.x + (area.width - width) / 2),
+    y: Math.round(area.y + (area.height - height) / 2),
+    width,
+    height,
+  };
+}
+
+function applyWindowedBounds(win) {
+  if (!win || win.isDestroyed()) return;
+  if (win.isMaximized()) win.unmaximize();
+  win.setMinimumSize(MIN_WINDOWED_WIDTH, MIN_WINDOWED_HEIGHT);
+  win.setBounds(getWindowedBounds(win), false);
+  sendWindowState(win);
+}
+
+function exitFullscreenToWindow(win) {
+  if (!win || win.isDestroyed()) return;
+  windowFullscreenActive = false;
+
+  if (!win.isFullScreen()) {
+    applyWindowedBounds(win);
+    return;
+  }
+
+  let applied = false;
+  const applyOnce = () => {
+    if (applied || !win || win.isDestroyed() || win.isFullScreen()) return;
+    applied = true;
+    applyWindowedBounds(win);
+  };
+
+  win.once('leave-full-screen', () => setTimeout(applyOnce, 50));
+  win.setFullScreen(false);
+  setTimeout(applyOnce, 500);
+}
+
+function toggleFullscreen(win) {
+  if (!win || win.isDestroyed()) return;
+  if (win.isFullScreen() || windowFullscreenActive) {
+    exitFullscreenToWindow(win);
+    return;
+  }
+  windowFullscreenActive = true;
+  win.setFullScreen(true);
+  sendWindowState(win);
+}
+
+function overlayUrl(page) {
+  const port = mainServerPort || process.env.PORT || 3000;
+  return `http://127.0.0.1:${port}/${page}`;
+}
+
+function clampNumber(value, min, max, fallback) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.max(min, Math.min(max, n));
+}
+
+function desktopLyricsDefaultBounds(payload = desktopLyricsState) {
+  const display = desktopLyricsUserBounds
+    ? screen.getDisplayMatching(desktopLyricsUserBounds)
+    : screen.getPrimaryDisplay();
+  const bounds = display.bounds;
+  const yRatio = clampNumber(payload.y, 0.08, 0.92, 0.76);
+  const width = Math.round(Math.min(Math.max(880, bounds.width * 0.72), bounds.width - 96));
+  const height = Math.round(Math.min(Math.max(340, bounds.height * 0.38), 560, bounds.height - 96));
+  return {
+    x: Math.round(bounds.x + (bounds.width - width) / 2),
+    y: Math.round(bounds.y + bounds.height * yRatio - height / 2),
+    width,
+    height,
+  };
+}
+
+function constrainDesktopLyricsBounds(bounds) {
+  const display = screen.getDisplayMatching(bounds);
+  const area = display.bounds;
+  const next = {
+    ...bounds,
+    width: Math.round(Math.min(Math.max(320, bounds.width), area.width)),
+    height: Math.round(Math.min(Math.max(180, bounds.height), area.height)),
+  };
+  const maxX = area.x + Math.max(0, area.width - next.width);
+  const maxY = area.y + Math.max(0, area.height - next.height);
+  next.x = Math.round(clampNumber(next.x, area.x, maxX, area.x));
+  next.y = Math.round(clampNumber(next.y, area.y, maxY, area.y));
+  return next;
+}
+
+function setDesktopLyricsBounds(bounds) {
+  if (!desktopLyricsWindow || desktopLyricsWindow.isDestroyed()) return;
+  const nextBounds = constrainDesktopLyricsBounds(bounds);
+  const currentBounds = desktopLyricsWindow.getBounds();
+  if (
+    currentBounds.x === nextBounds.x
+    && currentBounds.y === nextBounds.y
+    && currentBounds.width === nextBounds.width
+    && currentBounds.height === nextBounds.height
+  ) {
+    return;
+  }
+  desktopLyricsProgrammaticMove = true;
+  desktopLyricsWindow.setBounds(nextBounds, false);
+  setTimeout(() => {
+    desktopLyricsProgrammaticMove = false;
+  }, 120);
+}
+
+function rememberDesktopLyricsBounds() {
+  if (!desktopLyricsWindow || desktopLyricsWindow.isDestroyed() || desktopLyricsProgrammaticMove) return;
+  desktopLyricsUserBounds = desktopLyricsWindow.getBounds();
+}
+
+function applyDesktopLyricsMouseBehavior() {
+  if (!desktopLyricsWindow || desktopLyricsWindow.isDestroyed()) return;
+  const locked = desktopLyricsState.clickThrough !== false;
+  const shouldIgnore = desktopLyricsExternalLeftDrag || locked || (!desktopLyricsPointerCapture && !desktopLyricsDragging);
+  if (desktopLyricsMouseIgnored === shouldIgnore) return;
+  desktopLyricsMouseIgnored = shouldIgnore;
+  desktopLyricsWindow.setIgnoreMouseEvents(shouldIgnore, { forward: true });
+}
+
+function setDesktopLyricsPointerCapture(active) {
+  if (desktopLyricsPointerReleaseTimer) {
+    clearTimeout(desktopLyricsPointerReleaseTimer);
+    desktopLyricsPointerReleaseTimer = null;
+  }
+  if (active || desktopLyricsDragging) {
+    desktopLyricsPointerCapture = true;
+    applyDesktopLyricsMouseBehavior();
+    return;
+  }
+  // 鼠标在透明窗口边缘移动时会交替触发 enter/leave；短暂滞回可避免穿透状态频闪。
+  desktopLyricsPointerReleaseTimer = setTimeout(() => {
+    desktopLyricsPointerReleaseTimer = null;
+    if (desktopLyricsDragging) return;
+    desktopLyricsPointerCapture = false;
+    applyDesktopLyricsMouseBehavior();
+  }, 140);
+}
+
+function flushDesktopLyricsMove() {
+  desktopLyricsMoveTimer = null;
+  if (!desktopLyricsWindow || desktopLyricsWindow.isDestroyed()) {
+    desktopLyricsPendingMove = { x: 0, y: 0 };
+    return;
+  }
+  const dx = desktopLyricsPendingMove.x;
+  const dy = desktopLyricsPendingMove.y;
+  desktopLyricsPendingMove = { x: 0, y: 0 };
+  if (!dx && !dy) return;
+  const bounds = desktopLyricsWindow.getBounds();
+  const next = constrainDesktopLyricsBounds({
+    ...bounds,
+    x: Math.round(bounds.x + dx),
+    y: Math.round(bounds.y + dy),
+  });
+  desktopLyricsProgrammaticMove = true;
+  desktopLyricsWindow.setPosition(next.x, next.y, false);
+  desktopLyricsUserBounds = desktopLyricsWindow.getBounds();
+  setTimeout(() => {
+    desktopLyricsProgrammaticMove = false;
+  }, 48);
+}
+
+function queueDesktopLyricsMove(dx, dy) {
+  desktopLyricsPendingMove.x += clampNumber(dx, -160, 160, 0);
+  desktopLyricsPendingMove.y += clampNumber(dy, -160, 160, 0);
+  if (!desktopLyricsMoveTimer) desktopLyricsMoveTimer = setTimeout(flushDesktopLyricsMove, 16);
+}
+
+function desktopLyricsHotBoundsOnScreen() {
+  if (!desktopLyricsWindow || desktopLyricsWindow.isDestroyed()) return null;
+  const winBounds = desktopLyricsWindow.getBounds();
+  const rel = desktopLyricsHotBounds;
+  if (!rel) return winBounds;
+  return {
+    x: winBounds.x + rel.left,
+    y: winBounds.y + rel.top,
+    width: Math.max(1, rel.right - rel.left),
+    height: Math.max(1, rel.bottom - rel.top),
+  };
+}
+
+function pointInBounds(point, bounds) {
+  if (!point || !bounds) return false;
+  return point.x >= bounds.x
+    && point.x <= bounds.x + bounds.width
+    && point.y >= bounds.y
+    && point.y <= bounds.y + bounds.height;
+}
+
+function handleDesktopLyricsGlobalMiddleClick() {
+  if (!desktopLyricsWindow || desktopLyricsWindow.isDestroyed()) return;
+  if (!desktopLyricsState.enabled) return;
+  const now = Date.now();
+  if (now - desktopLyricsLastMiddleAt < 260) return;
+  const point = screen.getCursorScreenPoint();
+  if (!pointInBounds(point, desktopLyricsHotBoundsOnScreen())) return;
+  desktopLyricsLastMiddleAt = now;
+  const nextLocked = desktopLyricsState.clickThrough === false;
+  desktopLyricsState = { ...desktopLyricsState, clickThrough: nextLocked };
+  desktopLyricsPointerCapture = !nextLocked;
+  applyDesktopLyricsMouseBehavior();
+  broadcastDesktopLyricsLockState();
+}
+
+function handleDesktopLyricsGlobalLeftButton(down) {
+  if (!desktopLyricsWindow || desktopLyricsWindow.isDestroyed() || !desktopLyricsState.enabled) {
+    desktopLyricsExternalLeftDrag = false;
+    return;
+  }
+  if (down) {
+    const point = screen.getCursorScreenPoint();
+    // 若按下瞬间歌词窗口正在穿透，事件必然属于下面的其他窗口；
+    // 即便坐标恰好落在歌词热区，也必须在松键前持续穿透。
+    desktopLyricsExternalLeftDrag = desktopLyricsMouseIgnored === true
+      || !pointInBounds(point, desktopLyricsHotBoundsOnScreen());
+    if (desktopLyricsExternalLeftDrag && desktopLyricsWindow.isVisible()) {
+      // Windows DWM may flicker when a transparent GPU overlay overlaps a
+      // moving Electron window. Remove the overlay from composition for the
+      // duration of the external drag, then restore it once.
+      desktopLyricsWindow.hide();
+    }
+  } else {
+    const shouldRestore = desktopLyricsExternalLeftDrag;
+    desktopLyricsExternalLeftDrag = false;
+    if (shouldRestore && !desktopLyricsMainMoveSuspended && desktopLyricsState.enabled && !desktopLyricsWindow.isDestroyed()) {
+      desktopLyricsWindow.showInactive();
+      sendDesktopLyricsState();
+    }
+  }
+  applyDesktopLyricsMouseBehavior();
+}
+
+function startDesktopLyricsMousePoller() {
+  if (process.platform !== 'win32' || desktopLyricsMousePoller) return;
+  const script = `
+$ErrorActionPreference = "SilentlyContinue"
+Add-Type @"
+using System;
+using System.Runtime.InteropServices;
+public class QuchenRadioMousePoll {
+  [DllImport("user32.dll")] public static extern short GetAsyncKeyState(int vKey);
+}
+"@
+$prev = $false
+$leftPrev = $false
+while ($true) {
+  $down = (([QuchenRadioMousePoll]::GetAsyncKeyState(4) -band 0x8000) -ne 0)
+  $leftDown = (([QuchenRadioMousePoll]::GetAsyncKeyState(1) -band 0x8000) -ne 0)
+  if ($down -and -not $prev) {
+    [Console]::Out.WriteLine("MMB")
+    [Console]::Out.Flush()
+  }
+  if ($leftDown -and -not $leftPrev) {
+    [Console]::Out.WriteLine("LMB_DOWN")
+    [Console]::Out.Flush()
+  }
+  if (-not $leftDown -and $leftPrev) {
+    [Console]::Out.WriteLine("LMB_UP")
+    [Console]::Out.Flush()
+  }
+  $prev = $down
+  $leftPrev = $leftDown
+  Start-Sleep -Milliseconds 24
+}
+`;
+  try {
+    desktopLyricsMousePoller = spawn('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', script], {
+      windowsHide: true,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    desktopLyricsMousePoller.stdout.on('data', (chunk) => {
+      desktopLyricsMousePollerBuffer += chunk.toString('utf8');
+      const lines = desktopLyricsMousePollerBuffer.split(/\r?\n/);
+      desktopLyricsMousePollerBuffer = lines.pop() || '';
+      lines.forEach((line) => {
+        if (line.trim() === 'MMB') handleDesktopLyricsGlobalMiddleClick();
+        else if (line.trim() === 'LMB_DOWN') handleDesktopLyricsGlobalLeftButton(true);
+        else if (line.trim() === 'LMB_UP') handleDesktopLyricsGlobalLeftButton(false);
+      });
+    });
+    desktopLyricsMousePoller.on('exit', () => {
+      desktopLyricsMousePoller = null;
+      desktopLyricsMousePollerBuffer = '';
+    });
+    desktopLyricsMousePoller.on('error', () => {
+      desktopLyricsMousePoller = null;
+      desktopLyricsMousePollerBuffer = '';
+    });
+  } catch (e) {
+    desktopLyricsMousePoller = null;
+    desktopLyricsMousePollerBuffer = '';
+  }
+}
+
+function stopDesktopLyricsMousePoller() {
+  if (!desktopLyricsMousePoller) return;
+  try {
+    desktopLyricsMousePoller.kill();
+  } catch (e) {}
+  desktopLyricsMousePoller = null;
+  desktopLyricsMousePollerBuffer = '';
+}
+
+function broadcastDesktopLyricsLockState() {
+  const locked = desktopLyricsState.clickThrough !== false;
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('quchen-desktop-lyrics-lock-state', { locked });
+  }
+  sendDesktopLyricsState();
+}
+
+function broadcastDesktopLyricsEnabledState(enabled) {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('quchen-desktop-lyrics-enabled-state', { enabled: !!enabled });
+  }
+}
+
+function suspendDesktopLyricsForMainWindowMove() {
+  if (desktopLyricsMainMoveRestoreTimer) {
+    clearTimeout(desktopLyricsMainMoveRestoreTimer);
+    desktopLyricsMainMoveRestoreTimer = null;
+  }
+  desktopLyricsMainMoveSuspended = true;
+  if (desktopLyricsWindow && !desktopLyricsWindow.isDestroyed() && desktopLyricsWindow.isVisible()) {
+    desktopLyricsWindow.hide();
+  }
+}
+
+function restoreDesktopLyricsAfterMainWindowMove(delay = 80) {
+  if (desktopLyricsMainMoveRestoreTimer) clearTimeout(desktopLyricsMainMoveRestoreTimer);
+  desktopLyricsMainMoveRestoreTimer = setTimeout(() => {
+    desktopLyricsMainMoveRestoreTimer = null;
+    desktopLyricsMainMoveSuspended = false;
+    if (!desktopLyricsState.enabled || !desktopLyricsWindow || desktopLyricsWindow.isDestroyed()) return;
+    desktopLyricsWindow.showInactive();
+    applyDesktopLyricsMouseBehavior();
+    sendDesktopLyricsState();
+  }, Math.max(0, delay));
+}
+
+function positionDesktopLyricsWindow(payload = desktopLyricsState, options = {}) {
+  if (!desktopLyricsWindow || desktopLyricsWindow.isDestroyed()) return;
+  const shouldUseManualBounds = desktopLyricsUserBounds && !options.force;
+  setDesktopLyricsBounds(shouldUseManualBounds ? desktopLyricsUserBounds : desktopLyricsDefaultBounds(payload));
+  if (typeof desktopLyricsWindow.setOpacity === 'function') {
+    desktopLyricsWindow.setOpacity(clampNumber(payload.opacity, 0.28, 1, 0.92));
+  }
+}
+
+function sendDesktopLyricsState() {
+  if (!desktopLyricsWindow || desktopLyricsWindow.isDestroyed()) return;
+  desktopLyricsWindow.webContents.send('quchen-desktop-lyrics-state', desktopLyricsState);
+}
+
+function createDesktopLyricsWindow(payload = {}) {
+  const previousY = desktopLyricsState.y;
+  const previousOpacity = desktopLyricsState.opacity;
+  desktopLyricsState = { ...desktopLyricsState, ...payload, enabled: true };
+  const hasY = Object.prototype.hasOwnProperty.call(payload || {}, 'y');
+  const nextY = clampNumber(desktopLyricsState.y, 0.08, 0.92, 0.76);
+  const yChanged = hasY && Number.isFinite(Number(previousY)) && Math.abs(nextY - clampNumber(previousY, 0.08, 0.92, 0.76)) > 0.001;
+  const opacityChanged = Object.prototype.hasOwnProperty.call(payload || {}, 'opacity')
+    && Math.abs(clampNumber(desktopLyricsState.opacity, 0.28, 1, 0.92) - clampNumber(previousOpacity, 0.28, 1, 0.92)) > 0.001;
+  if (yChanged) desktopLyricsUserBounds = null;
+  if (desktopLyricsWindow && !desktopLyricsWindow.isDestroyed()) {
+    if (yChanged) {
+      positionDesktopLyricsWindow(desktopLyricsState, { force: yChanged });
+    } else if (opacityChanged && typeof desktopLyricsWindow.setOpacity === 'function') {
+      desktopLyricsWindow.setOpacity(clampNumber(desktopLyricsState.opacity, 0.28, 1, 0.92));
+    }
+    applyDesktopLyricsMouseBehavior();
+    sendDesktopLyricsState();
+    return desktopLyricsWindow;
+  }
+
+  desktopLyricsWindow = new BrowserWindow({
+    width: 920,
+    height: 190,
+    frame: false,
+    transparent: true,
+    backgroundColor: '#00000000',
+    hasShadow: false,
+    resizable: false,
+    movable: true,
+    focusable: false,
+    skipTaskbar: true,
+    show: false,
+    title: 'QuchenRadio Desktop Lyrics',
+    webPreferences: {
+      preload: path.join(__dirname, 'overlay-preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false,
+      backgroundThrottling: false,
+    },
+  });
+  try {
+    desktopLyricsWindow.setAlwaysOnTop(true, 'screen-saver');
+    desktopLyricsWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+  } catch (e) {
+    console.warn('Desktop lyrics topmost setup skipped:', e.message);
+  }
+  startDesktopLyricsMousePoller();
+  applyDesktopLyricsMouseBehavior();
+  positionDesktopLyricsWindow(desktopLyricsState, { force: yChanged || !desktopLyricsUserBounds });
+  desktopLyricsWindow.once('ready-to-show', () => {
+    if (!desktopLyricsWindow || desktopLyricsWindow.isDestroyed()) return;
+    if (desktopLyricsMainMoveSuspended) return;
+    desktopLyricsWindow.showInactive();
+    sendDesktopLyricsState();
+  });
+  desktopLyricsWindow.webContents.once('did-finish-load', sendDesktopLyricsState);
+  desktopLyricsWindow.on('closed', () => {
+    if (desktopLyricsPointerReleaseTimer) clearTimeout(desktopLyricsPointerReleaseTimer);
+    if (desktopLyricsMoveTimer) clearTimeout(desktopLyricsMoveTimer);
+    desktopLyricsPointerReleaseTimer = null;
+    desktopLyricsMoveTimer = null;
+    desktopLyricsDragging = false;
+    desktopLyricsExternalLeftDrag = false;
+    desktopLyricsPointerCapture = false;
+    desktopLyricsPendingMove = { x: 0, y: 0 };
+    desktopLyricsWindow = null;
+    desktopLyricsMouseIgnored = null;
+  });
+  desktopLyricsWindow.on('moved', rememberDesktopLyricsBounds);
+  desktopLyricsWindow.loadURL(overlayUrl('desktop-lyrics.html')).catch((e) => console.warn('Desktop lyrics load failed:', e.message));
+  return desktopLyricsWindow;
+}
+
+function closeDesktopLyricsWindow() {
+  desktopLyricsState = { ...desktopLyricsState, enabled: false };
+  if (desktopLyricsPointerReleaseTimer) clearTimeout(desktopLyricsPointerReleaseTimer);
+  if (desktopLyricsMoveTimer) clearTimeout(desktopLyricsMoveTimer);
+  desktopLyricsPointerReleaseTimer = null;
+  desktopLyricsMoveTimer = null;
+  desktopLyricsDragging = false;
+  desktopLyricsExternalLeftDrag = false;
+  desktopLyricsPointerCapture = false;
+  desktopLyricsPendingMove = { x: 0, y: 0 };
+  if (desktopLyricsMainMoveRestoreTimer) clearTimeout(desktopLyricsMainMoveRestoreTimer);
+  desktopLyricsMainMoveRestoreTimer = null;
+  desktopLyricsMainMoveSuspended = false;
+  desktopLyricsMouseIgnored = null;
+  desktopLyricsHotBounds = null;
+  stopDesktopLyricsMousePoller();
+  if (desktopLyricsWindow && !desktopLyricsWindow.isDestroyed()) {
+    sendDesktopLyricsState();
+    desktopLyricsWindow.close();
+  }
+  desktopLyricsWindow = null;
+  broadcastDesktopLyricsEnabledState(false);
+}
+
+function nativeWindowHandleDecimal(win) {
+  const handle = win.getNativeWindowHandle();
+  if (process.arch === 'x64') return handle.readBigUInt64LE(0).toString();
+  return String(handle.readUInt32LE(0));
+}
+
+function attachWallpaperToWorkerW(win) {
+  if (process.platform !== 'win32' || !win || win.isDestroyed()) return;
+  const hwnd = nativeWindowHandleDecimal(win);
+  const script = `
+$ErrorActionPreference = "Stop"
+if (-not ("QuchenRadioNativeWin" -as [type])) {
+Add-Type @"
+using System;
+using System.Runtime.InteropServices;
+public class QuchenRadioNativeWin {
+  public delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+  [DllImport("user32.dll", SetLastError=true)] public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+  [DllImport("user32.dll", SetLastError=true)] public static extern IntPtr FindWindowEx(IntPtr parent, IntPtr childAfter, string className, string windowName);
+  [DllImport("user32.dll", SetLastError=true)] public static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+  [DllImport("user32.dll", SetLastError=true)] public static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
+  [DllImport("user32.dll", SetLastError=true)] public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+  [DllImport("user32.dll", SetLastError=true)] public static extern IntPtr SendMessageTimeout(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam, uint fuFlags, uint uTimeout, out IntPtr lpdwResult);
+}
+"@
+}
+$progman = [QuchenRadioNativeWin]::FindWindow("Progman", $null)
+$result = [IntPtr]::Zero
+[QuchenRadioNativeWin]::SendMessageTimeout($progman, 0x052C, [IntPtr]::Zero, [IntPtr]::Zero, 0, 1000, [ref]$result) | Out-Null
+$script:workerw = [IntPtr]::Zero
+$enum = [QuchenRadioNativeWin+EnumWindowsProc]{
+  param([IntPtr]$top, [IntPtr]$param)
+  $shell = [QuchenRadioNativeWin]::FindWindowEx($top, [IntPtr]::Zero, "SHELLDLL_DefView", $null)
+  if ($shell -ne [IntPtr]::Zero) {
+    $script:workerw = [QuchenRadioNativeWin]::FindWindowEx([IntPtr]::Zero, $top, "WorkerW", $null)
+  }
+  return $true
+}
+[QuchenRadioNativeWin]::EnumWindows($enum, [IntPtr]::Zero) | Out-Null
+if ($script:workerw -eq [IntPtr]::Zero) { $script:workerw = $progman }
+$target = [IntPtr]::new([Int64]${hwnd})
+[QuchenRadioNativeWin]::SetParent($target, $script:workerw) | Out-Null
+[QuchenRadioNativeWin]::SetWindowPos($target, [IntPtr]::Zero, 0, 0, 0, 0, 0x0013) | Out-Null
+`;
+  execFile('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', script], {
+    windowsHide: true,
+    timeout: 5000,
+  }, (error) => {
+    if (error) console.warn('Wallpaper WorkerW attach failed:', error.message);
+  });
+}
+
+function positionWallpaperWindow() {
+  if (!wallpaperWindow || wallpaperWindow.isDestroyed()) return;
+  const bounds = screen.getPrimaryDisplay().bounds;
+  wallpaperWindow.setBounds(bounds, false);
+}
+
+function sendWallpaperState() {
+  if (!wallpaperWindow || wallpaperWindow.isDestroyed()) return;
+  wallpaperWindow.webContents.send('quchen-wallpaper-state', wallpaperState);
+}
+
+function createWallpaperWindow(payload = {}) {
+  wallpaperState = { ...wallpaperState, ...payload, enabled: true };
+  if (wallpaperWindow && !wallpaperWindow.isDestroyed()) {
+    positionWallpaperWindow();
+    sendWallpaperState();
+    return wallpaperWindow;
+  }
+  const bounds = screen.getPrimaryDisplay().bounds;
+  wallpaperWindow = new BrowserWindow({
+    ...bounds,
+    frame: false,
+    transparent: false,
+    backgroundColor: '#050608',
+    hasShadow: false,
+    resizable: false,
+    movable: false,
+    focusable: false,
+    skipTaskbar: true,
+    show: false,
+    title: 'QuchenRadio Wallpaper',
+    webPreferences: {
+      preload: path.join(__dirname, 'overlay-preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false,
+      backgroundThrottling: false,
+    },
+  });
+  wallpaperWindow.setIgnoreMouseEvents(true, { forward: true });
+  wallpaperWindow.once('ready-to-show', () => {
+    if (!wallpaperWindow || wallpaperWindow.isDestroyed()) return;
+    positionWallpaperWindow();
+    wallpaperWindow.showInactive();
+    attachWallpaperToWorkerW(wallpaperWindow);
+    sendWallpaperState();
+  });
+  wallpaperWindow.webContents.once('did-finish-load', sendWallpaperState);
+  wallpaperWindow.on('closed', () => {
+    wallpaperWindow = null;
+  });
+  wallpaperWindow.loadURL(overlayUrl('wallpaper.html')).catch((e) => console.warn('Wallpaper load failed:', e.message));
+  return wallpaperWindow;
+}
+
+function closeWallpaperWindow() {
+  wallpaperState = { ...wallpaperState, enabled: false };
+  if (wallpaperWindow && !wallpaperWindow.isDestroyed()) {
+    sendWallpaperState();
+    wallpaperWindow.close();
+  }
+  wallpaperWindow = null;
+}
+
+function closeOverlayWindows() {
+  closeDesktopLyricsWindow();
+  closeWallpaperWindow();
+}
+
+ipcMain.handle('desktop-window-minimize', (event) => {
+  const win = getSenderWindow(event);
+  if (!win || win.isDestroyed()) return;
+  // 最小化始终保留在 Windows 任务栏；只有关闭按钮才隐藏到托盘。
+  win.setSkipTaskbar(false);
+  win.minimize();
+});
+
+ipcMain.handle('desktop-window-toggle-maximize', (event) => {
+  toggleFullscreen(getSenderWindow(event));
+});
+
+ipcMain.handle('desktop-window-toggle-fullscreen', (event) => {
+  toggleFullscreen(getSenderWindow(event));
+});
+
+ipcMain.handle('desktop-window-exit-fullscreen-windowed', (event) => {
+  exitFullscreenToWindow(getSenderWindow(event));
+});
+
+ipcMain.handle('desktop-window-get-state', (event) => {
+  return getWindowState(getSenderWindow(event));
+});
+
+ipcMain.handle('desktop-window-close', (event) => {
+  getSenderWindow(event)?.close();
+});
+
+ipcMain.handle('desktop-window-drag-state', (_event, active) => {
+  if (active) suspendDesktopLyricsForMainWindowMove();
+  else restoreDesktopLyricsAfterMainWindowMove(80);
+  return { ok:true, active:!!active };
+});
+
+ipcMain.on('desktop-window-resize-start', (event, payload = {}) => {
+  const win = getSenderWindow(event);
+  if (!win || win.isDestroyed() || win.isFullScreen() || win.isMaximized()) return;
+  const direction = String(payload.direction || '');
+  if (!/^(n|s|e|w|ne|nw|se|sw)$/.test(direction)) return;
+  mainWindowResizeStates.set(event.sender.id, {
+    win,
+    direction,
+    startX:Number(payload.screenX) || 0,
+    startY:Number(payload.screenY) || 0,
+    bounds:win.getBounds(),
+  });
+  suspendDesktopLyricsForMainWindowMove();
+});
+
+ipcMain.on('desktop-window-resize-update', (event, payload = {}) => {
+  const state = mainWindowResizeStates.get(event.sender.id);
+  if (!state || !state.win || state.win.isDestroyed()) return;
+  const dx = (Number(payload.screenX) || 0) - state.startX;
+  const dy = (Number(payload.screenY) || 0) - state.startY;
+  const start = state.bounds;
+  const direction = state.direction;
+  let x = start.x;
+  let y = start.y;
+  let width = start.width;
+  let height = start.height;
+  if (direction.includes('e')) width = start.width + dx;
+  if (direction.includes('s')) height = start.height + dy;
+  if (direction.includes('w')) { x = start.x + dx; width = start.width - dx; }
+  if (direction.includes('n')) { y = start.y + dy; height = start.height - dy; }
+  if (width < MIN_WINDOWED_WIDTH) {
+    if (direction.includes('w')) x = start.x + start.width - MIN_WINDOWED_WIDTH;
+    width = MIN_WINDOWED_WIDTH;
+  }
+  if (height < MIN_WINDOWED_HEIGHT) {
+    if (direction.includes('n')) y = start.y + start.height - MIN_WINDOWED_HEIGHT;
+    height = MIN_WINDOWED_HEIGHT;
+  }
+  state.win.setBounds({ x:Math.round(x), y:Math.round(y), width:Math.round(width), height:Math.round(height) }, false);
+});
+
+ipcMain.on('desktop-window-resize-end', (event) => {
+  mainWindowResizeStates.delete(event.sender.id);
+  restoreDesktopLyricsAfterMainWindowMove(80);
+});
+
+ipcMain.handle('quchen-lx-set-linked', (_event, linked) => {
+  lxPlaybackLinked = !!linked;
+  return { ok: true, linked: lxPlaybackLinked };
+});
+
+ipcMain.handle('quchen-tray-get-settings', () => {
+  return { ok: true, closeToTray: closeToTrayEnabled, startup: isStartupEnabled(), startupEnabled: isStartupEnabled() };
+});
+
+ipcMain.handle('quchen-tray-set-close-to-tray', (_event, enabled) => {
+  closeToTrayEnabled = !!enabled;
+  writeDesktopShellSettings({ closeToTray: closeToTrayEnabled });
+  refreshTrayMenu();
+  return { ok: true, closeToTray: closeToTrayEnabled };
+});
+
+ipcMain.handle('quchen-tray-update-playback', (_event, state = {}) => {
+  trayPlaybackState = {
+    title: String(state.title || '').slice(0, 120),
+    artist: String(state.artist || '').slice(0, 120),
+    playing: !!state.playing,
+    volume: Math.max(0, Math.min(100, Math.round(Number(state.volume) || 0))),
+  };
+  refreshTrayMenu();
+  return { ok: true };
+});
+
+ipcMain.handle('quchen-startup-set-enabled', (_event, enabled) => {
+  const result = setStartupEnabled(!!enabled);
+  refreshTrayMenu();
+  return result;
+});
+
+ipcMain.handle('quchen-hotkeys-configure-global', (_event, bindings) => {
+  return configureQuchenRadioGlobalHotkeys(bindings);
+});
+
+ipcMain.handle('quchen-export-json-file', async (event, payload = {}) => {
+  try {
+    const owner = getSenderWindow(event);
+    const defaultName = String(payload.defaultName || 'quchen-export.json').replace(/[\\/:*?"<>|]+/g, '-');
+    const result = await dialog.showSaveDialog(owner, {
+      title: '导出 QuchenRadio 存档',
+      defaultPath: defaultName.toLowerCase().endsWith('.json') ? defaultName : `${defaultName}.json`,
+      filters: [{ name: 'JSON', extensions: ['json'] }],
+    });
+    if (result.canceled || !result.filePath) return { ok: false, canceled: true };
+    const text = typeof payload.text === 'string' ? payload.text : JSON.stringify(payload.data || {}, null, 2);
+    fs.writeFileSync(result.filePath, text, 'utf8');
+    return { ok: true, filePath: result.filePath };
+  } catch (e) {
+    return { ok: false, error: e.message || 'EXPORT_FAILED' };
+  }
+});
+
+ipcMain.handle('quchen-import-json-file', async (event) => {
+  try {
+    const owner = getSenderWindow(event);
+    const result = await dialog.showOpenDialog(owner, {
+      title: '导入 QuchenRadio 存档',
+      properties: ['openFile'],
+      filters: [{ name: 'JSON', extensions: ['json'] }],
+    });
+    if (result.canceled || !result.filePaths || !result.filePaths[0]) return { ok: false, canceled: true };
+    const filePath = result.filePaths[0];
+    const text = fs.readFileSync(filePath, 'utf8');
+    return { ok: true, filePath, text };
+  } catch (e) {
+    return { ok: false, error: e.message || 'IMPORT_FAILED' };
+  }
+});
+
+ipcMain.on('quchen-ui-state-read-sync', (event) => {
+  event.returnValue = readDesktopUiState().values || {};
+});
+
+ipcMain.handle('quchen-ui-state-write', async (_event, patch) => {
+  try {
+    const state = writeDesktopUiStatePatch(patch || {});
+    return { ok: true, updatedAt: state.updatedAt };
+  } catch (e) {
+    return { ok: false, error: e.message || 'UI_STATE_WRITE_FAILED' };
+  }
+});
+
+ipcMain.handle('quchen-local-music-choose-files', async (event) => {
+  try {
+    const owner = getSenderWindow(event);
+    const result = await dialog.showOpenDialog(owner, {
+      title: '选择本地音乐、歌词或封面文件',
+      properties: ['openFile', 'multiSelections'],
+      filters: [
+        { name: '音乐与配套文件', extensions: ['mp3', 'flac', 'wav', 'ogg', 'm4a', 'ncm', 'qmc0', 'qmc3', 'qmcflac', 'qmcogg', 'kgm', 'kgma', 'vpr', 'kwm', 'mflac', 'mgg', 'lrc', 'txt', 'jpg', 'jpeg', 'png', 'webp'] },
+        { name: '所有文件', extensions: ['*'] },
+      ],
+    });
+    if (result.canceled || !result.filePaths || !result.filePaths.length) return { ok:false, canceled:true, files:[] };
+    const files = (await Promise.all(result.filePaths.map(filePath => localMusicEntryFromPath(filePath)))).filter(Boolean);
+    return { ok:true, canceled:false, files };
+  } catch (e) {
+    return { ok:false, canceled:false, files:[], error:e.message || 'LOCAL_FILES_CHOOSE_FAILED' };
+  }
+});
+
+ipcMain.handle('quchen-local-music-choose-folder', async (event) => {
+  try {
+    const owner = getSenderWindow(event);
+    const result = await dialog.showOpenDialog(owner, {
+      title: '选择本地音乐文件夹',
+      properties: ['openDirectory'],
+    });
+    if (result.canceled || !result.filePaths || !result.filePaths[0]) return { ok: false, canceled: true };
+    return scanLocalMusicFolder(result.filePaths[0]);
+  } catch (e) {
+    return { ok: false, error: e.message || 'LOCAL_LIBRARY_CHOOSE_FAILED' };
+  }
+});
+
+ipcMain.handle('quchen-local-music-scan-folder', async (_event, folderPath) => {
+  try {
+    if (!folderPath) return { ok: false, error: 'LOCAL_LIBRARY_PATH_EMPTY' };
+    return await scanLocalMusicFolder(folderPath);
+  } catch (e) {
+    return { ok: false, error: e.message || 'LOCAL_LIBRARY_SCAN_FAILED' };
+  }
+});
+
+ipcMain.handle('quchen-local-music-refresh-entries', async (_event, folderPath, files) => {
+  try {
+    if (!folderPath) return { ok: false, error: 'LOCAL_LIBRARY_PATH_EMPTY' };
+    return await refreshLocalMusicFileEntries(folderPath, files);
+  } catch (e) {
+    return { ok: false, error: e.message || 'LOCAL_LIBRARY_REFRESH_FAILED' };
+  }
+});
+
+ipcMain.handle('quchen-local-audio-prepare', async (_event, filePath) => {
+  return prepareLocalAudioForPlayback(filePath);
+});
+
+ipcMain.handle('quchen-local-audio-transcode', async (_event, filePath) => {
+  try {
+    return await transcodeLocalAudioForPlayback(filePath);
+  } catch (error) {
+    return { ok:false, code:'FFMPEG_TRANSCODE_FAILED', message:error.message || 'FFmpeg 转换失败' };
+  }
+});
+
+ipcMain.handle('quchen-local-file-read-range', async (_event, filePath, start, end) => {
+  try {
+    return await readAuthorizedLocalFileRange(filePath, start, end);
+  } catch (e) {
+    return { ok: false, error: e.message || 'LOCAL_FILE_READ_FAILED' };
+  }
+});
+
+ipcMain.handle('quchen-local-file-read-data-url', async (_event, filePath) => {
+  try {
+    return await readAuthorizedLocalFileDataUrl(filePath);
+  } catch (e) {
+    return { ok: false, error: e.message || 'LOCAL_FILE_READ_FAILED' };
+  }
+});
+
+ipcMain.handle('quchen-open-update-installer', async (_event, filePath) => {
+  try {
+    const target = path.resolve(String(filePath || ''));
+    const updateDir = path.resolve(getUpdateDownloadDir());
+    if (!target || !target.startsWith(updateDir + path.sep)) {
+      return { ok: false, error: 'INVALID_UPDATE_PATH' };
+    }
+    if (!fs.existsSync(target)) return { ok: false, error: 'UPDATE_FILE_MISSING' };
+    const error = await shell.openPath(target);
+    return error ? { ok: false, error } : { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message || 'OPEN_UPDATE_FAILED' };
+  }
+});
+
+ipcMain.handle('quchen-restart-app', async () => {
+  try {
+    app.relaunch();
+    app.exit(0);
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message || 'RESTART_FAILED' };
+  }
+});
+
+ipcMain.handle('quchen-lx-open-scheme', async (_event, schemeUrl) => {
+  const target = String(schemeUrl || '').trim();
+  if (!/^lxmusic:\/\/(?:music|songlist|player)\//i.test(target)) {
+    throw new Error('LX_SCHEME_NOT_ALLOWED');
+  }
+  await shell.openExternal(target);
+  return { ok: true };
+});
+
+ipcMain.handle('quchen-desktop-lyrics-set-enabled', async (_event, enabled, payload) => {
+  try {
+    if (enabled) {
+      createDesktopLyricsWindow(payload || {});
+      broadcastDesktopLyricsEnabledState(true);
+    } else {
+      closeDesktopLyricsWindow();
+    }
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message || 'DESKTOP_LYRICS_FAILED' };
+  }
+});
+
+ipcMain.handle('quchen-desktop-lyrics-update', async (_event, payload) => {
+  try {
+    const nextState = { ...desktopLyricsState, ...(payload || {}) };
+    if (nextState.enabled) {
+      createDesktopLyricsWindow(payload || {});
+    } else if (desktopLyricsWindow && !desktopLyricsWindow.isDestroyed()) {
+      desktopLyricsState = nextState;
+      sendDesktopLyricsState();
+    } else {
+      desktopLyricsState = nextState;
+    }
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message || 'DESKTOP_LYRICS_UPDATE_FAILED' };
+  }
+});
+
+ipcMain.handle('quchen-desktop-lyrics-set-dragging', async (_event, active) => {
+  desktopLyricsDragging = !!active;
+  if (desktopLyricsDragging) {
+    desktopLyricsExternalLeftDrag = false;
+    setDesktopLyricsPointerCapture(true);
+  } else {
+    if (desktopLyricsMoveTimer) {
+      clearTimeout(desktopLyricsMoveTimer);
+      desktopLyricsMoveTimer = null;
+      flushDesktopLyricsMove();
+    }
+    setDesktopLyricsPointerCapture(false);
+  }
+  return { ok: true, dragging: desktopLyricsDragging };
+});
+
+ipcMain.handle('quchen-desktop-lyrics-set-pointer-capture', async (_event, active) => {
+  try {
+    setDesktopLyricsPointerCapture(!!active);
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message || 'DESKTOP_LYRICS_POINTER_FAILED' };
+  }
+});
+
+ipcMain.handle('quchen-desktop-lyrics-set-hot-bounds', async (_event, bounds) => {
+  try {
+    const left = clampNumber(bounds && bounds.left, -2000, 4000, 0);
+    const top = clampNumber(bounds && bounds.top, -2000, 4000, 0);
+    const right = clampNumber(bounds && bounds.right, left + 1, 6000, left + 1);
+    const bottom = clampNumber(bounds && bounds.bottom, top + 1, 6000, top + 1);
+    desktopLyricsHotBounds = { left, top, right, bottom };
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message || 'DESKTOP_LYRICS_HOT_BOUNDS_FAILED' };
+  }
+});
+
+ipcMain.handle('quchen-desktop-lyrics-set-lock-state', async (_event, locked) => {
+  try {
+    desktopLyricsState = { ...desktopLyricsState, clickThrough: !!locked };
+    if (desktopLyricsState.clickThrough !== false) desktopLyricsPointerCapture = false;
+    applyDesktopLyricsMouseBehavior();
+    broadcastDesktopLyricsLockState();
+    return { ok: true, locked: desktopLyricsState.clickThrough !== false };
+  } catch (e) {
+    return { ok: false, error: e.message || 'DESKTOP_LYRICS_LOCK_FAILED' };
+  }
+});
+
+ipcMain.handle('quchen-desktop-lyrics-move-by', async (_event, dx, dy) => {
+  try {
+    if (!desktopLyricsWindow || desktopLyricsWindow.isDestroyed()) return { ok: false, error: 'NO_DESKTOP_LYRICS_WINDOW' };
+    if (desktopLyricsState.clickThrough !== false) return { ok: false, error: 'DESKTOP_LYRICS_LOCKED' };
+    queueDesktopLyricsMove(dx, dy);
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message || 'DESKTOP_LYRICS_MOVE_FAILED' };
+  }
+});
+
+ipcMain.handle('quchen-wallpaper-set-enabled', async (_event, enabled, payload) => {
+  try {
+    if (enabled) createWallpaperWindow(payload || {});
+    else closeWallpaperWindow();
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message || 'WALLPAPER_FAILED' };
+  }
+});
+
+ipcMain.handle('quchen-wallpaper-update', async (_event, payload) => {
+  try {
+    wallpaperState = { ...wallpaperState, ...(payload || {}) };
+    if (wallpaperState.enabled) {
+      createWallpaperWindow(wallpaperState);
+      if (wallpaperWindow && !wallpaperWindow.isDestroyed()) {
+        positionWallpaperWindow();
+        sendWallpaperState();
+      }
+    } else if (wallpaperWindow && !wallpaperWindow.isDestroyed()) {
+      sendWallpaperState();
+    }
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message || 'WALLPAPER_UPDATE_FAILED' };
+  }
+});
+
+async function createWindow() {
+  htmlFullscreenActive = false;
+  windowFullscreenActive = false;
+  const port = await findOpenPort(3000);
+  mainServerPort = port;
+
+  process.env.HOST = '127.0.0.1';
+  process.env.PORT = String(port);
+  process.env.QUCHEN_UPDATE_DIR = getUpdateDownloadDir();
+  process.env.QUCHEN_LOCAL_FILE_TOKEN = LOCAL_FILE_TOKEN;
+
+  localServer = require(path.join(__dirname, '..', 'server.js'));
+  await waitForServer(localServer);
+
+  const initialBounds = getWindowedBounds();
+
+  mainWindow = new BrowserWindow({
+    ...initialBounds,
+    minWidth: 960,
+    minHeight: 540,
+    resizable: true,
+    maximizable: true,
+    thickFrame: true,
+    show: false,
+    frame: false,
+    fullscreen: false,
+    transparent: true,
+    backgroundColor: '#00000000',
+    hasShadow: true,
+    autoHideMenuBar: true,
+    title: APP_NAME,
+    icon: APP_ICON_ICO,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false,
+      backgroundThrottling: false,
+    },
+  });
+
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: 'deny' };
+  });
+
+  mainWindow.webContents.once('did-finish-load', () => {
+    sendWindowState(mainWindow);
+  });
+
+  mainWindow.webContents.on('before-input-event', (event, input) => {
+    if (input.type === 'keyDown' && (input.key === 'Escape' || input.code === 'Escape') && mainWindow.isFullScreen()) {
+      event.preventDefault();
+      exitFullscreenToWindow(mainWindow);
+    }
+  });
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.setSkipTaskbar(false);
+    mainWindow.show();
+    sendWindowState(mainWindow);
+  });
+
+  mainWindow.on('maximize', () => sendWindowState(mainWindow));
+  mainWindow.on('unmaximize', () => sendWindowState(mainWindow));
+  mainWindow.on('minimize', () => {
+    // 最小化是正常缩到任务栏，不受“关闭到托盘”设置影响。
+    mainWindow.setSkipTaskbar(false);
+    sendWindowState(mainWindow);
+  });
+  mainWindow.on('restore', () => sendWindowState(mainWindow));
+  mainWindow.on('show', () => sendWindowState(mainWindow));
+  mainWindow.on('hide', () => sendWindowState(mainWindow));
+  mainWindow.on('focus', () => sendWindowState(mainWindow));
+  mainWindow.on('blur', () => sendWindowState(mainWindow));
+  // Hide the transparent desktop-lyrics overlay for the complete native
+  // move/resize loop. This avoids Windows DWM flicker between two GPU windows.
+  if (process.platform === 'win32' && typeof mainWindow.hookWindowMessage === 'function') {
+    mainWindow.hookWindowMessage(0x00A1, () => { // WM_NCLBUTTONDOWN
+      suspendDesktopLyricsForMainWindowMove();
+      restoreDesktopLyricsAfterMainWindowMove(500);
+    });
+    mainWindow.hookWindowMessage(0x0216, () => suspendDesktopLyricsForMainWindowMove()); // WM_MOVING
+    mainWindow.hookWindowMessage(0x0231, () => suspendDesktopLyricsForMainWindowMove()); // WM_ENTERSIZEMOVE
+    mainWindow.hookWindowMessage(0x0232, () => restoreDesktopLyricsAfterMainWindowMove(80)); // WM_EXITSIZEMOVE
+  }
+  mainWindow.on('will-move', suspendDesktopLyricsForMainWindowMove);
+  mainWindow.on('move', () => {
+    suspendDesktopLyricsForMainWindowMove();
+    restoreDesktopLyricsAfterMainWindowMove(320);
+    scheduleWindowStateSend(mainWindow);
+  });
+  mainWindow.on('moved', () => restoreDesktopLyricsAfterMainWindowMove(80));
+  mainWindow.on('resize', () => scheduleWindowStateSend(mainWindow));
+  mainWindow.on('close', (event) => {
+    if (!appQuitting && closeToTrayEnabled) {
+      event.preventDefault();
+      hideMainWindowToTray({ pauseLinked: true });
+    }
+  });
+  mainWindow.on('closed', () => {
+    if (mainWindowStateTimer) {
+      clearTimeout(mainWindowStateTimer);
+      mainWindowStateTimer = null;
+    }
+    closeOverlayWindows();
+    mainWindowResizeStates.clear();
+    mainWindow = null;
+  });
+  mainWindow.on('enter-full-screen', () => {
+    windowFullscreenActive = true;
+    sendWindowState(mainWindow);
+  });
+  mainWindow.on('leave-full-screen', () => {
+    windowFullscreenActive = false;
+    setTimeout(() => applyWindowedBounds(mainWindow), 50);
+  });
+  mainWindow.on('enter-html-full-screen', () => {
+    htmlFullscreenActive = true;
+    sendWindowState(mainWindow);
+  });
+  mainWindow.on('leave-html-full-screen', () => {
+    htmlFullscreenActive = false;
+    setTimeout(() => applyWindowedBounds(mainWindow), 50);
+  });
+
+  await mainWindow.loadURL(`http://127.0.0.1:${port}`);
+}
+
+app.setName(APP_NAME);
+if (process.platform === 'win32') app.setAppUserModelId(APP_USER_MODEL_ID);
+
+if (!gotSingleInstanceLock) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    if (!focusMainWindow()) {
+      app.whenReady().then(() => createWindow()).catch((e) => console.error('Second instance window restore failed:', e));
+    }
+  });
+
+  app.whenReady().then(async () => {
+    applySavedDesktopShellSettings();
+    session.defaultSession.setPermissionCheckHandler((_webContents, permission, requestingOrigin) => {
+      if (permission !== 'media') return false;
+      return /^http:\/\/127\.0\.0\.1:\d+\/?$/.test(String(requestingOrigin || ''));
+    });
+    session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
+      const url = webContents && !webContents.isDestroyed() ? webContents.getURL() : '';
+      callback(permission === 'media' && /^http:\/\/127\.0\.0\.1:\d+\//.test(String(url || '')));
+    });
+    session.defaultSession.setDisplayMediaRequestHandler((_request, callback) => {
+      desktopCapturer.getSources({ types: ['screen'], thumbnailSize: { width: 0, height: 0 } })
+        .then((sources) => {
+          const source = sources[0];
+          if (!source) {
+            callback({});
+            return;
+          }
+          callback({ video: source, audio: 'loopback' });
+        })
+        .catch(() => callback({}));
+    });
+    screen.on('display-metrics-changed', () => {
+      positionDesktopLyricsWindow();
+      positionWallpaperWindow();
+      scheduleWindowStateSend(mainWindow);
+    });
+    screen.on('display-added', () => scheduleWindowStateSend(mainWindow));
+    screen.on('display-removed', () => scheduleWindowStateSend(mainWindow));
+    createTray();
+    await createWindow();
+    refreshTrayMenu();
+  });
+
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    else focusMainWindow();
+  });
+
+  app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin' && (appQuitting || !closeToTrayEnabled)) app.quit();
+  });
+
+  app.on('before-quit', (event) => {
+    if (lxPlaybackLinked && !lxPauseBeforeQuitDone) {
+      event.preventDefault();
+      appQuitting = true;
+      Promise.race([
+        pauseLinkedLxPlayback(),
+        new Promise(resolve => setTimeout(resolve, 1300)),
+      ]).finally(() => {
+        lxPauseBeforeQuitDone = true;
+        app.quit();
+      });
+      return;
+    }
+    appQuitting = true;
+    unregisterQuchenRadioGlobalHotkeys();
+    closeOverlayWindows();
+    if (localServer && localServer.close) localServer.close();
+  });
+}

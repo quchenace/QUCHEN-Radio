@@ -1,0 +1,218 @@
+/* ============================================================
+   Quchen Radio · responsive.css
+   响应式适配
+   ============================================================ */
+
+/* ---------- 大屏 (>= 1280px) ---------- */
+@media (min-width: 1280px) {
+  :root {
+    --fs-3xl: 48px;
+    --fs-4xl: 72px;
+  }
+}
+
+/* ---------- 平板 (max-width: 1024px) ---------- */
+@media (max-width: 1024px) {
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .download-card {
+    grid-template-columns: 1fr;
+    gap: var(--sp-6);
+  }
+
+  .download-card__right {
+    border-top: 1px solid var(--border-1);
+    padding-top: var(--sp-6);
+  }
+
+  .footer__inner {
+    grid-template-columns: 1fr;
+    gap: var(--sp-8);
+  }
+
+  .nav__menu {
+    display: none;
+  }
+}
+
+/* ---------- 手机 (max-width: 768px) ---------- */
+@media (max-width: 768px) {
+  :root {
+    --sp-24: 64px;
+    --sp-20: 56px;
+    --sp-16: 48px;
+    --sp-12: 32px;
+    --fs-3xl: 32px;
+    --fs-2xl: 26px;
+    --fs-xl: 20px;
+    --fs-lg: 17px;
+    --fs-4xl: 48px;
+    --fs-5xl: 56px;
+  }
+
+  .section {
+    padding: var(--sp-16) var(--sp-4);
+  }
+
+  .section__header {
+    margin-bottom: var(--sp-8);
+  }
+
+  /* 导航 */
+  .nav__inner {
+    padding: 0 var(--sp-4);
+  }
+
+  .nav__actions .btn--ghost {
+    display: none;
+  }
+
+  /* Hero */
+  .hero {
+    padding: var(--sp-20) var(--sp-4);
+  }
+
+  .hero__title {
+    font-size: clamp(40px, 12vw, 64px);
+  }
+
+  .hero__subtitle {
+    font-size: var(--fs-base);
+  }
+
+  .hero__cta {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .hero__cta .btn {
+    width: 100%;
+  }
+
+  .hero__meta {
+    gap: var(--sp-5);
+    margin-top: var(--sp-8);
+  }
+
+  .hero__meta-item {
+    font-size: 11px;
+  }
+
+  .hero__scroll {
+    display: none;
+  }
+
+  /* 特性 */
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: var(--sp-3);
+  }
+
+  /* 预览 */
+  .preview-canvas {
+    aspect-ratio: 4 / 3;
+  }
+
+  .preview-orb {
+    width: 140px;
+    height: 140px;
+  }
+
+  .preview-rings span,
+  .preview-rings span:nth-child(2),
+  .preview-rings span:nth-child(3) {
+    width: 170px;
+    height: 170px;
+  }
+
+  .preview-lyrics {
+    font-size: var(--fs-sm);
+    bottom: var(--sp-5);
+  }
+
+  .preview-lyrics__active {
+    font-size: var(--fs-md);
+  }
+
+  /* 音源 */
+  .sources-grid {
+    grid-template-columns: 1fr;
+    gap: var(--sp-3);
+  }
+
+  /* 下载卡片 */
+  .download-card {
+    padding: var(--sp-6);
+  }
+
+  /* 更新日志 */
+  .changelog-item {
+    grid-template-columns: 1fr;
+    gap: var(--sp-3);
+  }
+
+  /* 页脚 */
+  .footer {
+    padding: var(--sp-12) var(--sp-4) var(--sp-6);
+  }
+
+  .footer__links {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-5);
+  }
+
+  .footer__bottom {
+    padding: 0 var(--sp-4);
+  }
+}
+
+/* ---------- 小屏手机 (max-width: 480px) ---------- */
+@media (max-width: 480px) {
+  .nav__title {
+    font-size: var(--fs-base);
+  }
+
+  .nav__logo svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .hero__badge {
+    font-size: 11px;
+    padding: 4px 12px;
+  }
+
+  .hero__meta {
+    gap: var(--sp-3);
+  }
+
+  .footer__links {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- 高 DPR 屏幕 ---------- */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .feature-card,
+  .source-card,
+  .download-card,
+  .glass-panel {
+    backdrop-filter: blur(32px) saturate(160%);
+    -webkit-backdrop-filter: blur(32px) saturate(160%);
+  }
+}
+
+/* ---------- 触摸设备 ---------- */
+@media (hover: none) {
+  .feature-card:hover,
+  .source-card:hover,
+  .card:hover {
+    transform: none;
+  }
+
+  .nav__menu a::after {
+    display: none;
+  }
+}
