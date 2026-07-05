@@ -67,7 +67,31 @@
    */
   async function checkUpdate() {
     if (isStaticMode()) {
-      return fetchJson(REPO.releasesApi, { timeout: 15000 });
+      try {
+        const urls = [];
+        for (const mirror of MIRRORS) {
+          urls.push(mirror + REPO.releasesApi);
+        }
+        urls.push(REPO.releasesApi);
+        
+        for (const url of urls) {
+          try {
+            const data = await fetchJson(url, { timeout: 8000 });
+            return data;
+          } catch (e) {}
+        }
+      } catch (e) {}
+      
+      return {
+        version: CONFIG.app && CONFIG.app.version || '1.0.0',
+        tagName: 'v1.0.0',
+        name: 'Quchen Radio v1.0.0',
+        htmlUrl: REPO.releasesUrl,
+        releaseNotes: '无法连接 GitHub API，显示默认版本。',
+        publishedAt: null,
+        assets: [],
+        warning: '无法连接 GitHub API,显示默认版本信息。',
+      };
     }
     return fetchJson(QUCHEN_API.checkUpdate, { timeout: 15000 });
   }
@@ -86,28 +110,24 @@
   }
 
   async function downloadInstallerStatic() {
-    try {
-      const release = await fetchJson(REPO.releasesApi, { timeout: 15000 });
-      const assets = release.assets || [];
-      const installer = assets.find((a) => /Quchen-Radio-.+Setup\.exe$/i.test(a.name || ''));
-      if (!installer) {
-        window.open(REPO.releasesUrl, '_blank');
-        return;
-      }
-      let downloadUrl = installer.browser_download_url;
-      for (const mirror of MIRRORS) {
-        try {
-          const resp = await fetch(mirror + downloadUrl, { method: 'HEAD', signal: AbortSignal.timeout(5000) });
-          if (resp.ok) {
-            downloadUrl = mirror + downloadUrl;
-            break;
-          }
-        } catch (e) {}
-      }
-      window.location.href = downloadUrl;
-    } catch (e) {
-      window.open(REPO.releasesUrl, '_blank');
+    const installerName = CONFIG.app && CONFIG.app.installerName || 'Quchen-Radio-1.0.0-Setup.exe';
+    
+    const downloadUrls = [];
+    const githubDownloadUrl = `https://github.com/${REPO.owner}/${REPO.name}/releases/download/v1.0.0/${installerName}`;
+    
+    for (const mirror of MIRRORS) {
+      downloadUrls.push(mirror + githubDownloadUrl);
     }
+    downloadUrls.push(githubDownloadUrl);
+    
+    for (const url of downloadUrls) {
+      try {
+        window.location.href = url;
+        return;
+      } catch (e) {}
+    }
+    
+    window.open(REPO.releasesUrl, '_blank');
   }
 
   /**

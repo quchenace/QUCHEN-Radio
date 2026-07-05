@@ -188,30 +188,55 @@ async function fetchLatestRelease() {
     return releaseCache.data;
   }
   const apiUrl = `https://${REPO.apiHost}${REPO.releasePath}`;
-  const buf = await httpsGetBuffer(apiUrl, {
-    timeout: 15000,
-    headers: {
-      'User-Agent': 'Quchen-Radio-Website/1.0',
-      'Accept': 'application/vnd.github+json',
-    },
-  });
-  const json = JSON.parse(buf.toString('utf8'));
-  const data = {
-    version: (json.tag_name || '').replace(/^v/, '') || '1.0.0',
-    tagName: json.tag_name,
-    name: json.name,
-    htmlUrl: json.html_url,
-    releaseNotes: json.body || '',
-    publishedAt: json.published_at || json.created_at,
-    assets: (json.assets || []).map((a) => ({
-      name: a.name,
-      size: a.size,
-      downloadUrl: a.browser_download_url,
-      contentType: a.content_type,
-    })),
+  const candidates = [];
+  for (const m of MIRRORS) {
+    candidates.push(m + apiUrl);
+  }
+  candidates.push(apiUrl);
+  let lastErr = null;
+  for (const url of candidates) {
+    try {
+      const buf = await httpsGetBuffer(url, {
+        timeout: 12000,
+        headers: {
+          'User-Agent': 'Quchen-Radio-Website/1.0',
+          'Accept': 'application/vnd.github+json',
+        },
+      });
+      const json = JSON.parse(buf.toString('utf8'));
+      const data = {
+        version: (json.tag_name || '').replace(/^v/, '') || '1.0.0',
+        tagName: json.tag_name,
+        name: json.name,
+        htmlUrl: json.html_url,
+        releaseNotes: json.body || '',
+        publishedAt: json.published_at || json.created_at,
+        assets: (json.assets || []).map((a) => ({
+          name: a.name,
+          size: a.size,
+          downloadUrl: a.browser_download_url,
+          contentType: a.content_type,
+        })),
+      };
+      releaseCache = { data, expireAt: now + API_CACHE_TTL };
+      log(`通过镜像获取 Release 成功: ${url}`);
+      return data;
+    } catch (err) {
+      lastErr = err;
+      log(`镜像失败: ${url} -> ${err.message}`);
+    }
+  }
+  log(`所有镜像都失败，返回默认数据: ${lastErr?.message}`);
+  return {
+    version: '1.0.0',
+    tagName: 'v1.0.0',
+    name: 'Quchen Radio v1.0.0',
+    htmlUrl: `https://github.com/${REPO.owner}/${REPO.name}/releases/latest`,
+    releaseNotes: '无法连接 GitHub API，显示默认版本信息。',
+    publishedAt: null,
+    assets: [],
+    warning: '无法连接 GitHub API,显示默认版本信息。',
   };
-  releaseCache = { data, expireAt: now + API_CACHE_TTL };
-  return data;
 }
 
 /* ============================================================
