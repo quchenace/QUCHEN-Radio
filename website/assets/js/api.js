@@ -31,7 +31,10 @@
 
   function isStaticMode() {
     const host = window.location.hostname;
-    return host === 'quchenace.github.io' || host.endsWith('.github.io') || !host.includes('.');
+    return host === 'quchenace.github.io' || 
+           host.endsWith('.github.io') || 
+           host === 'quchen.nat100.top' ||
+           !host.includes('.');
   }
 
   /**
