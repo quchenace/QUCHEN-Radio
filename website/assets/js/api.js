@@ -98,18 +98,10 @@
 
   /**
    * 触发安装包下载
-   * 通过本地服务器代理 GitHub Release 资产,实现"不跳转 GitHub 页面"
+   * 直接使用镜像链接下载，不依赖本地服务器代理
+   * 支持多镜像回退，国内用户无需翻墙
    */
   async function downloadInstaller() {
-    if (isStaticMode()) {
-      await downloadInstallerStatic();
-    } else {
-      const url = QUCHEN_API.downloadInstaller + '?t=' + Date.now();
-      triggerDownload(url);
-    }
-  }
-
-  async function downloadInstallerStatic() {
     const installerName = CONFIG.app && CONFIG.app.installerName || 'Quchen-Radio-1.0.0-Setup.exe';
     
     const downloadUrls = [];
