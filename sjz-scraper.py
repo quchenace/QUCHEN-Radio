@@ -9,6 +9,7 @@ QUCHEN SJZ 数据爬虫
 爬取内容:
   1. 密码门密码 (每日更新) - g.aitags.cn API
   2. 制造利润排行 (每日更新) - g.aitags.cn/manufacture HTML解析
+  3. 绝航卡战备方案 (飞书文档) - 解析 HTML 嵌入 JSON 文本块
 
 运行: python scraper.py
 """
@@ -26,6 +27,10 @@ SJZ_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(SJZ_DIR, 'public', 'sjz', 'data')
 KKRB_JSON = os.path.join(DATA_DIR, 'kkrb-data.json')
 WEAPONS_JSON = os.path.join(DATA_DIR, 'weapons.json')
+NAVIGATION_JSON = os.path.join(DATA_DIR, 'navigation.json')
+
+# 飞书文档 - 绝航卡战备方案
+FEISHU_COMBAT_URL = 'https://ha2u9ginlqo.feishu.cn/wiki/KvH0wVF4Ai1jiwkcD5CcYamLnCc'
 
 LOG_DIR = os.path.join(SJZ_DIR, 'logs')
 os.makedirs(LOG_DIR, exist_ok=True)
@@ -228,6 +233,141 @@ def scrape_manufacturing():
 
 # ============ 更新器 ============
 
+def scrape_feishu_combat_loadouts():
+    """
+    从飞书文档抓取绝航卡战备方案。
+    飞书文档 HTML 中内容以 \"text\":{\"0\":\"...\"} 形式嵌入 JSON 块。
+    解析格式: {价格} + {装备} + {步枪-地图-改枪码} × N
+    返回: list of {amount, type, gear, guns}
+    """
+    url = FEISHU_COMBAT_URL
+    logger.info(f"正在爬取绝航卡战备数据: {url}")
+
+    resp = safe_request('GET', url)
+    html = resp.text
+
+    # 提取所有 "text":{"0":"...","1":"..."} 块
+    pattern = r'"text":\s*(\{[^}]+\})'
+    matches = re.findall(pattern, html)
+    
+    blocks = []
+    for m in matches:
+        try:
+            obj = json.loads(m)
+            # 只取数字 key 的文本值
+            text_parts = [v for k, v in sorted(obj.items(), key=lambda x: int(x[0]) if x[0].isdigit() else 9999) if k.isdigit()]
+            if text_parts:
+                blocks.append(' '.join(text_parts))
+        except (json.JSONDecodeError, ValueError):
+            continue
+    
+    full_text = ' '.join(blocks)
+    logger.debug(f"飞书文档提取文本: {full_text[:300]}...")
+    
+    # 解析方案
+    # 飞书文档文本块顺序不可靠，采用整体扫描策略：
+    #   - 价格标记 (XXw) 作为方案分隔符
+    #   - 最后一个价格之后的文本 = 该方案装备（去除改枪码部分）
+    #   - 第一个价格之前的文本 = 该方案装备
+    #   - 改枪码按武器名称分组归属到各方案
+    plans = []
+    
+    price_pattern = re.compile(r'(\d+[wW])')
+    price_matches = list(price_pattern.finditer(full_text))
+    
+    if not price_matches:
+        logger.warning("未找到卡战备价格标记")
+        return None
+    
+    # 提取所有改枪码 (去重)
+    gun_pattern = re.compile(r'([\u4e00-\u9fa5a-zA-Z0-9\-]+?(?:突击步枪|冲锋枪|狙击步枪|射手步枪|霰弹枪|步枪|机枪|手枪))-烽火地带-([A-Z0-9]+)')
+    all_gun_matches = list(gun_pattern.finditer(full_text))
+    
+    # 收集唯一改枪码
+    unique_guns = []
+    seen_codes = set()
+    for gm in all_gun_matches:
+        code = gm.group(2)
+        if code not in seen_codes:
+            seen_codes.add(code)
+            unique_guns.append({
+                'name': gm.group(1).strip(),
+                'map': '烽火地带',
+                'code': code
+            })
+    
+    # 装备提取: 
+    #   方案1 (最后一个价格): 该价格之后的文本，去除改枪码
+    #   方案2 (第一个价格): 该价格之前的文本，去除改枪码
+    for i, pm in enumerate(price_matches):
+        amount = pm.group(1).upper()
+        
+        if i == len(price_matches) - 1:
+            # 最后一个价格 → 取之后的文本
+            gear_text = full_text[pm.end():]
+        else:
+            # 第一个价格 → 取之前的文本
+            gear_text = full_text[:pm.start()]
+        
+        # 去除改枪码部分、括号注释、价格标记
+        gear_text = re.sub(r'[\u4e00-\u9fa5a-zA-Z0-9\-]+?-\s*烽火地带-[A-Z0-9]+', '', gear_text)
+        gear_text = re.sub(r'[（(]两个码不一样[)）]', '', gear_text)
+        gear_text = re.sub(r'\d+[wW万]', '', gear_text)
+        
+        gear_parts = [g.strip() for g in re.split(r'[+＋]', gear_text) if g.strip()]
+        
+        # 映射: 价格 → 方案的武器名称关键词 + 该方案中每个码出现次数
+        gun_keywords = {'45W': [('杠杆式步枪', 2)], '46W': [('SVCH', 1), ('SVCH', 1)]}
+        plan_guns = []
+        used_indices = set()
+        if amount in gun_keywords:
+            for kw, count in gun_keywords[amount]:
+                for idx, ug in enumerate(unique_guns):
+                    if idx not in used_indices and kw in ug['name']:
+                        used_indices.add(idx)
+                        for _ in range(count):
+                            plan_guns.append(dict(ug))
+                        break
+        
+        # 判断类型
+        if any('丢包' in g for g in gear_parts):
+            ptype = '丢包'
+        elif any('野人' in g for g in gear_parts):
+            ptype = '野人'
+        else:
+            ptype = '普通'
+        
+        plans.append({
+            'amount': amount,
+            'type': ptype,
+            'gear': gear_parts,
+            'guns': plan_guns
+        })
+    
+    # 按价格排序 (低到高)
+    plans.sort(key=lambda p: int(re.search(r'(\d+)', p['amount']).group(1)))
+    
+    logger.info(f"卡战备: 成功解析 {len(plans)} 套方案")
+    for p in plans:
+        logger.info(f"  {p['amount']} {p['type']}: {', '.join(p['gear'])} | {', '.join(g['name'] for g in p['guns'])}")
+    
+    return plans
+
+
+def update_navigation_json(plans):
+    """更新 navigation.json 中的绝航卡战备方案"""
+    if not plans:
+        logger.warning("无卡战备数据，跳过 navigation.json 更新")
+        return None
+    
+    data = {
+        'plans': plans,
+        'updated': datetime.now().strftime('%Y-%m-%d %H:%M CST')
+    }
+    save_json(NAVIGATION_JSON, data)
+    return data
+
+
 def update_kkrb_json(password_doors, manufacturing):
     """更新 kkrb-data.json"""
     existing = load_json(KKRB_JSON)
@@ -336,7 +476,19 @@ def main():
         logger.error(f"制造数据爬取失败: {e}", exc_info=True)
         errors.append(f"制造数据爬取失败: {e}")
     
-    # 3. 更新 JSON 文件
+    # 3. 爬取飞书文档 - 绝航卡战备
+    try:
+        combat_plans = scrape_feishu_combat_loadouts()
+        if combat_plans:
+            update_navigation_json(combat_plans)
+            logger.info(f"卡战备数据: {len(combat_plans)} 套方案")
+        else:
+            errors.append("卡战备: 返回数据为空")
+    except Exception as e:
+        logger.error(f"卡战备爬取失败: {e}", exc_info=True)
+        errors.append(f"卡战备爬取失败: {e}")
+    
+    # 4. 更新 JSON 文件
     if password_doors or manufacturing:
         updated = False
         

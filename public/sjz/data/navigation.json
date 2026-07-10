@@ -1,111 +1,45 @@
 {
   "plans": [
     {
-      "amount": "48w",
+      "amount": "45W",
       "type": "普通",
       "gear": [
-        "本尼帽",
-        "HMP特勤防弹衣",
-        "17胸挂",
-        "突袭战术背包"
-      ],
-      "guns": [
-        {
-          "name": "SV-98狙击步枪",
-          "map": "烽火地带",
-          "code": "6KJ9EHC0056VR0EJTNLID"
-        }
-      ]
-    },
-    {
-      "amount": "48w",
-      "type": "丢包",
-      "gear": [
-        "17胸挂",
-        "DG运动背包"
-      ],
-      "guns": [
-        {
-          "name": "CAR-15突击步枪",
-          "map": "烽火地带",
-          "code": "6KJ9GIK0056VR0EJTNLID"
-        }
-      ]
-    },
-    {
-      "amount": "48w",
-      "type": "丢包",
-      "gear": [
-        "简易防刺服",
+        "本尼帽（全新）",
         "17胸挂"
       ],
       "guns": [
         {
-          "name": "SMG-45冲锋枪",
+          "name": "杠杆式步枪",
           "map": "烽火地带",
-          "code": "6KJ9J0G0056VR0EJTNLID"
-        }
-      ]
-    },
-    {
-      "amount": "47w",
-      "type": "野人",
-      "gear": [
-        "老式钢盔"
-      ],
-      "guns": [
-        {
-          "name": "SMG-45冲锋枪",
-          "map": "烽火地带",
-          "code": "6KJ9I7G0056VR0EJTNLID"
+          "code": "6KK94180B03FFJ0J66H9S"
         },
         {
-          "name": "SMG-45冲锋枪",
+          "name": "杠杆式步枪",
           "map": "烽火地带",
-          "code": "6KJ9IM80056VR0EJTNLID"
+          "code": "6KK94180B03FFJ0J66H9S"
         }
       ]
     },
     {
-      "amount": "46w",
-      "type": "丢包",
+      "amount": "46W",
+      "type": "普通",
       "gear": [
         "17胸挂",
         "DG运动背包"
       ],
       "guns": [
         {
-          "name": "SG552突击步枪",
-          "map": "烽火地带",
-          "code": "6KJB2600056VR0EJTNLID"
-        },
-        {
-          "name": "SG552突击步枪",
-          "map": "烽火地带",
-          "code": "6KJB1Q00056VR0EJTNLID"
-        }
-      ]
-    },
-    {
-      "amount": "51w",
-      "type": "丢包",
-      "gear": [
-        "17胸挂",
-        "老式钢盔"
-      ],
-      "guns": [
-        {
           "name": "SVCH精确射手步枪",
           "map": "烽火地带",
-          "code": "6KJDGA40FB11CBK8O17M8"
+          "code": "6KK95840B03FFJ0J66H9S"
         },
         {
           "name": "SVCH精确射手步枪",
           "map": "烽火地带",
-          "code": "6KJDG6O0FB11CBK8O17M8"
+          "code": "6KK94SC0B03FFJ0J66H9S"
         }
       ]
     }
   ],
-  "updated": "2026-07-08 19:50 CST"
+  "updated": "2026-07-11 05:40 CST"
 }

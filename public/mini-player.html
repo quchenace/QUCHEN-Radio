@@ -2,143 +2,393 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>QUCHEN Radio Mini Player</title>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html,body{
   width:100%;height:100%;
   overflow:hidden;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,sans-serif;
+  font-family:"Microsoft YaHei UI","Microsoft YaHei",-apple-system,BlinkMacSystemFont,sans-serif;
   -webkit-app-region:drag;
   background:transparent;
   color:#fff;
-}
-body{
-  display:flex;
-  padding:0 10px;
-  height:100%;
-  background:rgba(20,20,28,0.82);
-  backdrop-filter:blur(16px) saturate(1.2);
-  -webkit-backdrop-filter:blur(16px) saturate(1.2);
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,0.08);
-  box-shadow:0 0 20px rgba(0,0,0,0.4),0 4px 12px rgba(0,0,0,0.3);
   user-select:none;
 }
-.mini-player{display:flex;align-items:center;width:100%;gap:10px;height:100%;}
+body{
+  background:rgba(90,62,54,var(--mp-opacity,0.45));
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border-radius:8px;
+}
+.mini-player{
+  display:flex;
+  align-items:center;
+  width:100%;
+  height:100%;
+  padding:0 8px;
+  gap:8px;
+  position:relative;
+}
 
 /* 封面 */
-.cover-wrap{flex-shrink:0;width:36px;height:36px;border-radius:6px;overflow:hidden;background:rgba(255,255,255,0.06);}
+.cover-wrap{
+  flex-shrink:0;
+  width:32px;
+  height:32px;
+  border-radius:4px;
+  overflow:hidden;
+  background:rgba(255,255,255,0.08);
+}
 .cover-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
-.cover-wrap .placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:16px;opacity:0.3;}
+.cover-wrap .placeholder{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;opacity:0.3;
+}
 
 /* 歌曲信息 */
-.info-wrap{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:2px;padding-right:4px;}
-.song-row{display:flex;align-items:center;gap:6px;}
-.song-name{font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#eee;}
-.playing-dot{width:6px;height:6px;border-radius:50%;background:#00C853;flex-shrink:0;display:none;box-shadow:0 0 6px rgba(0,200,83,0.6);}
-.playing-dot.active{display:inline-block;}
-.artist-name{font-size:10.5px;color:rgba(255,255,255,0.45);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-
-/* 进度条 */
-.progress-wrap{width:100%;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;margin-top:1px;}
-.progress-bar{height:100%;width:0%;background:#00C853;border-radius:2px;transition:width 0.3s ease;}
-
-/* 密码门区域 */
-.pw-row{display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:nowrap;overflow:hidden;}
-.pw-row .pw-icon{flex-shrink:0;font-size:9px;color:#9cffdf;font-weight:600;letter-spacing:0.3px;}
-.pw-row .pw-item{flex-shrink:0;font-size:9.5px;color:rgba(255,255,255,0.85);font-weight:500;white-space:nowrap;padding:1px 5px;border-radius:3px;background:rgba(156,255,223,0.1);border:1px solid rgba(156,255,223,0.12);}
-.pw-row .pw-item .pw-code{color:#9cffdf;font-weight:700;letter-spacing:1px;}
-.pw-row .pw-sep{flex-shrink:0;color:rgba(255,255,255,0.2);font-size:8px;}
-.pw-row .pw-empty{font-size:9px;color:rgba(255,255,255,0.3);}
-
-/* 密码刷新按钮 */
-.pw-refresh-btn{
-  -webkit-app-region:no-drag;
-  flex-shrink:0;width:16px;height:16px;
-  border:none;background:transparent;
-  color:rgba(255,255,255,0.35);
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  border-radius:3px;transition:all 0.15s;padding:0;
-  margin-left:2px;
+.info-wrap{
+  flex:1;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:1px;
 }
-.pw-refresh-btn:hover{color:#9cffdf;background:rgba(156,255,223,0.12);}
-.pw-refresh-btn:active{transform:scale(0.85);}
-.pw-refresh-btn svg{width:12px;height:12px;fill:currentColor;display:block;}
-.pw-refresh-btn.spinning svg{animation:pw-spin 0.8s linear infinite;}
-@keyframes pw-spin{to{transform:rotate(360deg)}}
-.pw-refresh-btn.disabled{opacity:0.3;cursor:default;pointer-events:none;}
-.pw-refresh-error{font-size:9px;color:#f87171;white-space:nowrap;flex-shrink:0;animation:pw-fade 3s forwards;}
-@keyframes pw-fade{0%,80%{opacity:1}to{opacity:0;pointer-events:none;}}
+.song-name{
+  font-size:12px;
+  font-weight:700;
+  color:#fff;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  line-height:1.3;
+}
+.artist-name{
+  font-size:10px;
+  color:rgba(255,255,255,0.5);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  line-height:1.3;
+}
 
-/* 按钮 */
-.controls-wrap{flex-shrink:0;display:flex;align-items:center;gap:2px;-webkit-app-region:no-drag;}
+/* 控制按钮组 */
+.controls-wrap{
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  gap:1px;
+  -webkit-app-region:no-drag;
+}
 .ctrl-btn{
   -webkit-app-region:no-drag;
-  width:28px;height:28px;
-  border:none;background:transparent;
-  color:rgba(255,255,255,0.7);
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  border-radius:6px;transition:all 0.15s;
+  width:24px;
+  height:24px;
+  border:none;
+  background:transparent;
+  color:rgba(255,255,255,0.85);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:4px;
+  transition:all 0.15s;
   padding:0;
+  position:relative;
 }
-.ctrl-btn:hover{background:rgba(255,255,255,0.1);color:#fff;}
-.ctrl-btn:active{transform:scale(0.9);}
-.ctrl-btn svg{width:16px;height:16px;fill:currentColor;display:block;}
-.ctrl-btn.play-btn{width:32px;height:32px;}
-.ctrl-btn.play-btn svg{width:18px;height:18px;}
-.ctrl-btn.disabled{opacity:0.25;pointer-events:none;}
+.ctrl-btn:hover{
+  background:rgba(255,255,255,0.12);
+  color:#fff;
+}
+.ctrl-btn:active{transform:scale(0.88);}
+.ctrl-btn svg{width:14px;height:14px;fill:currentColor;display:block;}
+.ctrl-btn.active{color:#ff6b6b;}
+.ctrl-btn.active svg{fill:#ff6b6b;}
 
-/* 音量图标（辅助） */
-.extra-icon{flex-shrink:0;display:flex;align-items:center;margin-left:2px;opacity:0.35;}
-.extra-icon svg{width:14px;height:14px;fill:#aaa;}
+/* 进度条 */
+.progress-wrap{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:2px;
+  background:rgba(255,255,255,0.1);
+  border-radius:0 0 8px 8px;
+  overflow:hidden;
+  -webkit-app-region:no-drag;
+}
+.progress-bar{
+  height:100%;
+  width:0%;
+  background:rgba(255,255,255,0.7);
+  transition:width 0.3s ease;
+}
+
+/* 密码条 - 迷你播放器下方内联显示 */
+.pw-bar{
+  display:none;
+  width:100%;
+  background:rgba(70,48,42,0.92);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  border-top:1px solid rgba(255,255,255,0.06);
+  padding:3px 8px;
+  -webkit-app-region:no-drag;
+  box-sizing:border-box;
+}
+.pw-bar.show{display:block;}
+.pw-bar-inner{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  justify-content:space-between;
+}
+.pw-bar-info{
+  flex:1;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  min-width:0;
+  justify-content:center;
+}
+.pw-page{
+  font-size:10px;
+  color:rgba(255,255,255,0.45);
+  white-space:nowrap;
+  flex-shrink:0;
+}
+.pw-map{
+  font-size:11px;
+  color:rgba(255,255,255,0.85);
+  font-weight:600;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.pw-code{
+  font-size:13px;
+  color:#9cffdf;
+  font-weight:700;
+  letter-spacing:2px;
+  white-space:nowrap;
+  flex-shrink:0;
+}
+.pw-arrow{
+  -webkit-app-region:no-drag;
+  border:none;background:transparent;
+  color:rgba(255,255,255,0.4);
+  cursor:pointer;width:16px;height:20px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:3px;font-size:10px;
+  transition:all 0.15s;padding:0;flex-shrink:0;
+}
+.pw-arrow:hover{color:#fff;background:rgba(255,255,255,0.1);}
+.pw-arrow:active{transform:scale(0.9);}
+.pw-refresh-inline{
+  -webkit-app-region:no-drag;
+  border:none;background:transparent;
+  color:rgba(255,255,255,0.35);
+  cursor:pointer;width:16px;height:20px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:3px;font-size:12px;
+  transition:all 0.15s;padding:0;flex-shrink:0;
+}
+.pw-refresh-inline:hover{color:#9cffdf;background:rgba(156,255,223,0.12);}
+.pw-refresh-inline:active{transform:scale(0.9);}
+.pw-empty{font-size:10px;color:rgba(255,255,255,0.3);}
+
+/* 设置面板 */
+.settings-panel {
+  width:100%;
+  background:rgba(40,30,26,0.95);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  border-top:1px solid rgba(255,255,255,0.06);
+  padding:6px 10px;
+  -webkit-app-region:no-drag;
+  box-sizing:border-box;
+}
+.settings-inner {
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.setting-row {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  height:22px;
+}
+.setting-label {
+  font-size:11px;
+  color:rgba(255,255,255,0.65);
+  width:48px;
+  flex-shrink:0;
+}
+.setting-slider {
+  flex:1;
+  height:3px;
+  -webkit-appearance:none;
+  appearance:none;
+  background:rgba(255,255,255,0.15);
+  border-radius:2px;
+  outline:none;
+  cursor:pointer;
+}
+.setting-slider::-webkit-slider-thumb {
+  -webkit-appearance:none;
+  width:12px;
+  height:12px;
+  background:#9cffdf;
+  border-radius:50%;
+  cursor:pointer;
+}
+.setting-val {
+  font-size:10px;
+  color:rgba(255,255,255,0.45);
+  width:32px;
+  text-align:right;
+  flex-shrink:0;
+}
+.setting-toggle {
+  border:1px solid rgba(255,255,255,0.2);
+  background:transparent;
+  color:rgba(255,255,255,0.7);
+  font-size:10px;
+  padding:1px 10px;
+  border-radius:3px;
+  cursor:pointer;
+  transition:all 0.15s;
+}
+.setting-toggle:hover {
+  background:rgba(255,255,255,0.1);
+  color:#fff;
+}
+.setting-toggle.on {
+  background:rgba(156,255,223,0.15);
+  border-color:#9cffdf;
+  color:#9cffdf;
+}
+
+/* 歌词行 */
+.lyrics-line {
+  width:100%;
+  padding:1px 8px 0;
+  overflow:hidden;
+  -webkit-app-region:no-drag;
+}
+.lyrics-text {
+  font-size:10px;
+  color:rgba(255,255,255,0.7);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  display:block;
+}
 </style>
 </head>
 <body>
 <div class="mini-player" id="miniPlayer">
-  <!-- 封面 -->
+  <!-- 封面 32x32 -->
   <div class="cover-wrap" id="coverWrap">
     <img id="coverImg" src="" alt="" style="display:none"/>
     <div class="placeholder" id="coverPlaceholder">&#9835;</div>
   </div>
 
-  <!-- 信息 + 进度条 + 密码 -->
+  <!-- 歌曲信息 -->
   <div class="info-wrap">
-    <div class="song-row">
-      <span class="playing-dot" id="playingDot"></span>
-      <span class="song-name" id="songName">QUCHEN Radio</span>
-    </div>
+    <div class="song-name" id="songName">QUCHEN Radio</div>
     <div class="artist-name" id="artistName">就绪</div>
-    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
-    <!-- 密码门区域 -->
-    <div class="pw-row" id="pwRow">
-      <span class="pw-icon">密码</span>
-      <span class="pw-empty" id="pwEmpty">加载中...</span>
-      <button class="pw-refresh-btn" id="pwRefreshBtn" title="刷新密码数据">↻</button>
-    </div>
   </div>
 
-  <!-- 音量图标 -->
-  <div class="extra-icon" title="音量"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8.5v7a4.49 4.49 0 0 0 2.5-3.5zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg></div>
-
-  <!-- 控制按钮 -->
+  <!-- 6 个控制按钮 -->
   <div class="controls-wrap">
+    <!-- 上一首 -->
     <button class="ctrl-btn" id="prevBtn" title="上一首">
       <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
     </button>
-    <button class="ctrl-btn play-btn" id="playBtn" title="播放/暂停">
+    <!-- 播放/暂停 -->
+    <button class="ctrl-btn" id="playBtn" title="播放/暂停">
       <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
     </button>
+    <!-- 下一首 -->
     <button class="ctrl-btn" id="nextBtn" title="下一首">
       <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
     </button>
+    <!-- 收藏 -->
+    <button class="ctrl-btn" id="favBtn" title="收藏">
+      <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+    </button>
+    <!-- 循环模式 -->
+    <button class="ctrl-btn" id="loopBtn" title="循环模式">
+      <svg viewBox="0 0 24 24"><path d="M17 7h-4v2h4c1.65 0 3 1.35 3 3s-1.35 3-3 3h-4v2h4c2.76 0 5-2.24 5-5s-2.24-5-5-5zm-6 8H7c-1.65 0-3-1.35-3-3s1.35-3 3-3h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-2z"/></svg>
+    </button>
+    <!-- 歌词 -->
+    <button class="ctrl-btn" id="lyricsBtn" title="歌词 / 密码数据">
+      <svg viewBox="0 0 24 24"><path d="M3 9h14V7H3v2zm0 4h14v-2H3v2zm0 4h14v-2H3v2zm16-8v7.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5v3z"/></svg>
+    </button>
+    <!-- 设置 -->
+    <button class="ctrl-btn" id="settingsBtn" title="设置">
+      <svg viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
+    </button>
+  </div>
+
+  <!-- 底部进度条 2px -->
+  <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+  <!-- 密码条（歌词按钮触发）- 内联轮播 -->
+  <div class="pw-bar" id="pwBar">
+    <div class="pw-bar-inner">
+      <button class="pw-arrow" id="pwPrevBtn">&#11164;</button>
+      <div class="pw-bar-info">
+        <span class="pw-page" id="pwPageIndicator">密码 0/0</span>
+        <span class="pw-map" id="pwMap"></span>
+        <span class="pw-code" id="pwCode"></span>
+      </div>
+      <button class="pw-arrow" id="pwNextBtn">&#11166;</button>
+      <button class="pw-refresh-inline" id="pwRefreshBtn">&#8635;</button>
+    </div>
+    <div class="pw-empty" id="pwEmpty" style="display:none">加载中...</div>
+  </div>
+
+  <!-- 歌词行 -->
+  <div class="lyrics-line" id="lyricsLine" style="display:none;">
+    <span class="lyrics-text" id="lyricsText"></span>
+  </div>
+
+  <!-- 设置面板 -->
+  <div class="settings-panel" id="settingsPanel" style="display:none;">
+    <div class="settings-inner">
+      <div class="setting-row">
+        <span class="setting-label">透明度</span>
+        <input type="range" class="setting-slider" id="opacitySlider" min="0.1" max="0.95" step="0.05" value="0.45">
+        <span class="setting-val" id="opacityVal">45%</span>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">显示歌词</span>
+        <button class="setting-toggle" id="lyricsToggle" data-on="false">关</button>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">显示密码</span>
+        <button class="setting-toggle" id="passwordToggle" data-on="true">开</button>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
 (function(){
   var currentState = { playing: false, songName: '', artist: '', cover: '', progress: 0 };
+  var isFav = false;
+  var loopMode = 0;
+  var pwBarVisible = false;
+
+  // 设置状态
+  var mpSettings = { opacity: 0.45, showLyrics: false, showPassword: true };
+  var settingsPanelVisible = false;
+  var currentLyrics = { lines: [], currentIndex: -1 };
 
   function updateUI(state) {
     state = state || currentState;
@@ -156,19 +406,15 @@ body{
       ph.style.display = 'flex';
     }
 
-    // 歌名
+    // 歌名 / 歌手
     document.getElementById('songName').textContent = state.songName || 'QUCHEN Radio';
     document.getElementById('artistName').textContent = state.artist || (state.songName ? '' : '就绪');
-
-    // 播放状态点
-    var dot = document.getElementById('playingDot');
-    dot.classList.toggle('active', !!state.playing);
 
     // 进度条
     var pct = Math.max(0, Math.min(100, state.progress || 0));
     document.getElementById('progressBar').style.width = pct + '%';
 
-    // 播放按钮图标
+    // 播放/暂停图标
     var playIcon = document.getElementById('playIcon');
     if (state.playing) {
       playIcon.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
@@ -177,64 +423,61 @@ body{
     }
   }
 
-  /**
-   * 渲染密码门
-   */
-  function renderPasswords(data) {
-    var row = document.getElementById('pwRow');
+  // 渲染密码数据
+  // 密码轮播状态
+  var pwCurrentIndex = 0;
+  var pwDoorsData = [];
+
+  function showPasswordItem(index) {
+    if (!pwDoorsData || pwDoorsData.length === 0) return;
+    if (index < 0) index = pwDoorsData.length - 1;
+    if (index >= pwDoorsData.length) index = 0;
+    pwCurrentIndex = index;
     var empty = document.getElementById('pwEmpty');
+    var mapEl = document.getElementById('pwMap');
+    var codeEl = document.getElementById('pwCode');
+    var d = pwDoorsData[index];
+    empty.style.display = 'none';
+    mapEl.textContent = d.map;
+    codeEl.textContent = d.password;
+    document.getElementById('pwPageIndicator').textContent = '密码 ' + (index + 1) + '/' + pwDoorsData.length;
+  }
+
+  function renderPasswords(data) {
+    var empty = document.getElementById('pwEmpty');
+    var mapEl = document.getElementById('pwMap');
+    var codeEl = document.getElementById('pwCode');
     if (!data || !data.ok || !data.password_doors || data.password_doors.length === 0) {
       empty.textContent = '密码数据暂不可用';
       empty.style.display = '';
+      mapEl.textContent = '';
+      codeEl.textContent = '';
+      document.getElementById('pwPageIndicator').textContent = '密码 0/0';
+      pwDoorsData = [];
       return;
     }
-    // 清空，保留第一个 pw-icon 子节点和最后一个刷新按钮
-    var refreshBtn = document.getElementById('pwRefreshBtn');
-    while (row.children.length > 2) {
-      row.removeChild(row.children[1]);
-    }
-    empty.style.display = 'none';
-    var doors = data.password_doors;
-    doors.forEach(function(d, i) {
-      if (i > 0) {
-        var sep = document.createElement('span');
-        sep.className = 'pw-sep';
-        sep.textContent = '|';
-        row.insertBefore(sep, refreshBtn);
-      }
-      var item = document.createElement('span');
-      item.className = 'pw-item';
-      item.innerHTML = d.map + ' <span class="pw-code">' + d.password + '</span>';
-      row.insertBefore(item, refreshBtn);
-    });
+    pwDoorsData = data.password_doors;
+    pwCurrentIndex = 0;
+    showPasswordItem(0);
   }
 
-  /**
-   * 显示短暂错误提示
-   */
   function showRefreshError(msg) {
-    var row = document.getElementById('pwRow');
-    var oldErr = document.querySelector('.pw-refresh-error');
-    if (oldErr) oldErr.remove();
-    var err = document.createElement('span');
-    err.className = 'pw-refresh-error';
-    err.textContent = msg || '刷新失败';
-    row.appendChild(err);
-    setTimeout(function() { if (err.parentNode) err.remove(); }, 3200);
+    var empty = document.getElementById('pwEmpty');
+    empty.textContent = msg || '刷新失败';
+    empty.style.display = '';
+    setTimeout(function() { empty.style.display = 'none'; }, 3000);
   }
 
-  /**
-   * 执行密码刷新
-   */
   function doRefreshPasswords() {
     var btn = document.getElementById('pwRefreshBtn');
     var api = window.desktopWindow || {};
-    if (btn.classList.contains('spinning') || typeof api.refreshPasswords !== 'function') return;
-    btn.classList.add('spinning', 'disabled');
+    if (btn.disabled || typeof api.refreshPasswords !== 'function') return;
+    btn.disabled = true;
+    btn.innerHTML = '...';
     api.refreshPasswords().then(function(result) {
-      btn.classList.remove('spinning', 'disabled');
+      btn.disabled = false;
+      btn.innerHTML = '&#8635;';
       if (result && result.ok) {
-        // 重新获取最新数据
         if (typeof api.getPasswords === 'function') {
           api.getPasswords().then(function(data) {
             renderPasswords(data);
@@ -243,13 +486,102 @@ body{
       } else {
         showRefreshError(result && result.error ? result.error : '刷新失败');
       }
-    }).catch(function(err) {
-      btn.classList.remove('spinning', 'disabled');
+    }).catch(function() {
+      btn.disabled = false;
+      btn.innerHTML = '&#8635;';
       showRefreshError('请求失败');
     });
   }
 
-  // 通过 IPC 接收主进程转发的播放状态
+  function togglePwBar() {
+    pwBarVisible = !pwBarVisible;
+    document.getElementById('pwBar').classList.toggle('show', pwBarVisible);
+    if (pwBarVisible) {
+      var api = window.desktopWindow || {};
+      if (typeof api.getPasswords === 'function') {
+        api.getPasswords().then(function(data) {
+          renderPasswords(data);
+        });
+      }
+    }
+  }
+
+  // ===== 设置面板功能 =====
+
+  // 加载设置
+  function loadSettings() {
+    var api = window.desktopWindow || {};
+    if (typeof api.getMiniPlayerSettings === 'function') {
+      api.getMiniPlayerSettings().then(function(s) {
+        if (s && typeof s.opacity === 'number') {
+          mpSettings.opacity = s.opacity;
+          mpSettings.showLyrics = !!s.showLyrics;
+          mpSettings.showPassword = s.showPassword !== false;
+          applySettings();
+        }
+      }).catch(function(){});
+    }
+  }
+
+  // 保存设置
+  function saveSettings() {
+    var api = window.desktopWindow || {};
+    if (typeof api.setMiniPlayerSettings === 'function') {
+      api.setMiniPlayerSettings(mpSettings).catch(function(){});
+    }
+  }
+
+  // 应用设置
+  function applySettings() {
+    document.documentElement.style.setProperty('--mp-opacity', mpSettings.opacity);
+    
+    // 歌词
+    var lyricsLine = document.getElementById('lyricsLine');
+    if (mpSettings.showLyrics && currentLyrics.lines && currentLyrics.lines.length > 0) {
+      lyricsLine.style.display = '';
+      updateLyricsDisplay();
+    } else {
+      lyricsLine.style.display = 'none';
+    }
+    
+    // 密码默认显示
+    if (mpSettings.showPassword && !pwBarVisible) {
+      togglePwBar();
+    } else if (!mpSettings.showPassword && pwBarVisible) {
+      togglePwBar();
+    }
+    
+    // 更新设置面板 UI
+    var slider = document.getElementById('opacitySlider');
+    var val = document.getElementById('opacityVal');
+    var lyricsTgl = document.getElementById('lyricsToggle');
+    var pwTgl = document.getElementById('passwordToggle');
+    if (slider) slider.value = mpSettings.opacity;
+    if (val) val.textContent = Math.round(mpSettings.opacity * 100) + '%';
+    if (lyricsTgl) {
+      lyricsTgl.setAttribute('data-on', mpSettings.showLyrics ? 'true' : 'false');
+      lyricsTgl.textContent = mpSettings.showLyrics ? '开' : '关';
+      lyricsTgl.classList.toggle('on', mpSettings.showLyrics);
+    }
+    if (pwTgl) {
+      pwTgl.setAttribute('data-on', mpSettings.showPassword ? 'true' : 'false');
+      pwTgl.textContent = mpSettings.showPassword ? '开' : '关';
+      pwTgl.classList.toggle('on', mpSettings.showPassword);
+    }
+  }
+
+  function updateLyricsDisplay() {
+    if (!mpSettings.showLyrics) return;
+    var idx = currentLyrics.currentIndex;
+    var text = '';
+    if (idx >= 0 && currentLyrics.lines && currentLyrics.lines[idx]) {
+      text = currentLyrics.lines[idx].text || '';
+    }
+    var el = document.getElementById('lyricsText');
+    if (el) el.textContent = text;
+  }
+
+  // IPC 通信
   var api = window.desktopWindow || {};
   if (typeof api.onMiniPlayerState === 'function') {
     api.onMiniPlayerState(function(state){
@@ -257,52 +589,126 @@ body{
     });
   }
 
-  // 加载密码门数据
+  // 歌词回调
+  if (typeof api.onMiniPlayerLyrics === 'function') {
+    api.onMiniPlayerLyrics(function(data) {
+      currentLyrics = data || { lines: [], currentIndex: -1 };
+      if (mpSettings.showLyrics) {
+        var lyricsLine = document.getElementById('lyricsLine');
+        if (currentLyrics.lines && currentLyrics.lines.length > 0) {
+          lyricsLine.style.display = '';
+          updateLyricsDisplay();
+        } else {
+          lyricsLine.style.display = 'none';
+        }
+      }
+    });
+  }
+
+  // 初始加载密码
   if (typeof api.getPasswords === 'function') {
     api.getPasswords().then(function(data) {
       renderPasswords(data);
-    }).catch(function() {
-      document.getElementById('pwEmpty').textContent = '密码加载失败';
-    });
-  } else {
-    document.getElementById('pwEmpty').textContent = '密码数据暂不可用';
+    }).catch(function() {});
   }
 
-  // 按钮点击发送命令到主进程 -> 主窗口
   function sendAction(action) {
     if (typeof api.sendMiniPlayerAction === 'function') {
       api.sendMiniPlayerAction({ action: action });
     }
   }
 
+  // 控制按钮事件
   document.getElementById('playBtn').addEventListener('click', function(e){
-    e.stopPropagation();
-    sendAction('togglePlay');
+    e.stopPropagation(); sendAction('togglePlay');
   });
   document.getElementById('prevBtn').addEventListener('click', function(e){
-    e.stopPropagation();
-    sendAction('prevTrack');
+    e.stopPropagation(); sendAction('prevTrack');
   });
   document.getElementById('nextBtn').addEventListener('click', function(e){
+    e.stopPropagation(); sendAction('nextTrack');
+  });
+  document.getElementById('favBtn').addEventListener('click', function(e){
     e.stopPropagation();
-    sendAction('nextTrack');
+    isFav = !isFav;
+    document.getElementById('favBtn').classList.toggle('active', isFav);
+    sendAction(isFav ? 'favorite' : 'unfavorite');
+  });
+  document.getElementById('loopBtn').addEventListener('click', function(e){
+    e.stopPropagation();
+    loopMode = (loopMode + 1) % 3;
+    var modes = ['repeat', 'repeat-one', 'shuffle'];
+    document.getElementById('loopBtn').classList.toggle('active', loopMode > 0);
+    sendAction('loopMode:' + modes[loopMode]);
+  });
+  document.getElementById('lyricsBtn').addEventListener('click', function(e){
+    e.stopPropagation();
+    togglePwBar();
+    sendAction('toggleLyrics');
   });
 
-  // 密码刷新按钮
+  // 设置按钮事件
+  document.getElementById('settingsBtn').addEventListener('click', function(e){
+    e.stopPropagation();
+    settingsPanelVisible = !settingsPanelVisible;
+    document.getElementById('settingsPanel').style.display = settingsPanelVisible ? '' : 'none';
+    if (typeof api.sendMiniPlayerAction === 'function') {
+      api.sendMiniPlayerAction({ action: 'toggleSettings', visible: settingsPanelVisible });
+    }
+  });
+
+  // 透明度滑块
+  document.getElementById('opacitySlider').addEventListener('input', function(e){
+    mpSettings.opacity = parseFloat(e.target.value);
+    document.documentElement.style.setProperty('--mp-opacity', mpSettings.opacity);
+    document.getElementById('opacityVal').textContent = Math.round(mpSettings.opacity * 100) + '%';
+  });
+
+  document.getElementById('opacitySlider').addEventListener('change', function(){
+    saveSettings();
+  });
+
+  // 歌词开关
+  document.getElementById('lyricsToggle').addEventListener('click', function(e){
+    e.stopPropagation();
+    mpSettings.showLyrics = !mpSettings.showLyrics;
+    applySettings();
+    saveSettings();
+  });
+
+  // 密码开关
+  document.getElementById('passwordToggle').addEventListener('click', function(e){
+    e.stopPropagation();
+    mpSettings.showPassword = !mpSettings.showPassword;
+    applySettings();
+    saveSettings();
+  });
+
+  // 密码轮播切换
+  document.getElementById('pwPrevBtn').addEventListener('click', function(e){
+    e.stopPropagation();
+    showPasswordItem(pwCurrentIndex - 1);
+  });
+  document.getElementById('pwNextBtn').addEventListener('click', function(e){
+    e.stopPropagation();
+    showPasswordItem(pwCurrentIndex + 1);
+  });
+
+  // 密码刷新
   document.getElementById('pwRefreshBtn').addEventListener('click', function(e) {
     e.stopPropagation();
     doRefreshPasswords();
   });
 
-  // 监听主进程推送的密码更新
+  // 监听密码更新推送
   if (typeof api.onPasswordsUpdated === 'function') {
     api.onPasswordsUpdated(function(data) {
       renderPasswords(data);
     });
   }
 
-  // 初始状态
   updateUI(currentState);
+  loadSettings();
 })();
 </script>
 </body>

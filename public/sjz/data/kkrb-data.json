@@ -1,6 +1,6 @@
 {
   "source": "g.aitags.cn",
-  "update_time": "2026-07-11T01:46:12.645228+00:00",
+  "update_time": "2026-07-11T05:40:45.066352+00:00",
   "password_doors": [
     {
       "map": "零号大坝",
@@ -37,122 +37,122 @@
     {
       "station": "技术中心",
       "rank": 1,
-      "item": "全景红点瞄准镜",
-      "hourly_profit": 3662
+      "item": "3/7可调倍率狙击镜",
+      "hourly_profit": 5137
     },
     {
       "station": "技术中心",
       "rank": 2,
       "item": "OLIGHT WARRIOR 3S战术手电",
-      "hourly_profit": 3344
+      "hourly_profit": 4450
     },
     {
       "station": "技术中心",
       "rank": 3,
-      "item": "骨架狙击枪托",
-      "hourly_profit": 3166
-    },
-    {
-      "station": "技术中心",
-      "rank": 4,
       "item": "棱镜通用二倍光学瞄具",
-      "hourly_profit": 3016
+      "hourly_profit": 3471
+    },
+    {
+      "station": "技术中心",
+      "rank": 4,
+      "item": "视点3倍瞄准镜",
+      "hourly_profit": 3331
     },
     {
       "station": "技术中心",
       "rank": 5,
-      "item": "视点3倍瞄准镜",
-      "hourly_profit": 2958
+      "item": "共振人体工程握把",
+      "hourly_profit": 3205
     },
     {
       "station": "工作台",
       "rank": 1,
-      "item": "5.8*42mm DVC12+P",
-      "hourly_profit": 32896
+      "item": "9x39mm BP",
+      "hourly_profit": 32922
     },
     {
       "station": "工作台",
       "rank": 2,
-      "item": "5.45x39mm BT",
-      "hourly_profit": 32400
+      "item": "5.45x39mm BS",
+      "hourly_profit": 31251
     },
     {
       "station": "工作台",
       "rank": 3,
-      "item": "5.8x42mm DBP10",
-      "hourly_profit": 31973
+      "item": "7.62x39mm AP",
+      "hourly_profit": 30841
     },
     {
       "station": "工作台",
       "rank": 4,
-      "item": ".300BLK",
-      "hourly_profit": 31840
+      "item": "5.56x45mm M995",
+      "hourly_profit": 30762
     },
     {
       "station": "工作台",
       "rank": 5,
-      "item": "9x19mm PBP",
-      "hourly_profit": 31695
+      "item": "4.6x30mm AP SX",
+      "hourly_profit": 30644
     },
     {
       "station": "制药台",
       "rank": 1,
-      "item": "精密头盔维修包",
-      "hourly_profit": 8499
+      "item": "高级护甲维修组合",
+      "hourly_profit": 9759
     },
     {
       "station": "制药台",
       "rank": 2,
-      "item": "战地医疗箱",
-      "hourly_profit": 7039
+      "item": "精密头盔维修包",
+      "hourly_profit": 8985
     },
     {
       "station": "制药台",
       "rank": 3,
       "item": "精密护甲维修包",
-      "hourly_profit": 5876
+      "hourly_profit": 7434
     },
     {
       "station": "制药台",
       "rank": 4,
-      "item": "M2肌肉注射剂",
-      "hourly_profit": 4890
+      "item": "高级头盔维修组合",
+      "hourly_profit": 6822
     },
     {
       "station": "制药台",
       "rank": 5,
-      "item": "高级头盔维修组合",
-      "hourly_profit": 4145
+      "item": "战地医疗箱",
+      "hourly_profit": 5439
     },
     {
       "station": "防具台",
       "rank": 1,
       "item": "精英防弹背心",
-      "hourly_profit": 25181
+      "hourly_profit": 26868
     },
     {
       "station": "防具台",
       "rank": 2,
-      "item": "H09 防暴头盔",
-      "hourly_profit": 21286
+      "item": "重型突击背心",
+      "hourly_profit": 25061
     },
     {
       "station": "防具台",
       "rank": 3,
       "item": "FS复合防弹衣",
-      "hourly_profit": 20353
+      "hourly_profit": 22715
     },
     {
       "station": "防具台",
       "rank": 4,
-      "item": "重型突击背心",
-      "hourly_profit": 18983
+      "item": "H09 防暴头盔",
+      "hourly_profit": 20175
     },
     {
       "station": "防具台",
       "rank": 5,
       "item": "Hvk-2防弹衣",
-      "hourly_profit": 18080
+      "hourly_profit": 19061
     }
   ],
   "gun_configs": {

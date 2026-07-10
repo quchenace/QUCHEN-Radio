@@ -1,4 +1,5 @@
 const { app, BrowserWindow, ipcMain, shell, screen, session, globalShortcut, dialog, Tray, Menu } = require('electron');
+const { autoUpdater } = require('electron-updater');
 const net = require('net');
 const path = require('path');
 const fs = require('fs');
@@ -1554,29 +1555,39 @@ ipcMain.handle('quchenradio-playback-state', (_event, state) => {
 });
 
 /**
- * 创建嵌入任务栏上方区域的迷你播放器窗口
+ * 创建嵌入任务栏内部的迷你播放器窗口
  */
 function createMiniPlayer() {
   if (miniPlayerWindow && !miniPlayerWindow.isDestroyed()) {
     return;
   }
 
-  const WIDTH = 440;
-  const HEIGHT = 100;
+  const WIDTH = 380;
+  const MIN_WIDTH = 300;
+  // 系统托盘区宽度估算值，使迷你播放器右边缘紧贴托盘左边缘
+  const TRAY_AREA_WIDTH = 200;
+
+  function getTaskbarHeight() {
+    const display = screen.getPrimaryDisplay();
+    return display.bounds.height - display.workArea.height;
+  }
+
+  const taskbarHeight = getTaskbarHeight() || 40;
 
   miniPlayerWindow = new BrowserWindow({
     width: WIDTH,
-    height: HEIGHT,
+    height: taskbarHeight,
+    minWidth: MIN_WIDTH,
     show: false,
     frame: false,
     transparent: true,
     backgroundColor: '#00000000',
-    hasShadow: false,
     alwaysOnTop: true,
     skipTaskbar: true,
-    resizable: false,
+    resizable: true,
     focusable: false,
     type: 'toolbar',
+    useContentSize: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -1586,18 +1597,31 @@ function createMiniPlayer() {
     },
   });
 
-  // 定位到屏幕右下角任务栏上方
+  // 定位到屏幕右下角任务栏内部
   function positionMiniPlayer() {
     if (!miniPlayerWindow || miniPlayerWindow.isDestroyed()) return;
     const display = screen.getPrimaryDisplay();
-    const workArea = display.workArea;
-    const x = workArea.x + workArea.width - WIDTH - 12;
-    const y = workArea.y + workArea.height - HEIGHT - 8;
-    miniPlayerWindow.setPosition(Math.round(x), Math.round(y));
+    const bounds = display.bounds;
+    const curBounds = miniPlayerWindow.getBounds();
+    const x = bounds.x + bounds.width - WIDTH - TRAY_AREA_WIDTH;
+    const y = bounds.y + bounds.height - curBounds.height;
+    miniPlayerWindow.setPosition(Math.round(Math.max(0, x)), Math.round(y));
   }
 
   positionMiniPlayer();
   screen.on('display-metrics-changed', positionMiniPlayer);
+
+  // resize 时保持底部对齐任务栏
+  miniPlayerWindow.on('resize', () => {
+    if (!miniPlayerWindow || miniPlayerWindow.isDestroyed()) return;
+    const display = screen.getPrimaryDisplay();
+    const bounds = display.bounds;
+    const curBounds = miniPlayerWindow.getBounds();
+    const y = bounds.y + bounds.height - curBounds.height;
+    if (curBounds.y !== y) {
+      miniPlayerWindow.setBounds({ x: curBounds.x, y: Math.round(y), width: curBounds.width, height: curBounds.height });
+    }
+  });
 
   miniPlayerWindow.on('closed', () => {
     screen.removeListener('display-metrics-changed', positionMiniPlayer);
@@ -1611,6 +1635,7 @@ function createMiniPlayer() {
   // 加载完成后发送当前状态
   miniPlayerWindow.webContents.once('did-finish-load', () => {
     sendMiniPlayerState();
+    miniPlayerWindow.setAlwaysOnTop(true, 'screen-saver');
     miniPlayerWindow.showInactive();
   });
 }
@@ -1635,14 +1660,64 @@ ipcMain.handle('quchenradio-miniplayer-update', (_event, state) => {
     progress: typeof state.progress === 'number' ? state.progress : 0,
   };
   sendMiniPlayerState();
+
+  // 转发歌词到迷你播放器
+  if (state.lyrics && miniPlayerWindow && !miniPlayerWindow.isDestroyed()) {
+    miniPlayerWindow.webContents.send('quchenradio-miniplayer-lyrics', state.lyrics);
+  }
 });
 
 /**
  * 处理迷你播放器发来的控制指令，转发给主窗口
  */
 ipcMain.handle('quchenradio-miniplayer-action', (_event, payload) => {
-  if (!mainWindow || mainWindow.isDestroyed() || !payload || !payload.action) return;
+  if (!payload || !payload.action) return;
+  
+  if (payload.action === 'toggleSettings') {
+    if (miniPlayerWindow && !miniPlayerWindow.isDestroyed()) {
+      var bounds = miniPlayerWindow.getBounds();
+      var delta = payload.visible ? 80 : -80;
+      miniPlayerWindow.setBounds({
+        x: bounds.x,
+        y: bounds.y - delta,
+        width: bounds.width,
+        height: bounds.height + delta
+      });
+    }
+    return;
+  }
+  
+  if (!mainWindow || mainWindow.isDestroyed()) return;
   mainWindow.webContents.send('quchenradio-thumbar-action', payload);
+});
+
+/**
+ * 获取/设置迷你播放器设置
+ */
+ipcMain.handle('quchenradio-miniplayer-settings-get', async () => {
+  const settingsPath = path.join(app.getPath('userData'), 'mini-player-settings.json');
+  try {
+    const raw = fs.readFileSync(settingsPath, 'utf8');
+    const settings = JSON.parse(raw);
+    return {
+      opacity: typeof settings.opacity === 'number' ? settings.opacity : 0.45,
+      alwaysOnTop: settings.alwaysOnTop !== false,
+      showLyrics: !!settings.showLyrics,
+      showPassword: settings.showPassword !== false,
+    };
+  } catch (e) {
+    return { opacity: 0.45, alwaysOnTop: true, showLyrics: false, showPassword: true };
+  }
+});
+
+ipcMain.handle('quchenradio-miniplayer-settings-set', async (_event, settings) => {
+  const settingsPath = path.join(app.getPath('userData'), 'mini-player-settings.json');
+  try {
+    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), 'utf8');
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message || 'SAVE_FAILED' };
+  }
 });
 
 /**
@@ -1780,6 +1855,39 @@ ipcMain.handle('quchenradio-open-sjz', async () => {
     createMiniPlayer();
   }
 });
+
+// 自动更新检查
+autoUpdater.autoDownload = false; // 手动下载，让用户确认
+autoUpdater.autoInstallOnAppQuit = true;
+autoUpdater.logger = require('electron').app.commandLine.hasSwitch('debug-updater')
+  ? console
+  : null;
+
+// 检查更新（每 3 小时）
+setInterval(() => {
+  autoUpdater.checkForUpdates().catch(() => {});
+}, 3 * 60 * 60 * 1000);
+
+// 启动后 10 秒检查一次
+setTimeout(() => {
+  autoUpdater.checkForUpdates().catch(() => {});
+}, 10000);
+
+// 更新事件转发给渲染进程
+autoUpdater.on('update-available', (info) => {
+  mainWindow?.webContents.send('quchenradio-update-available', info);
+});
+autoUpdater.on('update-downloaded', (info) => {
+  mainWindow?.webContents.send('quchenradio-update-downloaded', info);
+});
+autoUpdater.on('error', (err) => {
+  mainWindow?.webContents.send('quchenradio-update-error', err.message);
+});
+
+// IPC handlers
+ipcMain.handle('quchenradio-check-update', () => autoUpdater.checkForUpdates());
+ipcMain.handle('quchenradio-download-update', () => autoUpdater.downloadUpdate());
+ipcMain.handle('quchenradio-quit-and-install', () => autoUpdater.quitAndInstall());
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();

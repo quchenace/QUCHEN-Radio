@@ -66,7 +66,23 @@ contextBridge.exposeInMainWorld('desktopWindow', {
     ipcRenderer.on('quchenradio-passwords-updated', listener);
     return () => ipcRenderer.removeListener('quchenradio-passwords-updated', listener);
   },
+  getMiniPlayerSettings: () => ipcRenderer.invoke('quchenradio-miniplayer-settings-get'),
+  setMiniPlayerSettings: (settings) => ipcRenderer.invoke('quchenradio-miniplayer-settings-set', settings),
+  onMiniPlayerLyrics: (callback) => {
+    if (typeof callback !== 'function') return () => {};
+    const listener = (_event, data) => callback(data);
+    ipcRenderer.on('quchenradio-miniplayer-lyrics', listener);
+    return () => ipcRenderer.removeListener('quchenradio-miniplayer-lyrics', listener);
+  },
   openSjzPage: () => ipcRenderer.invoke('quchenradio-open-sjz'),
+
+  // 更新
+  onUpdateAvailable: (callback) => ipcRenderer.on('quchenradio-update-available', (_event, info) => callback(info)),
+  onUpdateDownloaded: (callback) => ipcRenderer.on('quchenradio-update-downloaded', (_event, info) => callback(info)),
+  onUpdateError: (callback) => ipcRenderer.on('quchenradio-update-error', (_event, msg) => callback(msg)),
+  checkForUpdates: () => ipcRenderer.invoke('quchenradio-check-update'),
+  downloadUpdate: () => ipcRenderer.invoke('quchenradio-download-update'),
+  quitAndInstall: () => ipcRenderer.invoke('quchenradio-quit-and-install'),
 
   onStateChange: (callback) => {
     const listener = (_event, state) => callback(state);

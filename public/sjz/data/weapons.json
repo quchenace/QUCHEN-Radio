@@ -1,28 +1,28 @@
 {
   "daily_password": {
     "code": "AZ33931",
-    "update_time": "07-11 01:46"
+    "update_time": "07-11 05:40"
   },
   "manufacturing": [
     {
       "station": "技术中心",
-      "item": "全景红点瞄准镜",
-      "hourly_profit": 3662
+      "item": "3/7可调倍率狙击镜",
+      "hourly_profit": 5137
     },
     {
       "station": "工作台",
-      "item": "5.8*42mm DVC12+P",
-      "hourly_profit": 32896
+      "item": "9x39mm BP",
+      "hourly_profit": 32922
     },
     {
       "station": "制药台",
-      "item": "精密头盔维修包",
-      "hourly_profit": 8499
+      "item": "高级护甲维修组合",
+      "hourly_profit": 9759
     },
     {
       "station": "防具台",
       "item": "精英防弹背心",
-      "hourly_profit": 25181
+      "hourly_profit": 26868
     }
   ],
   "weapons": {

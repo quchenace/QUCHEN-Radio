@@ -1,7 +1,7 @@
 {
   "name": "quchenradio",
   "productName": "QUCHEN Radio",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "沉浸式音乐播放器，融合天气电台、歌词舞台、粒子视觉和 3D 歌单架。",
   "author": "QUCHEN Radio",
   "main": "desktop/main.js",
@@ -64,8 +64,8 @@
     "publish": [
       {
         "provider": "github",
-        "owner": "XxHuberrr",
-        "repo": "QUCHEN Radio"
+        "owner": "quchenace",
+        "repo": "QUCHEN-Radio"
       }
     ]
   },
@@ -73,7 +73,7 @@
   "quchenradio": {
     "update": {
       "provider": "manual",
-      "enabled": false
+      "enabled": true
     }
   },
   "dependencies": {
@@ -82,9 +82,10 @@
     "NeteaseCloudMusicApi": "^4.32.0"
   },
   "devDependencies": {
-    "@noble/hashes": "^2.2.0",
+    "@noble/hashes": "^1.4.0",
     "electron": "^42.4.1",
     "electron-builder": "^26.15.3",
+    "electron-updater": "^6.8.9",
     "rcedit": "^5.0.2"
   }
 }
