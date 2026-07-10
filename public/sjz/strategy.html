@@ -1,0 +1,208 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>跑刀路线分析 - QUCHEN SJZ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0d12;color:#e0e0e0;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;line-height:1.75}
+nav{background:rgba(15,18,25,0.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(156,255,223,0.08);position:sticky;top:0;z-index:100}
+.nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px 24px}
+.nav-logo{font-size:1.3rem;font-weight:800;color:#9cffdf;text-decoration:none;letter-spacing:-0.5px}
+.nav-logo span{color:#7bbfaa;font-weight:600}
+.nav-links{display:flex;gap:28px;list-style:none}
+.nav-links a{color:#9ca3af;text-decoration:none;font-size:0.9rem;font-weight:500;transition:color 0.2s;padding:4px 0}
+.nav-links a:hover,.nav-links a.active{color:#9cffdf}
+.nav-links a.primary-link{color:#9cffdf;font-weight:600}
+main{max-width:900px;margin:0 auto;padding:40px 24px}
+.article-header{text-align:center;padding:50px 0 40px;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:44px}
+.article-header h1{font-size:2.6rem;font-weight:800;color:#fff;letter-spacing:-1px;margin-bottom:12px}
+.article-header h1 span{color:#9cffdf}
+.article-header .badge{display:inline-block;padding:6px 16px;border-radius:20px;background:rgba(156,255,223,0.08);color:#9cffdf;font-size:0.82rem;font-weight:600;border:1px solid rgba(156,255,223,0.15);margin-top:6px}
+.article-header .meta{color:#6b7280;font-size:0.82rem;margin-top:14px}
+
+.intro-box{background:rgba(156,255,223,0.04);border:1px solid rgba(156,255,223,0.1);border-radius:14px;padding:24px 28px;margin-bottom:40px;color:#b0b8c1;font-size:0.95rem;line-height:1.8}
+.intro-box strong{color:#9cffdf}
+
+.section-block{margin-bottom:44px}
+.section-block h2{font-size:1.5rem;font-weight:700;color:#fff;margin-bottom:8px;letter-spacing:-0.5px}
+.section-block h2 .num{color:#9cffdf;margin-right:6px}
+.section-block h3{font-size:1.15rem;font-weight:700;color:#d1d5db;margin-bottom:12px;padding-left:14px;border-left:3px solid #9cffdf}
+.section-block p{color:#b0b8c1;font-size:0.95rem;margin-bottom:16px}
+.section-block ul{margin:12px 0 20px 20px;color:#b0b8c1}
+.section-block ul li{margin-bottom:8px;font-size:0.95rem}
+.section-block ul li strong{color:#9cffdf}
+
+.map-hint{display:inline-block;padding:4px 12px;background:rgba(251,191,36,0.08);color:#fbbf24;border:1px solid rgba(251,191,36,0.2);border-radius:8px;font-size:0.8rem;font-weight:600;margin-bottom:12px}
+
+.image-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:14px;overflow:hidden;margin:20px 0}
+.image-card img{width:100%;display:block}
+.image-card .img-caption{padding:14px 18px;font-size:0.85rem;color:#7bbfaa;background:rgba(156,255,223,0.03);border-top:1px solid rgba(156,255,223,0.06);font-weight:500}
+
+.tip-box{background:rgba(251,191,36,0.04);border:1px solid rgba(251,191,36,0.12);border-radius:12px;padding:18px 24px;margin:20px 0;color:#e5c07b;font-size:0.9rem;line-height:1.7}
+.tip-box::before{content:'战术提示 ';font-weight:700;color:#fbbf24}
+
+.grid-imgs{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:16px}
+.grid-imgs .image-card{margin:0}
+
+.section-divider{height:1px;background:linear-gradient(90deg,transparent,rgba(156,255,223,0.1),transparent);margin:48px 0}
+
+footer{margin-top:60px;text-align:center;padding:30px 0;border-top:1px solid rgba(255,255,255,0.05);color:#6b7280;font-size:0.8rem}
+footer p{margin-bottom:4px}
+
+@media(max-width:768px){
+  .article-header h1{font-size:1.8rem}
+  .section-block h2{font-size:1.25rem}
+  .grid-imgs{grid-template-columns:1fr}
+  nav .nav-links{gap:16px}
+}
+@media(max-width:480px){
+  main{padding:24px 16px}
+  .article-header h1{font-size:1.5rem}
+}
+</style>
+</head>
+<body>
+
+<nav>
+<div class="nav-inner">
+<a href="index.html" class="nav-logo">QUCHEN <span>SJZ</span></a>
+<ul class="nav-links">
+<li><a href="index.html">首页</a></li>
+<li><a href="weapons.html">改枪码</a></li>
+<li><a href="combat.html">卡战备</a></li>
+<li><a href="crafting.html">制造</a></li>
+<li><a href="strategy.html" class="active">跑刀攻略</a></li>
+</ul>
+</div>
+</nav>
+
+<main>
+
+<header class="article-header">
+<h1>航天基地 <span>跑刀路线分析</span></h1>
+<div class="badge">三角洲行动 · 攻略</div>
+<p class="meta">更新于 2026年7月 · 数据来源实战整理</p>
+</header>
+
+<div class="intro-box">
+<strong>航天一共八个复活位置</strong>，其中<strong>二员和宿舍必定刷一队</strong>，<strong>老区至少两队</strong>，其他随机。了解复活点分布是制定跑刀路线的第一步。
+</div>
+
+<div class="image-card">
+<img src="img/strategy_map.jpg" alt="飞机撤离点地图" loading="lazy">
+<div class="img-caption">航天基地飞机撤离点及复活位置总览地图</div>
+</div>
+
+<!-- ===== 一、员通开局 ===== -->
+<div class="section-block">
+<h2><span class="num">一</span>员通开局路线详解</h2>
+<p>开局阶段建议直接刷卡通行，迅速前往黑市免费领取航空箱。之后立即返回蓝室，使用自带的保险箱资源补给。准备就绪后，快速进入黑室并前往上层总裁区，可在此处稳定获取前期重要物资，实现<strong style="color:#9cffdf">"爽吃"开局</strong>。</p>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ===== 二、中控楼 ===== -->
+<div class="section-block">
+<h2><span class="num">二</span>中控楼分步攻略</h2>
+
+<h3>第一步：地面搜查与保险补给</h3>
+<p>首先留意地面油点刷新情况，并确认一楼是否有"心"类资源生成。之后不要拖延，直接使用保险补充状态。完成补给后，立即借助滑索进入浮力区，优先取得<strong style="color:#9cffdf">"断头饭"</strong>资源。</p>
+
+<h3>第二步：三楼搜集与环境判断</h3>
+<p>保险使用完毕后，可转向浮力区三楼的红色房间搜集物资。结束后务必注意倾听周围脚步声，判断总裁区是否有人。若总裁区暂时安全，可前往搜刮；也可根据西区大门的实时开放情况，灵活选择进入总裁区或离心区继续发育。</p>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ===== 三、宿舍楼 ===== -->
+<div class="section-block">
+<h2><span class="num">三</span>宿舍楼谨慎行动指南</h2>
+<p>开启一员卡之后，推荐优先前往浮力区收集物资，之后尽快返回宿舍楼内。无需特意确认西大是否已有玩家进入，因为在员通阶段即可观察到西大的开卡状态。</p>
+
+<div class="tip-box">当前赛季中，不少玩家会选择快速突袭宿舍楼，因此强烈建议不要冒险在外逗留，确保自身安全为首要目标。</div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ===== 四、西区大门 ===== -->
+<div class="section-block">
+<h2><span class="num">四</span>西区大门区域战术思路</h2>
+
+<h3>打法一：离心区速攻</h3>
+<p>开卡进入离心区后，首先检查闸点附近有无卫星锅与大红资源刷新。随后立即拉闸，并迅速前往二楼使用保险。</p>
+
+<div class="tip-box">若保险后出现大红，<strong>28分30秒前</strong>发射区玩家通常还未抵达离心区，关键要听脚步辨别。如果没有断桥事件，时间节点可延至<strong>28分40秒</strong>。</div>
+
+<p>如果听到他人接近，应果断转进浮力区取得"断头饭"，避免正面冲突。</p>
+
+<h3>打法二：浮力区上行</h3>
+<p>开卡后从浮力区直接上行至总裁区，搜集完毕后若状态良好，可携带五级护甲等高级装备从容撤离。</p>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ===== 五、发射区 ===== -->
+<div class="section-block">
+<h2><span class="num">五</span>发射区动向与机会把握</h2>
+<p>如遇到断桥事件，应首先前往获取断桥相关资源。之后可进入离心区，通过脚步声判断西大方向是否有人前来，或留意西大与宿舍区的动向。</p>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ===== 烽火行动杯 ===== -->
+<div class="section-block">
+<h2 style="font-size:1.6rem;color:#fbbf24;">烽火行动杯 & 房卡刷新点</h2>
+
+<div class="intro-box" style="border-color:rgba(251,191,36,0.15);background:rgba(251,191,36,0.04);">
+<strong style="color:#fbbf24;">航天一共六个地方刷新烽火行动杯</strong>，且爆率较高。掌握刷杯位置，提升收益效率。
+</div>
+
+<div class="image-card">
+<img src="img/strategy_cups.jpg" alt="烽火杯刷新点总览" loading="lazy">
+<div class="img-caption">烽火行动杯刷新点总览地图</div>
+</div>
+
+<p style="margin-top:20px;font-weight:600;color:#fff;">具体位置如下：</p>
+
+<div class="grid-imgs">
+<div class="image-card">
+<img src="img/strategy_dorm.jpg" alt="宿舍垃圾桶和凉棚下面" loading="lazy">
+<div class="img-caption">位置1：宿舍垃圾桶和凉棚下面</div>
+</div>
+
+<div class="image-card">
+<img src="img/strategy_control.jpg" alt="中控滑索小沙发上" loading="lazy">
+<div class="img-caption">位置2：中控滑索小沙发上</div>
+</div>
+
+<div class="image-card">
+<img src="img/strategy_workshop.jpg" alt="组织车间二楼电脑桌旁边" loading="lazy">
+<div class="img-caption">位置3：组织车间二楼电脑桌旁边</div>
+</div>
+
+<div class="image-card">
+<img src="img/strategy_centrifuge.jpg" alt="离心和浮力链接二楼" loading="lazy">
+<div class="img-caption">位置4：离心和浮力链接二楼（高概率）</div>
+</div>
+</div>
+
+<p style="margin-top:20px;font-weight:600;color:#9cffdf;padding:16px 20px;background:rgba(156,255,223,0.04);border:1px solid rgba(156,255,223,0.1);border-radius:12px;">
+位置5：总裁桌上（<strong style="color:#fbbf24;">高概率</strong>） — 此处无独立截图，请根据总览地图前往总裁桌区域查找。
+</p>
+
+</div>
+
+</main>
+
+<footer>
+<p>QUCHEN SJZ · 三角洲工具站</p>
+<p>© 2026 QUCHEN. All rights reserved. 攻略内容源于实战整理，仅供游戏参考。</p>
+</footer>
+
+</body>
+</html>

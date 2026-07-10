@@ -1,0 +1,29 @@
+Starting build at 2026-07-11 02:48:29
+(node:50488) ExperimentalWarning: Support for loading ES Module in require() is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+  • electron-builder  version=26.15.3 os=10.0.19045
+  • loaded configuration  file=package.json ("build" field)
+  • executing @electron/rebuild  electronVersion=42.4.1 arch=x64 buildFromSource=false workspaceRoot=D:\测试文件夹\quchen-radio-new projectDir=./ appDir=./
+  • installing native dependencies  arch=x64
+  ⨯ (node:45140) ExperimentalWarning: Support for loading ES Module in require() is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  • completed installing native dependencies
+  • packaging       platform=win32 arch=x64 electron=42.4.1 appOutDir=dist\win-unpacked
+  • downloaded      label=electron progress=100%
+  • downloaded electron zip extracted successfully  output=D:\测试文件夹\quchen-radio-new\dist\win-unpacked
+  • asar usage is disabled — this is strongly not recommended  solution=enable asar and use asarUnpack to unpack files that must be externally available
+  • searching for node modules  pm=npm searchDir=D:\测试文件夹\quchen-radio-new
+  • collector stderr output  dependencies=["(node:45948) ExperimentalWarning: Support for loading ES Module in require() is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n(node:49624) ExperimentalWarning: Support for loading ES Module in require() is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n"]
+  • duplicate dependency references  dependencies=["call-bind-apply-helpers@1.0.2","es-object-atoms@1.1.2","hasown@2.0.4","hasown@2.0.4","debug@4.4.3","debug@4.4.3","mime-types@2.1.35","http-errors@2.0.1","on-finished@2.4.1","qs@6.15.2","http-errors@2.0.1","iconv-lite@0.4.24","type-is@1.6.18","on-finished@2.4.1","call-bind-apply-helpers@1.0.2","get-intrinsic@1.3.0","get-intrinsic@1.3.0","call-bound@1.0.4","get-intrinsic@1.3.0","side-channel-map@1.0.1","http-errors@2.0.1","on-finished@2.4.1","send@0.19.2","mime-types@2.1.35","strtok3@6.3.0","token-types@4.2.1","debug@4.4.3","debug@4.4.3","debug@4.4.3","debug@4.4.3","debug@4.4.3","string-width@4.2.3","strip-ansi@6.0.1","ansi-styles@4.3.0","string-width@4.2.3","strip-ansi@6.0.1","string-width@4.2.3","string-width@4.2.3","string-width@4.2.3","strip-ansi@6.0.1","strip-ansi@6.0.1"]
+  • injecting QUCHEN Radio resources  rcedit=D:\测试文件夹\quchen-radio-new\node_modules\rcedit\bin\rcedit-x64.exe
+  • asar usage is disabled — this is strongly not recommended  solution=enable asar and use asarUnpack to unpack files that must be externally available
+  • executable resource editing and code signing skipped — signAndEditExecutable is false. To skip only code signing while keeping icon and metadata applied, use signExecutable: false instead.  exe=dist\win-unpacked\QUCHENRadio.exe
+  • building        target=nsis file=dist\QUCHEN-Radio-1.1.1-Setup.exe archs=x64 oneClick=false perMachine=false
+  • signing with signtool.exe  path=dist\QUCHEN-Radio-1.1.1-Setup.__uninstaller.exe
+  • signing with signtool.exe  path=dist\QUCHEN-Radio-1.1.1-Setup.exe
+  • building block map  blockMapFile=dist\QUCHEN-Radio-1.1.1-Setup.exe.blockmap
+
+Exit code: 0
+Total lines: 24
+Duration: 109.5s

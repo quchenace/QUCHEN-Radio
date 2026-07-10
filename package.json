@@ -1,9 +1,9 @@
 {
-  "name": "mineradio",
-  "productName": "Mineradio",
+  "name": "quchenradio",
+  "productName": "QUCHEN Radio",
   "version": "1.1.1",
   "description": "沉浸式音乐播放器，融合天气电台、歌词舞台、粒子视觉和 3D 歌单架。",
-  "author": "Mineradio",
+  "author": "QUCHEN Radio",
   "main": "desktop/main.js",
   "private": true,
   "scripts": {
@@ -12,8 +12,8 @@
     "build:win:dir": "electron-builder --win dir"
   },
   "build": {
-    "appId": "com.mineradio.desktop",
-    "productName": "Mineradio",
+    "appId": "com.quchenradio.desktop",
+    "productName": "QUCHEN Radio",
     "directories": {
       "output": "dist",
       "buildResources": "build"
@@ -34,7 +34,7 @@
     ],
     "asar": false,
     "win": {
-      "executableName": "Mineradio",
+      "executableName": "QUCHENRadio",
       "icon": "build/icon.ico",
       "signAndEditExecutable": false,
       "target": [
@@ -52,35 +52,28 @@
       "allowToChangeInstallationDirectory": false,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Mineradio",
+      "shortcutName": "QUCHEN Radio",
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
       "installerSidebar": "build/installerSidebar.bmp",
       "uninstallerSidebar": "build/installerSidebar.bmp",
       "installerHeader": "build/installerHeader.bmp",
       "include": "build/installer.nsh",
-      "artifactName": "Mineradio-${version}-Setup.${ext}"
+      "artifactName": "QUCHEN-Radio-${version}-Setup.${ext}"
     },
     "publish": [
       {
         "provider": "github",
         "owner": "XxHuberrr",
-        "repo": "Mineradio"
+        "repo": "QUCHEN Radio"
       }
     ]
   },
-  "mineradio": {
+  "_quchenradio_update_attribution": "原项目由 XxHuberrr 开源（https://github.com/XxHuberrr/mineradio）",
+  "quchenradio": {
     "update": {
-      "provider": "github",
-      "owner": "XxHuberrr",
-      "repo": "Mineradio",
-      "preview": true,
-      "preferMirrors": true,
-      "mirrors": [
-        "https://gh.llkk.cc/",
-        "https://ghfast.top/",
-        "https://gh-proxy.com/"
-      ]
+      "provider": "manual",
+      "enabled": false
     }
   },
   "dependencies": {
@@ -89,6 +82,7 @@
     "NeteaseCloudMusicApi": "^4.32.0"
   },
   "devDependencies": {
+    "@noble/hashes": "^2.2.0",
     "electron": "^42.4.1",
     "electron-builder": "^26.15.3",
     "rcedit": "^5.0.2"

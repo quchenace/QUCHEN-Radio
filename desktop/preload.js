@@ -12,33 +12,62 @@ contextBridge.exposeInMainWorld('desktopWindow', {
   clearNeteaseMusicLogin: () => ipcRenderer.invoke('netease-music-clear-login'),
   openQQMusicLogin: () => ipcRenderer.invoke('qq-music-open-login'),
   clearQQMusicLogin: () => ipcRenderer.invoke('qq-music-clear-login'),
-  openUpdateInstaller: (filePath) => ipcRenderer.invoke('mineradio-open-update-installer', filePath),
-  restartApp: () => ipcRenderer.invoke('mineradio-restart-app'),
-  configureGlobalHotkeys: (bindings) => ipcRenderer.invoke('mineradio-hotkeys-configure-global', bindings || []),
-  exportJsonFile: (payload) => ipcRenderer.invoke('mineradio-export-json-file', payload || {}),
-  importJsonFile: () => ipcRenderer.invoke('mineradio-import-json-file'),
+  openUpdateInstaller: (filePath) => ipcRenderer.invoke('quchenradio-open-update-installer', filePath),
+  restartApp: () => ipcRenderer.invoke('quchenradio-restart-app'),
+  configureGlobalHotkeys: (bindings) => ipcRenderer.invoke('quchenradio-hotkeys-configure-global', bindings || []),
+  exportJsonFile: (payload) => ipcRenderer.invoke('quchenradio-export-json-file', payload || {}),
+  importJsonFile: () => ipcRenderer.invoke('quchenradio-import-json-file'),
   onGlobalHotkey: (callback) => {
     if (typeof callback !== 'function') return () => {};
     const listener = (_event, payload) => callback(payload || {});
-    ipcRenderer.on('mineradio-global-hotkey', listener);
-    return () => ipcRenderer.removeListener('mineradio-global-hotkey', listener);
+    ipcRenderer.on('quchenradio-global-hotkey', listener);
+    return () => ipcRenderer.removeListener('quchenradio-global-hotkey', listener);
   },
-  setDesktopLyricsEnabled: (enabled, payload) => ipcRenderer.invoke('mineradio-desktop-lyrics-set-enabled', !!enabled, payload || {}),
-  updateDesktopLyrics: (payload) => ipcRenderer.invoke('mineradio-desktop-lyrics-update', payload || {}),
+  setDesktopLyricsEnabled: (enabled, payload) => ipcRenderer.invoke('quchenradio-desktop-lyrics-set-enabled', !!enabled, payload || {}),
+  updateDesktopLyrics: (payload) => ipcRenderer.invoke('quchenradio-desktop-lyrics-update', payload || {}),
   onDesktopLyricsLockState: (callback) => {
     if (typeof callback !== 'function') return () => {};
     const listener = (_event, payload) => callback(payload || {});
-    ipcRenderer.on('mineradio-desktop-lyrics-lock-state', listener);
-    return () => ipcRenderer.removeListener('mineradio-desktop-lyrics-lock-state', listener);
+    ipcRenderer.on('quchenradio-desktop-lyrics-lock-state', listener);
+    return () => ipcRenderer.removeListener('quchenradio-desktop-lyrics-lock-state', listener);
   },
   onDesktopLyricsEnabledState: (callback) => {
     if (typeof callback !== 'function') return () => {};
     const listener = (_event, payload) => callback(payload || {});
-    ipcRenderer.on('mineradio-desktop-lyrics-enabled-state', listener);
-    return () => ipcRenderer.removeListener('mineradio-desktop-lyrics-enabled-state', listener);
+    ipcRenderer.on('quchenradio-desktop-lyrics-enabled-state', listener);
+    return () => ipcRenderer.removeListener('quchenradio-desktop-lyrics-enabled-state', listener);
   },
-  setWallpaperMode: (enabled, payload) => ipcRenderer.invoke('mineradio-wallpaper-set-enabled', !!enabled, payload || {}),
-  updateWallpaperMode: (payload) => ipcRenderer.invoke('mineradio-wallpaper-update', payload || {}),
+  setWallpaperMode: (enabled, payload) => ipcRenderer.invoke('quchenradio-wallpaper-set-enabled', !!enabled, payload || {}),
+  updateWallpaperMode: (payload) => ipcRenderer.invoke('quchenradio-wallpaper-update', payload || {}),
+
+  // === 任务栏播控 ===
+  updatePlaybackState: (state) => ipcRenderer.invoke('quchenradio-playback-state', state || {}),
+  onThumbarAction: (callback) => {
+    if (typeof callback !== 'function') return () => {};
+    const listener = (_event, payload) => callback(payload || {});
+    ipcRenderer.on('quchenradio-thumbar-action', listener);
+    return () => ipcRenderer.removeListener('quchenradio-thumbar-action', listener);
+  },
+
+  // === 迷你播放器 ===
+  updateMiniPlayer: (state) => ipcRenderer.invoke('quchenradio-miniplayer-update', state || {}),
+  onMiniPlayerState: (callback) => {
+    if (typeof callback !== 'function') return () => {};
+    const listener = (_event, state) => callback(state);
+    ipcRenderer.on('quchenradio-miniplayer-state', listener);
+    return () => ipcRenderer.removeListener('quchenradio-miniplayer-state', listener);
+  },
+  sendMiniPlayerAction: (action) => ipcRenderer.invoke('quchenradio-miniplayer-action', action || {}),
+  getPasswords: () => ipcRenderer.invoke('quchenradio-get-passwords'),
+  refreshPasswords: () => ipcRenderer.invoke('quchenradio-refresh-passwords'),
+  onPasswordsUpdated: (callback) => {
+    if (typeof callback !== 'function') return () => {};
+    const listener = (_event, data) => callback(data);
+    ipcRenderer.on('quchenradio-passwords-updated', listener);
+    return () => ipcRenderer.removeListener('quchenradio-passwords-updated', listener);
+  },
+  openSjzPage: () => ipcRenderer.invoke('quchenradio-open-sjz'),
+
   onStateChange: (callback) => {
     const listener = (_event, state) => callback(state);
     ipcRenderer.on('desktop-window-state', listener);

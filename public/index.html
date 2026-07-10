@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mineradio</title>
+<title>QUCHEN Radio</title>
 <meta name="referrer" content="no-referrer">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Inter:wght@200;300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
 <script src="vendor/three.r128.min.js"></script>
@@ -11,7 +11,7 @@
 <script src="vendor/gsap.min.js"></script>
 <script>
 try {
-  document.documentElement.classList.add(localStorage.getItem('mineradio-diy-player-mode-v1') === '1' ? 'diy-mode-preload' : 'simple-mode-preload');
+  document.documentElement.classList.add(localStorage.getItem('quchenradio-diy-player-mode-v1') === '1' ? 'diy-mode-preload' : 'simple-mode-preload');
 } catch (e) {
   document.documentElement.classList.add('simple-mode-preload');
 }
@@ -23,7 +23,7 @@ body.cursor-hidden,body.cursor-hidden *{cursor:none!important}
 html.desktop-shell-root,html.desktop-shell-root body{background:transparent}
 :root{--font-sans:"Noto Sans SC","PingFang SC","HarmonyOS Sans SC","Alibaba PuHuiTi","Inter",-apple-system,BlinkMacSystemFont,system-ui,sans-serif;--font-mono:"JetBrains Mono","Geist Mono","SF Mono",ui-monospace,monospace;--fc-bg:#08090B;--fc-paper:#0E1014;--fc-ink:#E8ECEF;--fc-ink-2:#D2D7DC;--fc-muted:#8A9099;--fc-hair:#1A1D22;--fc-hair-2:#262A31;--fc-accent:#00F5D4;--fc-accent-hov:#00E0BE;--fc-accent-rgb:0,245,212;--fc-blue:#2442ff;--fc-warm:#f8f4ee;--chill-ink:#030608;--chill-deep:#061116;--chill-cyan:#8fe9ff;--chill-blue:#73a7ff;--chill-mint:#9cffdf;--chill-soft:rgba(214,248,255,.9);--champagne:#f4d28a;--champagne-deep:#9a6f2c;--home-accent:#00f5d4;--home-accent-rgb:0,245,212;--visual-tint:#9db8cf;--source-netease:#d95b67;--source-qq:#00F5D4;--source-local:#9db8cf}
 :root{--glass-bg:linear-gradient(112deg,rgba(72,74,76,.62),rgba(24,27,30,.70) 48%,rgba(8,12,14,.74));--glass-bg-focus:linear-gradient(112deg,rgba(88,91,92,.68),rgba(28,32,35,.76) 50%,rgba(8,13,15,.82));--glass-border:rgba(0,245,212,.30);--glass-border-soft:rgba(255,255,255,.095);--glass-shadow:0 22px 64px rgba(0,0,0,.30),0 0 34px rgba(0,245,212,.052),inset 0 1px 0 rgba(255,255,255,.16),inset 0 -24px 58px rgba(0,0,0,.16);--glass-shadow-focus:0 24px 72px rgba(0,0,0,.34),0 0 0 1px rgba(0,245,212,.13),0 0 42px rgba(0,245,212,.075),inset 0 1px 0 rgba(255,255,255,.20)}
-:root{--saved-panel-glass-bg:rgba(0,0,0,.10);--saved-panel-glass-filter:blur(12px) saturate(1.8) brightness(1.16);--saved-panel-glass-svg-filter:url(#mineradio-control-glass-filter) saturate(1);--saved-panel-glass-shadow:inset 0 0 2px 1px rgba(255,255,255,.35),inset 0 0 10px 4px rgba(255,255,255,.15),0 4px 16px rgba(17,17,26,.05),0 8px 24px rgba(17,17,26,.05),0 16px 56px rgba(17,17,26,.05),inset 0 4px 16px rgba(17,17,26,.05),inset 0 8px 24px rgba(17,17,26,.05),inset 0 16px 56px rgba(17,17,26,.05);--saved-panel-glass-radius:50px;--saved-button-glass-bg:rgba(0,0,0,.10);--saved-button-glass-filter:blur(12px) saturate(1.8) brightness(1.16);--saved-button-glass-svg-filter:url(#mineradio-control-glass-filter) saturate(1);--saved-button-glass-shadow:inset 0 0 2px 1px rgba(255,255,255,.34),inset 0 0 10px 4px rgba(255,255,255,.13),0 10px 30px rgba(0,0,0,.18);--saved-button-glass-hover-bg:rgba(255,255,255,.055);--saved-button-glass-hover-shadow:inset 0 0 2px 1px rgba(255,255,255,.42),inset 0 0 12px 5px rgba(255,255,255,.17),0 12px 34px rgba(0,0,0,.22),0 0 18px rgba(255,255,255,.06)}
+:root{--saved-panel-glass-bg:rgba(0,0,0,.10);--saved-panel-glass-filter:blur(12px) saturate(1.8) brightness(1.16);--saved-panel-glass-svg-filter:url(#quchenradio-control-glass-filter) saturate(1);--saved-panel-glass-shadow:inset 0 0 2px 1px rgba(255,255,255,.35),inset 0 0 10px 4px rgba(255,255,255,.15),0 4px 16px rgba(17,17,26,.05),0 8px 24px rgba(17,17,26,.05),0 16px 56px rgba(17,17,26,.05),inset 0 4px 16px rgba(17,17,26,.05),inset 0 8px 24px rgba(17,17,26,.05),inset 0 16px 56px rgba(17,17,26,.05);--saved-panel-glass-radius:50px;--saved-button-glass-bg:rgba(0,0,0,.10);--saved-button-glass-filter:blur(12px) saturate(1.8) brightness(1.16);--saved-button-glass-svg-filter:url(#quchenradio-control-glass-filter) saturate(1);--saved-button-glass-shadow:inset 0 0 2px 1px rgba(255,255,255,.34),inset 0 0 10px 4px rgba(255,255,255,.13),0 10px 30px rgba(0,0,0,.18);--saved-button-glass-hover-bg:rgba(255,255,255,.055);--saved-button-glass-hover-shadow:inset 0 0 2px 1px rgba(255,255,255,.42),inset 0 0 12px 5px rgba(255,255,255,.17),0 12px 34px rgba(0,0,0,.22),0 0 18px rgba(255,255,255,.06)}
 :root{--home-icon-color:#f4d28a;--home-icon-rgb:244,210,138;--visual-icon-color:#7fd8ff;--visual-icon-rgb:127,216,255}
 .glass-saved-panel{background:var(--saved-panel-glass-bg);border:0;border-radius:var(--saved-panel-glass-radius);backdrop-filter:var(--saved-panel-glass-filter);-webkit-backdrop-filter:var(--saved-panel-glass-filter);box-shadow:var(--saved-panel-glass-shadow)}
 html.control-glass-svg-ok .glass-saved-panel{background:var(--saved-panel-glass-bg);backdrop-filter:var(--saved-panel-glass-svg-filter);-webkit-backdrop-filter:var(--saved-panel-glass-svg-filter)}
@@ -53,6 +53,8 @@ body.desktop-shell #desktop-titlebar::after{content:none}
 .desktop-mode-btn:hover{background:rgba(255,83,103,.10);border-color:rgba(255,83,103,.34);color:#fff;transform:translateY(-1px)}
 .desktop-mode-btn.on{color:#fff;border-color:rgba(255,83,103,.50);background:rgba(255,83,103,.13);box-shadow:0 12px 34px rgba(255,83,103,.09),inset 0 1px 0 rgba(255,255,255,.08)}
 .desktop-mode-btn.on::before{background:#ff5367;box-shadow:0 0 16px rgba(255,83,103,.56)}
+.desktop-sjz-btn{height:26px;min-width:44px;padding:0 10px;border:1px solid rgba(156,255,223,.22);border-radius:999px;background:rgba(156,255,223,.08);color:#9cffdf;font-family:inherit;font-size:10px;font-weight:800;letter-spacing:.05em;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .18s,color .18s,transform .18s,border-color .18s;margin-right:2px}
+.desktop-sjz-btn:hover{background:rgba(156,255,223,.18);border-color:rgba(156,255,223,.45);color:#abffe5;transform:translateY(-1px)}
 body.desktop-shell #desktop-titlebar #visual-guide-btn,
 body.desktop-shell #desktop-titlebar #update-entry{width:30px;height:30px;border-radius:10px;box-shadow:none;background:rgba(4,8,10,.42);border-color:rgba(255,255,255,.08);color:rgba(224,250,255,.70);backdrop-filter:none;-webkit-backdrop-filter:none}
 body.desktop-shell #desktop-titlebar #visual-guide-btn{font-size:14px}
@@ -525,7 +527,7 @@ html.control-glass-svg-ok #bottom-bar{backdrop-filter:none;-webkit-backdrop-filt
 #bottom-bar::before{content:none}
 #bottom-bar::after{content:none}
 #bottom-bar.visible{opacity:.91;pointer-events:auto;transform:translateX(-50%) translateY(0) scale(1);filter:blur(0);background:rgba(0,0,0,.10);backdrop-filter:blur(12px) saturate(1.8) brightness(1.16);-webkit-backdrop-filter:blur(12px) saturate(1.8) brightness(1.16);box-shadow:inset 0 0 2px 1px rgba(255,255,255,.35),inset 0 0 10px 4px rgba(255,255,255,.15),0 4px 16px rgba(17,17,26,.05),0 8px 24px rgba(17,17,26,.05),0 16px 56px rgba(17,17,26,.05),inset 0 4px 16px rgba(17,17,26,.05),inset 0 8px 24px rgba(17,17,26,.05),inset 0 16px 56px rgba(17,17,26,.05)}
-html.control-glass-svg-ok #bottom-bar.visible{background:rgba(0,0,0,.10);backdrop-filter:url(#mineradio-control-glass-filter) saturate(1);-webkit-backdrop-filter:url(#mineradio-control-glass-filter) saturate(1)}
+html.control-glass-svg-ok #bottom-bar.visible{background:rgba(0,0,0,.10);backdrop-filter:url(#quchenradio-control-glass-filter) saturate(1);-webkit-backdrop-filter:url(#quchenradio-control-glass-filter) saturate(1)}
 #bottom-bar.soft-hidden{opacity:0;pointer-events:none;transform:translateX(-50%) translateY(88px) scale(.972);filter:none;background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:none}
 body.home-controls-locked #bottom-bar{opacity:0!important;pointer-events:none!important;transform:translateX(-50%) translateY(92px) scale(.985)!important;filter:none!important;background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:none!important}
 #bottom-bar.stage-mode{bottom:14px;width:calc(100vw - 56px)}
@@ -1507,8 +1509,8 @@ html.control-glass-svg-ok #playlist-panel{
   -webkit-backdrop-filter:var(--saved-panel-glass-filter)!important;
 }
 html.control-glass-svg-ok #search-box{
-  backdrop-filter:url(#mineradio-search-box-glass-filter) saturate(1)!important;
-  -webkit-backdrop-filter:url(#mineradio-search-box-glass-filter) saturate(1)!important;
+  backdrop-filter:url(#quchenradio-search-box-glass-filter) saturate(1)!important;
+  -webkit-backdrop-filter:url(#quchenradio-search-box-glass-filter) saturate(1)!important;
 }
 #home-btn,#upload-btn,#visual-guide-btn,#fx-fab,.top-account-pill,#top-right .icon-btn{
   background:var(--saved-button-glass-bg)!important;
@@ -1676,8 +1678,8 @@ html.control-glass-svg-ok .search-history-chip{
   border-color:transparent!important;
   color:rgba(var(--fc-accent-rgb),.78)!important;
   box-shadow:var(--saved-button-glass-shadow)!important;
-  backdrop-filter:url(#mineradio-search-pill-glass-filter) saturate(1)!important;
-  -webkit-backdrop-filter:url(#mineradio-search-pill-glass-filter) saturate(1)!important;
+  backdrop-filter:url(#quchenradio-search-pill-glass-filter) saturate(1)!important;
+  -webkit-backdrop-filter:url(#quchenradio-search-pill-glass-filter) saturate(1)!important;
   overflow:visible!important;
 }
 html.control-glass-svg-ok .search-mode-tabs button:hover,
@@ -1860,6 +1862,7 @@ html.control-glass-svg-ok #visual-guide-btn:hover{
       </svg>
     </button>
     <button id="diy-mode-btn" class="desktop-mode-btn" type="button" onclick="toggleDiyMode()" title="开启 DIY 玩家模式" aria-label="开启 DIY 玩家模式" aria-pressed="false">DIY</button>
+    <button class="desktop-sjz-btn" type="button" onclick="openSjzWindow()" title="三角洲工具站" aria-label="三角洲工具站">SJZ</button>
     <button class="desktop-window-btn" data-window-action="minimize" title="最小化" aria-label="最小化">
       <svg viewBox="0 0 16 16"><path d="M3 8h10"/></svg>
     </button>
@@ -1887,7 +1890,7 @@ html.control-glass-svg-ok #visual-guide-btn:hover{
 
   <!-- 主内容 -->
   <div class="splash-content">
-    <div class="splash-wordmark" id="splash-wordmark" aria-label="Mineradio">
+    <div class="splash-wordmark" id="splash-wordmark" aria-label="QUCHEN Radio">
       <span class="splash-word-mine">Mine</span>
       <span class="splash-word-radio" aria-label="radio">rad<span class="splash-word-i" aria-hidden="true"></span><span class="splash-word-o">o</span></span>
     </div>
@@ -1928,7 +1931,7 @@ html.control-glass-svg-ok #visual-guide-btn:hover{
 </div>
 
 <!-- 空场 Home -->
-<section id="empty-home" aria-label="Mineradio home">
+<section id="empty-home" aria-label="QUCHEN Radio home">
   <div class="empty-home-shell">
     <div class="home-hero">
       <div class="home-hero-inner home-construction-inner">
@@ -2005,7 +2008,7 @@ html.control-glass-svg-ok #visual-guide-btn:hover{
 <!-- 控制台 (右侧贴边自动显示, 无关闭按钮) -->
 <div id="fx-panel">
   <div class="fx-head">
-    <div><div class="fx-title">视觉控制台</div><div class="fx-sub">MINERADIO VISUALS · 鼠标移开自动隐藏</div></div>
+    <div><div class="fx-title">视觉控制台</div><div class="fx-sub">QUCHEN RADIO VISUALS · 鼠标移开自动隐藏</div></div>
   </div>
 
   <div class="fx-section-label">视觉预设</div>
@@ -2339,7 +2342,7 @@ html.control-glass-svg-ok #visual-guide-btn:hover{
 <!-- 底部控件 -->
 <svg id="control-glass-svg" class="control-glass-filter-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
   <defs>
-    <filter id="mineradio-control-glass-filter" color-interpolation-filters="sRGB" x="-12%" y="-28%" width="124%" height="156%">
+    <filter id="quchenradio-control-glass-filter" color-interpolation-filters="sRGB" x="-12%" y="-28%" width="124%" height="156%">
       <feImage id="control-glass-map" x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map"></feImage>
       <feDisplacementMap in="SourceGraphic" in2="map" scale="180" xChannelSelector="R" yChannelSelector="B" result="dispRed"></feDisplacementMap>
       <feOffset in="dispRed" dx="-90" dy="0" result="dispRedShifted"></feOffset>
@@ -2357,7 +2360,7 @@ html.control-glass-svg-ok #visual-guide-btn:hover{
       <feBlend in="rg" in2="blue" mode="screen" result="output"></feBlend>
       <feGaussianBlur in="output" stdDeviation="0.5"></feGaussianBlur>
     </filter>
-    <filter id="mineradio-search-box-glass-filter" color-interpolation-filters="sRGB" x="-24%" y="-34%" width="158%" height="168%">
+    <filter id="quchenradio-search-box-glass-filter" color-interpolation-filters="sRGB" x="-24%" y="-34%" width="158%" height="168%">
       <feImage id="search-box-glass-map" x="-10%" y="-4%" width="120%" height="108%" preserveAspectRatio="none" result="map"></feImage>
       <feDisplacementMap in="SourceGraphic" in2="map" scale="180" xChannelSelector="R" yChannelSelector="B" result="dispRed"></feDisplacementMap>
       <feOffset in="dispRed" dx="-90" dy="0" result="dispRedShifted"></feOffset>
@@ -2375,7 +2378,7 @@ html.control-glass-svg-ok #visual-guide-btn:hover{
       <feBlend in="rg" in2="blue" mode="screen" result="output"></feBlend>
       <feGaussianBlur in="output" stdDeviation="0.5"></feGaussianBlur>
     </filter>
-    <filter id="mineradio-search-pill-glass-filter" color-interpolation-filters="sRGB" x="-48%" y="-68%" width="210%" height="236%">
+    <filter id="quchenradio-search-pill-glass-filter" color-interpolation-filters="sRGB" x="-48%" y="-68%" width="210%" height="236%">
       <feImage id="search-pill-glass-map" x="-24%" y="-14%" width="148%" height="128%" preserveAspectRatio="none" result="map"></feImage>
       <feDisplacementMap in="SourceGraphic" in2="map" scale="118" xChannelSelector="R" yChannelSelector="B" result="dispRed"></feDisplacementMap>
       <feOffset in="dispRed" dx="-34" dy="0" result="dispRedShifted"></feOffset>
@@ -2470,7 +2473,7 @@ html.control-glass-svg-ok #visual-guide-btn:hover{
       <button id="login-provider-qq" class="qq" type="button" onclick="setLoginProvider('qq')">QQ 音乐</button>
     </div>
     <div class="login-intro">
-      <div class="login-intro-kicker">Mineradio</div>
+      <div class="login-intro-kicker">QUCHEN Radio</div>
       <div class="login-intro-title">音乐播放器，也是一座视觉舞台</div>
       <div class="login-intro-body">搜索或导入一首歌即可播放；登录后会同步歌单、红心和播客，让封面、歌词和粒子跟着音乐动起来。</div>
     </div>
@@ -2619,7 +2622,7 @@ html.control-glass-svg-ok #visual-guide-btn:hover{
     <div class="update-panel-inner">
       <div class="update-panel-head">
         <div>
-          <div class="update-kicker">MINERADIO</div>
+          <div class="update-kicker">QUCHEN RADIO</div>
           <div id="update-modal-title" class="update-title">New release</div>
           <div id="update-modal-version" class="update-version">v1.0.10</div>
         </div>
@@ -2711,23 +2714,23 @@ var AUDIO_FADE_IN_MS = 460;
 var AUDIO_FADE_OUT_MS = 420;
 var AUDIO_SILENCE_GAIN = 0.0001;
 var userPlaylists = [], qqPlaylists = [], myPodcastCollections = [], myPodcastItems = {}, playlistCoverCache = {};
-var CUSTOM_COVER_STORE_KEY = 'mineradio-custom-covers';
-var CUSTOM_LYRIC_STORE_KEY = 'mineradio-custom-lyrics-v1';
-var CUSTOM_LYRIC_PREF_STORE_KEY = 'mineradio-custom-lyric-prefs-v1';
-var LYRIC_LAYOUT_STORE_KEY = 'mineradio-lyric-layout-v1';
+var CUSTOM_COVER_STORE_KEY = 'quchenradio-custom-covers';
+var CUSTOM_LYRIC_STORE_KEY = 'quchenradio-custom-lyrics-v1';
+var CUSTOM_LYRIC_PREF_STORE_KEY = 'quchenradio-custom-lyric-prefs-v1';
+var LYRIC_LAYOUT_STORE_KEY = 'quchenradio-lyric-layout-v1';
 var VISUAL_PRESET_SCHEMA = 'skull-preset-v2';
-var PLAYBACK_QUALITY_STORE_KEY = 'mineradio-playback-quality-v1';
-var UPLOAD_TIP_STORE_KEY = 'mineradio-upload-tip-seen';
-var DIY_MODE_STORE_KEY = 'mineradio-diy-player-mode-v1';
-var PLAYLIST_PANEL_PIN_STORE_KEY = 'mineradio-playlist-panel-pinned-v1';
-var USER_CAPSULE_AUTO_HIDE_STORE_KEY = 'mineradio-user-capsule-auto-hide-v1';
-var FX_FAB_AUTO_HIDE_STORE_KEY = 'mineradio-fx-fab-auto-hide-v1';
-var CONTROLS_AUTO_HIDE_STORE_KEY = 'mineradio-controls-auto-hide-v1';
-var FREE_CAMERA_STORE_KEY = 'mineradio-free-camera-v1';
-var HOTKEY_SETTINGS_STORE_KEY = 'mineradio-hotkey-settings-v1';
-var VISUAL_GUIDE_SEEN_STORE_KEY = 'mineradio-visual-guide-seen-v2';
-var LOCAL_BEATMAP_STORE_KEY = 'mineradio-local-beatmaps-v1';
-var LOCAL_BEAT_PREF_STORE_KEY = 'mineradio-local-beatmap-prefs-v1';
+var PLAYBACK_QUALITY_STORE_KEY = 'quchenradio-playback-quality-v1';
+var UPLOAD_TIP_STORE_KEY = 'quchenradio-upload-tip-seen';
+var DIY_MODE_STORE_KEY = 'quchenradio-diy-player-mode-v1';
+var PLAYLIST_PANEL_PIN_STORE_KEY = 'quchenradio-playlist-panel-pinned-v1';
+var USER_CAPSULE_AUTO_HIDE_STORE_KEY = 'quchenradio-user-capsule-auto-hide-v1';
+var FX_FAB_AUTO_HIDE_STORE_KEY = 'quchenradio-fx-fab-auto-hide-v1';
+var CONTROLS_AUTO_HIDE_STORE_KEY = 'quchenradio-controls-auto-hide-v1';
+var FREE_CAMERA_STORE_KEY = 'quchenradio-free-camera-v1';
+var HOTKEY_SETTINGS_STORE_KEY = 'quchenradio-hotkey-settings-v1';
+var VISUAL_GUIDE_SEEN_STORE_KEY = 'quchenradio-visual-guide-seen-v2';
+var LOCAL_BEATMAP_STORE_KEY = 'quchenradio-local-beatmaps-v1';
+var LOCAL_BEAT_PREF_STORE_KEY = 'quchenradio-local-beatmap-prefs-v1';
 var LOCAL_BEAT_COMBOS = ['', 'downbeat', 'push', 'drop', 'rebound', 'accent'];
 var HOTKEY_ACTIONS = [
   { key:'togglePlay', label:'播放 / 暂停', category:'播放', local:'Space', global:'Ctrl+Alt+Space' },
@@ -2765,8 +2768,8 @@ var homeDiscoverState = { loading: false, loaded: false, loggedIn: false, mode: 
 var homeDiscoverToken = 0;
 var homeVisualPresetActive = false;
 var homeVisualPrevPreset = 0;
-var HOME_LISTEN_STATS_KEY = 'mineradio-listen-stats-v1';
-var HOME_WEATHER_CITY_KEY = 'mineradio-weather-city';
+var HOME_LISTEN_STATS_KEY = 'quchenradio-listen-stats-v1';
+var HOME_WEATHER_CITY_KEY = 'quchenradio-weather-city';
 var homeWeatherRadioState = { loading: false, loaded: false, city: localStorage.getItem(HOME_WEATHER_CITY_KEY) || '上海', weather: null, radio: null, error: '', updatedAt: 0 };
 var homeWeatherToken = 0;
 var homeWeatherLoadTimer = null;
@@ -2780,8 +2783,8 @@ function markAppPerf(name) {
   try {
     var value = performance.now();
     appPerfMarks.push({ name: name, value: Math.round(value) });
-    if (performance && performance.mark) performance.mark('mineradio:' + name);
-    if (appPerfMarks.length <= 16) console.debug('[MineradioPerf]', name, Math.round(value) + 'ms');
+    if (performance && performance.mark) performance.mark('quchenradio:' + name);
+    if (appPerfMarks.length <= 16) console.debug('[QUCHENRadioPerf]', name, Math.round(value) + 'ms');
   } catch (e) {}
 }
 markAppPerf('script-start');
@@ -2791,7 +2794,7 @@ function installStartupLongTaskObserver() {
     var observer = new PerformanceObserver(function(list){
       list.getEntries().forEach(function(entry){
         if (entry.startTime > 15000) return;
-        console.debug('[MineradioPerf] longtask', Math.round(entry.startTime) + 'ms', Math.round(entry.duration) + 'ms');
+        console.debug('[QUCHENRadioPerf] longtask', Math.round(entry.startTime) + 'ms', Math.round(entry.duration) + 'ms');
       });
     });
     observer.observe({ entryTypes: ['longtask'] });
@@ -3574,7 +3577,7 @@ function trimCoverDepthCache(keep, protectedKeys) {
   coverDepthCacheKeys = keys.filter(function(key){ return !!coverDepthCache[key]; });
   return dropped;
 }
-function collectRuntimePerfSnapshot(now) {
+function collectQUCHENRadioRuntimePerfSnapshot(now) {
   now = now || performance.now();
   runtimePerfState.cacheCounts = {
     playlistCovers: safeObjectKeys(playlistCoverCache).length,
@@ -3615,7 +3618,7 @@ function collectRuntimePerfSnapshot(now) {
     deepSleep: isDeepBackgroundMode()
   };
 }
-window.__mineradioPerfSnapshot = collectRuntimePerfSnapshot;
+window.__quchenradioPerfSnapshot = collectQUCHENRadioRuntimePerfSnapshot;
 function trimRuntimeCaches(reason, aggressive) {
   var protectedCovers = collectProtectedCoverUrls();
   var protectedBeats = collectProtectedBeatMapKeys();
@@ -3632,7 +3635,7 @@ function trimRuntimeCaches(reason, aggressive) {
   runtimePerfState.lastCacheTrimAt = performance.now();
   runtimePerfState.cacheTrimCount += 1;
   runtimePerfState.lastCacheTrimReason = reason || (aggressive ? 'deep' : 'active');
-  collectRuntimePerfSnapshot(runtimePerfState.lastCacheTrimAt);
+  collectQUCHENRadioRuntimePerfSnapshot(runtimePerfState.lastCacheTrimAt);
   return dropped;
 }
 function trimVisualCachesForBackground() {
@@ -7990,7 +7993,7 @@ function customBackgroundMediaLabel(media) {
   if (!media) return '未设置';
   return media.type === 'video' ? '视频已设置' : '图片已设置';
 }
-var CUSTOM_BG_DB_NAME = 'mineradio-custom-background-v1';
+var CUSTOM_BG_DB_NAME = 'quchenradio-custom-background-v1';
 var CUSTOM_BG_STORE = 'media';
 var customBgObjectUrl = '';
 var customBgApplyToken = 0;
@@ -9802,7 +9805,7 @@ function forceLoadingSettled(reason) {
   }
   uniforms.uLoading.value = 0;
   loadingShownAt = 0;
-  if (reason && window.__mineradioDebugLoading) console.log('[LoadingSettled]', reason);
+  if (reason && window.__quchenradioDebugLoading) console.log('[LoadingSettled]', reason);
 }
 function recoverVisualsAfterBackground(reason) {
   applyRendererPowerMode();
@@ -12235,7 +12238,7 @@ function updateLocalBeatModal() {
   var desc = document.getElementById('local-beat-desc');
   if (desc) desc.textContent = mode === 'dj'
     ? '适合 DJ、长混音或鼓点密集的本地音频，会使用更稳定的低频锁拍并进入 DJ 视觉驱动。'
-    : '适合普通歌曲和日常播放，会沿用 Mineradio 电影视角的综合节奏分析。';
+    : '适合普通歌曲和日常播放，会沿用 QUCHEN Radio 电影视角的综合节奏分析。';
   var start = document.getElementById('local-beat-start-btn');
   var cancel = document.getElementById('local-beat-cancel-btn');
   var later = document.getElementById('local-beat-later-btn');
@@ -15564,7 +15567,7 @@ function renderHomeDiscover() {
   var weatherKicker = document.getElementById('home-weather-kicker');
   var weatherMeta = document.getElementById('home-weather-meta');
   if (weatherTitle) weatherTitle.textContent = '我的音乐库';
-  if (weatherKicker) weatherKicker.textContent = 'Mineradio · Your Library';
+  if (weatherKicker) weatherKicker.textContent = 'QUCHEN Radio · Your Library';
   if (sub) {
     if (loggedOutHome) sub.textContent = '登录后会把你的歌单、常听歌手和最近播放放在这里；也可以直接搜索或导入本地音乐。';
     else sub.textContent = '从你的歌单、最近播放和常听歌手开始，天气电台放在需要氛围的时候再开。';
@@ -17184,7 +17187,7 @@ function avatarSrc(url) {
 var searchTimer = null;
 var searchRequestSeq = 0;
 var searchLastResultQuery = '';
-var SEARCH_HISTORY_STORE_KEY = 'mineradio-search-history';
+var SEARCH_HISTORY_STORE_KEY = 'quchenradio-search-history';
 var $input = document.getElementById('search-input');
 var $results = document.getElementById('search-results');
 var $loading = document.getElementById('loading-overlay');
@@ -18664,27 +18667,33 @@ async function playAudio(opts) {
   opts = opts || {};
   return attemptAudioPlay({ manual: false, silent: !!opts.silent });
 }
-async function togglePlay() {
+function togglePlay() {
   if (playToggleBusy) return;
   playToggleBusy = true;
   try {
     forcePlaybackControlsInteractive();
     if ((!audio || !audio.src) && playQueue.length && currentIdx >= 0) {
-      await playQueueAt(currentIdx, { manual: true });
+      Promise.resolve(playQueueAt(currentIdx, { manual: true })).then(function(){
+        reportPlaybackStateToMain();
+      });
       return;
     }
     if (!audio) return;
     if (audio.paused || audio.ended) {
-      await attemptAudioPlay({ manual: true });
+      Promise.resolve(attemptAudioPlay({ manual: true })).then(function(){
+        reportPlaybackStateToMain();
+      });
     } else {
-      await fadeOutAndPauseAudio();
-      playing = false;
-      setPlayIcon(false);
-      hideLoading();
-      safePlaybackStep('listen-stats-pause', function(){ updateListenStatsTick(true); });
-      forcePlaybackControlsInteractive();
-      safePlaybackStep('sync-pause-state', function(){ syncPlaybackStateFromAudioEvent('manual-pause'); });
-      safePlaybackStep('pause-controls-hide', function(){ scheduleControlsHide(520); });
+      Promise.resolve(fadeOutAndPauseAudio()).then(function(){
+        playing = false;
+        setPlayIcon(false);
+        hideLoading();
+        safePlaybackStep('listen-stats-pause', function(){ updateListenStatsTick(true); });
+        forcePlaybackControlsInteractive();
+        safePlaybackStep('sync-pause-state', function(){ syncPlaybackStateFromAudioEvent('manual-pause'); });
+        safePlaybackStep('pause-controls-hide', function(){ scheduleControlsHide(520); });
+        reportPlaybackStateToMain();
+      });
     }
   } catch (err) {
     console.warn('[TogglePlay]', err);
@@ -18708,14 +18717,20 @@ function nextTrack() {
   forcePlaybackControlsInteractive();
   if (playMode === 'shuffle') currentIdx = Math.floor(Math.random() * playQueue.length);
   else currentIdx = (currentIdx + 1) % playQueue.length;
-  Promise.resolve(playQueueAt(currentIdx)).finally(forcePlaybackControlsInteractive);
+  Promise.resolve(playQueueAt(currentIdx)).finally(function(){
+    forcePlaybackControlsInteractive();
+    reportPlaybackStateToMain();
+  });
 }
 function prevTrack() {
   if (!playQueue.length) return;
   playToggleBusy = false;
   forcePlaybackControlsInteractive();
   currentIdx = (currentIdx - 1 + playQueue.length) % playQueue.length;
-  Promise.resolve(playQueueAt(currentIdx)).finally(forcePlaybackControlsInteractive);
+  Promise.resolve(playQueueAt(currentIdx)).finally(function(){
+    forcePlaybackControlsInteractive();
+    reportPlaybackStateToMain();
+  });
 }
 function shuffleQueue() {
   for (var i = playQueue.length - 1; i > 0; i--) {
@@ -18809,7 +18824,7 @@ function normalizeControlGlassChromaticOffset(value) {
 function applyControlGlassChromaticOffset() {
   if (!fx) return;
   fx.controlGlassChromaticOffset = normalizeControlGlassChromaticOffset(fx.controlGlassChromaticOffset);
-  var filter = document.getElementById('mineradio-control-glass-filter');
+  var filter = document.getElementById('quchenradio-control-glass-filter');
   if (!filter) return;
   var dx = String(-Math.round(fx.controlGlassChromaticOffset));
   filter.querySelectorAll('feOffset').forEach(function(node){
@@ -18822,7 +18837,7 @@ function supportsControlGlassSvgFilter() {
     var ua = navigator.userAgent || '';
     if ((/Safari/.test(ua) && !/Chrome/.test(ua)) || /Firefox/.test(ua)) return false;
     var div = document.createElement('div');
-    div.style.backdropFilter = 'url(#mineradio-control-glass-filter)';
+    div.style.backdropFilter = 'url(#quchenradio-control-glass-filter)';
     return div.style.backdropFilter !== '';
   } catch (e) {
     return false;
@@ -19917,8 +19932,8 @@ function updatePlaybackProgressUi() {
   if (timeDisplay) timeDisplay.textContent = formatProgramTime(currentSec) + ' / ' + (durationSec > 0 ? formatProgramTime(durationSec) : '0:00');
 }
 function bindPlaybackProgressEvents(audioEl) {
-  if (!audioEl || audioEl._mineradioProgressBound) return;
-  audioEl._mineradioProgressBound = true;
+  if (!audioEl || audioEl._quchenradioProgressBound) return;
+  audioEl._quchenradioProgressBound = true;
   ['loadedmetadata', 'durationchange', 'timeupdate', 'seeked', 'play', 'pause', 'emptied'].forEach(function(name){
     audioEl.addEventListener(name, updatePlaybackProgressUi);
   });
@@ -20120,8 +20135,8 @@ var lyricColorPresets = [
   { name:'酒红', color:'#6d1f35' },
   { name:'墨黑', color:'#111318' },
 ];
-var USER_FX_ARCHIVE_STORE_KEY = 'mineradio-user-fx-archives-v1';
-var USER_FX_ARCHIVE_EXPORT_TYPE = 'mineradio-user-fx-archive';
+var USER_FX_ARCHIVE_STORE_KEY = 'quchenradio-user-fx-archives-v1';
+var USER_FX_ARCHIVE_EXPORT_TYPE = 'quchenradio-user-fx-archive';
 var USER_FX_ARCHIVE_SCHEMA = 1;
 function defaultUserFxArchiveName(index) {
   return '存档 ' + (index + 1);
@@ -20539,7 +20554,7 @@ function userFxArchiveExportPayload(slot) {
   };
 }
 function safeArchiveFileName(name) {
-  return String(name || 'Mineradio 用户存档').replace(/[\\/:*?"<>|]+/g, '-').slice(0, 48) + '.json';
+  return String(name || 'QUCHEN Radio 用户存档').replace(/[\\/:*?"<>|]+/g, '-').slice(0, 48) + '.json';
 }
 function exportUserFxArchive(index) {
   var slot = userFxArchiveAt(index);
@@ -21958,7 +21973,7 @@ function ensureHotkeyModal() {
   modal.innerHTML =
     '<div class="hotkey-dialog" role="dialog" aria-modal="true" aria-label="热键设置">' +
       '<div class="hotkey-head">' +
-        '<div><div class="hotkey-title">热键设置</div><div class="hotkey-sub">局内热键只在 Mineradio 窗口内生效；全局热键会向系统注册，并检测是否被占用。</div></div>' +
+        '<div><div class="hotkey-title">热键设置</div><div class="hotkey-sub">局内热键只在 QUCHEN Radio 窗口内生效；全局热键会向系统注册，并检测是否被占用。</div></div>' +
         '<button class="hotkey-close" type="button" data-hotkey-close aria-label="关闭">×</button>' +
       '</div>' +
       '<div class="hotkey-toolbar">' +
@@ -21983,7 +21998,7 @@ function ensureHotkeyModal() {
 }
 function hotkeyStatusMarkup(scope, actionKey, binding, duplicate) {
   if (!binding) return '<span class="hotkey-status">未设置</span>';
-  if (duplicate && duplicate[binding] > 1) return '<span class="hotkey-status conflict"><span class="source-icon">!</span>Mineradio 内部重复</span>';
+  if (duplicate && duplicate[binding] > 1) return '<span class="hotkey-status conflict"><span class="source-icon">!</span>QUCHEN Radio 内部重复</span>';
   if (scope === 'local') return '<span class="hotkey-status ok">可用</span>';
   var status = hotkeyGlobalStatus[actionKey];
   if (!status) return '<span class="hotkey-status">待检测</span>';
@@ -22093,6 +22108,128 @@ function registerGlobalHotkeys() {
   });
 }
 var globalHotkeyListenerBound = false;
+var taskbarStateReporterTimer = null;
+
+/**
+ * 向主进程发送当前播放状态（用于任务栏悬浮提示和缩略图工具栏图标更新）
+ */
+function reportPlaybackStateToMain() {
+  var api = getDesktopWindowApi && getDesktopWindowApi();
+  if (!api || typeof api.updatePlaybackState !== 'function') return;
+  updateMediaSession();
+  var song = playQueue && currentIdx >= 0 ? playQueue[currentIdx] : null;
+  var songName = (song && (song.name || song.title)) || '';
+  var artist = (song && (song.artist || song.ar || song.author)) || '';
+  api.updatePlaybackState({
+    playing: !!playing,
+    songName: songName,
+    artist: artist
+  });
+  // 向迷你播放器推送扩展状态（含封面和进度）
+  if (typeof api.updateMiniPlayer === 'function') {
+    var cover = (typeof songCoverSrc === 'function' && song) ? (songCoverSrc(song, 120) || '') : (song ? (song.cover || '') : '');
+    var pct = 0;
+    if (audio && isFinite(audio.currentTime) && audio.duration && isFinite(audio.duration) && audio.duration > 0) {
+      pct = (audio.currentTime / audio.duration) * 100;
+    }
+    api.updateMiniPlayer({
+      playing: !!playing,
+      songName: songName,
+      artist: artist,
+      cover: cover,
+      progress: pct
+    });
+  }
+}
+
+/**
+ * 更新 Windows SMTC 原生媒体控件（MediaSession API）
+ * 自动在任务栏悬浮、锁屏、音量弹窗中显示媒体控件
+ */
+var mediaSessionHandlersSet = false;
+
+function updateMediaSession() {
+  if (typeof navigator === 'undefined' || !navigator.mediaSession) return;
+
+  var song = playQueue && currentIdx >= 0 ? playQueue[currentIdx] : null;
+  if (!song) {
+    navigator.mediaSession.metadata = null;
+    navigator.mediaSession.playbackState = 'none';
+    return;
+  }
+
+  var title = song.name || song.title || '';
+  var artist = song.artist || song.ar || song.author || '';
+  var album = song.album || song.album_name || '';
+
+  // 封面图：尝试获取不同尺寸的 artwork
+  var artwork = [];
+  var coverUrl = (typeof songCoverSrc === 'function') ? songCoverSrc(song, 512) : (song.cover || '');
+  if (coverUrl) {
+    // 确保封面 URL 是完整路径
+    var href = (coverUrl.indexOf('http') === 0 || coverUrl.indexOf('data:') === 0) ? coverUrl : coverUrl;
+    // 转成绝对 URL（如果是相对路径）
+    if (href.indexOf('http') !== 0 && href.indexOf('data:') !== 0) {
+      href = new URL(href, window.location.href).href;
+    }
+    var img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = function() {
+      var canvas = document.createElement('canvas');
+      canvas.width = 256;
+      canvas.height = 256;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, 256, 256);
+      var dataUrl = canvas.toDataURL('image/png');
+      navigator.mediaSession.metadata && (navigator.mediaSession.metadata.artwork = [{ src: dataUrl, sizes: '256x256', type: 'image/png' }]);
+    };
+    img.onerror = function() {
+      // 封面加载失败也保留基本信息
+    };
+    img.src = href;
+    artwork = [{ src: href, sizes: '512x512', type: 'image/png' }];
+  }
+
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title: title,
+    artist: artist,
+    album: album,
+    artwork: artwork
+  });
+
+  navigator.mediaSession.playbackState = playing ? 'playing' : 'paused';
+
+  // 只注册一次 action handlers
+  if (!mediaSessionHandlersSet) {
+    mediaSessionHandlersSet = true;
+
+    navigator.mediaSession.setActionHandler('play', function() {
+      if (typeof togglePlay === 'function') togglePlay();
+    });
+
+    navigator.mediaSession.setActionHandler('pause', function() {
+      if (typeof togglePlay === 'function') togglePlay();
+    });
+
+    navigator.mediaSession.setActionHandler('previoustrack', function() {
+      if (typeof prevTrack === 'function') prevTrack();
+    });
+
+    navigator.mediaSession.setActionHandler('nexttrack', function() {
+      if (typeof nextTrack === 'function') nextTrack();
+    });
+  }
+}
+
+/**
+ * 启动播放状态定时上报（每 2 秒检查一次）
+ */
+function setupTaskbarStateReporter() {
+  if (taskbarStateReporterTimer) return;
+  reportPlaybackStateToMain();
+  taskbarStateReporterTimer = setInterval(reportPlaybackStateToMain, 2000);
+}
+
 function bindHotkeySettings() {
   ensureHotkeySettingsButton();
   ensureHotkeyModal();
@@ -22103,6 +22240,13 @@ function bindHotkeySettings() {
       api.onGlobalHotkey(function(payload){
         if (!payload || !payload.action) return;
         executeHotkeyAction(payload.action, 'global');
+      });
+    }
+    // 任务栏缩略图工具栏 / 系统托盘按钮监听
+    if (api && typeof api.onThumbarAction === 'function') {
+      api.onThumbarAction(function(payload){
+        if (!payload || !payload.action) return;
+        executeHotkeyAction(payload.action, 'taskbar');
       });
     }
   }
@@ -22142,6 +22286,7 @@ function bindFxPanel() {
   organizeFxPanel();
   relabelFxPanelControls();
   bindHotkeySettings();
+  setupTaskbarStateReporter();
   buildPresetGrid();
   renderUserFxArchives();
   buildLyricColorControls();
@@ -22804,7 +22949,7 @@ function syncUpdatePreviewStateClass() {
   if (foot) {
     if (isDownloading) foot.textContent = (updatePreviewState.message || (isPatch ? '正在下载快速补丁' : '正在下载完整安装包')) + (updateProgressDetailText() ? ' · ' + updateProgressDetailText() : '');
     else if (isError) foot.textContent = '下载失败：' + (updatePreviewState.errorReason || updatePreviewState.errorDetail || updatePreviewState.message || '请稍后重试') + (updatePreviewState.failedAttempts && updatePreviewState.failedAttempts.length ? ' · 已尝试 ' + updatePreviewState.failedAttempts.length + ' 条线路' : '');
-    else if (isReady && isPatch) foot.textContent = updatePreviewState.restartRequired ? '快速补丁已应用，重启 Mineradio 后生效。' : '快速补丁已应用。';
+    else if (isReady && isPatch) foot.textContent = updatePreviewState.restartRequired ? '快速补丁已应用，重启 QUCHEN Radio 后生效。' : '快速补丁已应用。';
     else if (isReady) foot.textContent = updatePreviewState.cached ? '已复用上次校验通过的安装包，不会重复下载。' : '安装包已准备好，点击按钮后再打开安装。';
     else if (updatePreviewState.patchAvailable) foot.textContent = '优先使用轻量补丁，只更新缺失或变更的资源文件；不适用时可下载完整安装包。';
     else foot.textContent = updatePreviewState.updateAvailable ? '没有可用快速补丁时会下载完整安装包。' : '当前版本已是最新。';
@@ -22821,6 +22966,16 @@ function updateUpdatePreviewProgress(progress) {
     ring.style.strokeDashoffset = (circumference * (1 - updatePreviewState.progress / 100)).toFixed(2);
   }
   syncUpdatePreviewStateClass();
+}
+
+/**
+ * 打开三角洲工具站窗口
+ */
+function openSjzWindow() {
+  var api = getDesktopWindowApi && getDesktopWindowApi();
+  if (api && typeof api.openSjzPage === 'function') {
+    api.openSjzPage();
+  }
 }
 
 function openUpdatePanel() {
@@ -23062,7 +23217,7 @@ async function restartForAppliedPatch() {
       return;
     }
   } catch (e) {}
-  showToast('请手动重启 Mineradio 让补丁生效');
+  showToast('请手动重启 QUCHEN Radio 让补丁生效');
 }
 
 async function openDownloadedUpdateInstaller(filePath) {
@@ -24444,7 +24599,7 @@ var visualGuideSteps = [
   {
     target: 'stage',
     kicker: '01 / Welcome',
-    title: 'Mineradio 是用来听歌的视觉播放器',
+    title: 'QUCHEN Radio 是用来听歌的视觉播放器',
     body: '它不是单纯歌单页：搜索或导入一首歌后，封面、歌词、粒子和镜头会跟着音乐一起动。'
   },
   {
@@ -25544,7 +25699,7 @@ function splashEaseOutCubic(t) {
   return 1 - Math.pow(1 - t, 3);
 }
 
-function initMineradioSplashWebgl(canvas) {
+function initQUCHENRadioSplashWebgl(canvas) {
   var gl = null;
   try {
     gl = canvas.getContext('webgl', {
@@ -25716,7 +25871,7 @@ function initMineradioSplashWebgl(canvas) {
   return true;
 }
 
-function drawMineradioSplashWebgl(elapsed) {
+function drawQUCHENRadioSplashWebgl(elapsed) {
   var gl = splashGl;
   if (!gl || !splashGlProgram || !splashGlUniforms) return;
   gl.viewport(0, 0, splashCanvas.width, splashCanvas.height);
@@ -25729,10 +25884,10 @@ function drawMineradioSplashWebgl(elapsed) {
   gl.drawArrays(gl.TRIANGLES, 0, 3);
 }
 
-(function initMineradioSplashCanvas() {
+(function initQUCHENRadioSplashCanvas() {
   splashCanvas = document.getElementById('splash-canvas');
   if (!splashCanvas) return;
-  if (!reduceSplashMotion && initMineradioSplashWebgl(splashCanvas)) {
+  if (!reduceSplashMotion && initQUCHENRadioSplashWebgl(splashCanvas)) {
     splashCtx = null;
   } else {
     splashCtx = splashCanvas.getContext('2d');
@@ -25797,15 +25952,15 @@ function drawMineradioSplashWebgl(elapsed) {
   }
   resize();
   window.addEventListener('resize', resize);
-  drawMineradioSplash();
+  drawQUCHENRadioSplash();
 })();
 
-function drawMineradioSplash() {
+function drawQUCHENRadioSplash() {
   if (!splashAnimating || (!splashCtx && !splashGl)) return;
-  requestAnimationFrame(drawMineradioSplash);
+  requestAnimationFrame(drawQUCHENRadioSplash);
   var elapsed = (performance.now() - splashStartedAt) / 1000;
   if (splashGl && splashGlProgram) {
-    drawMineradioSplashWebgl(elapsed);
+    drawQUCHENRadioSplashWebgl(elapsed);
     return;
   }
   splashCtx.clearRect(0, 0, splashW, splashH);
@@ -25961,7 +26116,7 @@ function drawMineradioSplash() {
   splashCtx.restore();
 }
 
-function playMineradioIntroSound() {
+function playQUCHENRadioIntroSound() {
   if (splashSoundPlayed) return;
   try {
     var AudioContextCtor = window.AudioContext || window.webkitAudioContext;
@@ -25970,7 +26125,7 @@ function playMineradioIntroSound() {
     splashAudioCtx = ctx;
     if (ctx.state === 'suspended' && ctx.resume) {
       ctx.resume().then(function(){
-        if (!splashSoundPlayed) playMineradioIntroSound();
+        if (!splashSoundPlayed) playQUCHENRadioIntroSound();
       }).catch(function(){});
       if (ctx.state === 'suspended') return;
     }
@@ -26043,7 +26198,7 @@ function armSplashSoundFallback() {
   if (splashSoundFallbackArmed) return;
   splashSoundFallbackArmed = true;
   function unlock() {
-    if (!splashSoundPlayed) playMineradioIntroSound();
+    if (!splashSoundPlayed) playQUCHENRadioIntroSound();
     document.removeEventListener('pointerdown', unlock, true);
     document.removeEventListener('keydown', unlock, true);
   }
@@ -26107,7 +26262,7 @@ function markSplashReadyToEnter() {
   s.classList.add('ready');
   s.setAttribute('role', 'button');
   s.setAttribute('tabindex', '0');
-  s.setAttribute('aria-label', '点击进入 Mineradio');
+  s.setAttribute('aria-label', '点击进入 QUCHEN Radio');
 }
 
 document.addEventListener('DOMContentLoaded', function(){
@@ -26117,7 +26272,7 @@ document.addEventListener('DOMContentLoaded', function(){
   armSplashSoundFallback();
   prewarmHomeWallpaperPreview();
   function requestSplashEnter() {
-    playMineradioIntroSound();
+    playQUCHENRadioIntroSound();
     if (splashReadyToEnter) dismissSplash();
   }
   s.addEventListener('click', requestSplashEnter);
@@ -26133,7 +26288,7 @@ document.addEventListener('DOMContentLoaded', function(){
     splashTimer = setTimeout(markSplashReadyToEnter, 900);
     return;
   }
-  playMineradioIntroSound();
+  playQUCHENRadioIntroSound();
   splashTimer = setTimeout(markSplashReadyToEnter, 5000);
 });
 
@@ -26151,7 +26306,7 @@ function currentDesktopSongMeta() {
   var song = playQueue && currentIdx >= 0 ? playQueue[currentIdx] : null;
   song = song || currentLyricSong && currentLyricSong() || {};
   return {
-    title: song.name || song.title || 'Mineradio',
+    title: song.name || song.title || 'QUCHEN Radio',
     artist: song.artist || song.ar || song.author || '',
     cover: (typeof songCoverSrc === 'function' && song) ? (songCoverSrc(song, 360) || song.cover || '') : (song.cover || '')
   };
@@ -26197,7 +26352,7 @@ function currentDesktopLyricSnapshot() {
       progressSpan: 4.8
     };
   }
-  return { text: normalizeDesktopLyricText(currentDesktopSongMeta().title || 'Mineradio'), progress: 0, progressSpan: 4.8 };
+  return { text: normalizeDesktopLyricText(currentDesktopSongMeta().title || 'QUCHEN Radio'), progress: 0, progressSpan: 4.8 };
 }
 function desktopOverlayColorValue(value, fallback) {
   var raw = String(value || '').trim();
@@ -26574,7 +26729,7 @@ var renderPerfState = {
   lastRenderAt: 0,
   lastSampleAt: performance.now()
 };
-window.__mineradioPerf = renderPerfState;
+window.__quchenradioPerf = renderPerfState;
 var splashWarmRenderLast = 0;
 function isMainSceneCoveredBySplash() {
   return document.body.classList.contains('splash-active') && !document.body.classList.contains('splash-revealing');

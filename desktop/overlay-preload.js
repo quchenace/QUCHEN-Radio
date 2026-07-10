@@ -8,12 +8,16 @@ function bind(channel, callback) {
 }
 
 contextBridge.exposeInMainWorld('desktopOverlay', {
-  onLyricsState: (callback) => bind('mineradio-desktop-lyrics-state', callback),
-  onWallpaperState: (callback) => bind('mineradio-wallpaper-state', callback),
-  setLyricsDrag: (dragging) => ipcRenderer.invoke('mineradio-desktop-lyrics-set-dragging', !!dragging),
-  setLyricsPointerCapture: (active) => ipcRenderer.invoke('mineradio-desktop-lyrics-set-pointer-capture', !!active),
-  setLyricsHotBounds: (bounds) => ipcRenderer.invoke('mineradio-desktop-lyrics-set-hot-bounds', bounds || {}),
-  setLyricsLockState: (locked) => ipcRenderer.invoke('mineradio-desktop-lyrics-set-lock-state', !!locked),
-  moveLyricsBy: (dx, dy) => ipcRenderer.invoke('mineradio-desktop-lyrics-move-by', Number(dx) || 0, Number(dy) || 0),
-  closeLyrics: () => ipcRenderer.invoke('mineradio-desktop-lyrics-set-enabled', false, {}),
+  onLyricsState: (callback) => bind('quchenradio-desktop-lyrics-state', callback),
+  onWallpaperState: (callback) => bind('quchenradio-wallpaper-state', callback),
+  setLyricsDrag: (dragging) => ipcRenderer.invoke('quchenradio-desktop-lyrics-set-dragging', !!dragging),
+  setLyricsPointerCapture: (active) => ipcRenderer.invoke('quchenradio-desktop-lyrics-set-pointer-capture', !!active),
+  setLyricsHotBounds: (bounds) => ipcRenderer.invoke('quchenradio-desktop-lyrics-set-hot-bounds', bounds || {}),
+  setLyricsLockState: (locked) => ipcRenderer.invoke('quchenradio-desktop-lyrics-set-lock-state', !!locked),
+  moveLyricsBy: (dx, dy) => ipcRenderer.invoke('quchenradio-desktop-lyrics-move-by', Number(dx) || 0, Number(dy) || 0),
+  closeLyrics: () => ipcRenderer.invoke('quchenradio-desktop-lyrics-set-enabled', false, {}),
+
+  // === sjz 工具站 ===
+  getPasswords: () => ipcRenderer.invoke('quchenradio-get-passwords'),
+  refreshPasswords: () => ipcRenderer.invoke('quchenradio-refresh-passwords'),
 });

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>密码门 & 每日绝航卡战备 - QUCHEN SJZ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0d12;color:#e0e0e0;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;line-height:1.6}
+nav{background:rgba(15,18,25,0.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(156,255,223,0.08);position:sticky;top:0;z-index:100}
+.nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px 24px}
+.nav-logo{font-size:1.3rem;font-weight:800;color:#9cffdf;text-decoration:none;letter-spacing:-0.5px}
+.nav-logo span{color:#7bbfaa;font-weight:600}
+.nav-links{display:flex;gap:28px;list-style:none}
+.nav-links a{color:#9ca3af;text-decoration:none;font-size:0.9rem;font-weight:500;transition:color 0.2s;padding:4px 0}
+.nav-links a:hover,.nav-links a.active{color:#9cffdf}
+.nav-links a.primary-link{color:#9cffdf;font-weight:600}
+main{max-width:1200px;margin:0 auto;padding:40px 24px}
+.page-title{margin-bottom:32px}
+.page-title h1{font-size:2rem;font-weight:800;color:#fff;letter-spacing:-1px}
+.page-title h1 span{color:#9cffdf}
+.page-title p{color:#9ca3af;font-size:0.9rem;margin-top:6px}
+.section-title{font-size:1.2rem;font-weight:700;color:#9cffdf;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid rgba(156,255,223,0.12)}
+.card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:28px;margin-bottom:24px}
+.door-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
+.door-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:22px 18px;text-align:center;transition:border-color 0.2s}
+.door-card:hover{border-color:rgba(156,255,223,0.2)}
+.door-card .dmap{font-size:1rem;font-weight:600;color:#fff;margin-bottom:10px}
+.door-card .dpw{font-size:2.5rem;font-weight:800;color:#9cffdf;letter-spacing:6px;line-height:1.1;margin-bottom:6px}
+.door-card .dlabel{font-size:0.78rem;color:#6b7280}
+
+/* 绝航卡战备区域样式 */
+.nav-plan-update{color:#9ca3af;font-size:0.9rem;margin-top:8px}
+.nav-plan-update b{color:#9cffdf;font-weight:600}
+.plan-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.plan-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:24px;position:relative;overflow:hidden;transition:transform 0.25s,box-shadow 0.25s}
+.plan-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.4);border-color:rgba(156,255,223,0.15)}
+.plan-head{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.amount-tag{font-size:1.4rem;font-weight:800;color:#9cffdf;letter-spacing:-0.5px}
+.type-tag{font-size:0.78rem;font-weight:600;padding:4px 12px;border-radius:12px;background:rgba(156,255,223,0.1);color:#9cffdf;border:1px solid rgba(156,255,223,0.2)}
+.type-tag.t-normal{background:rgba(156,255,223,0.1);color:#9cffdf;border-color:rgba(156,255,223,0.2)}
+.type-tag.t-drop{background:rgba(251,191,36,0.1);color:#fbbf24;border-color:rgba(251,191,36,0.25)}
+.type-tag.t-savage{background:rgba(248,113,113,0.1);color:#f87171;border-color:rgba(248,113,113,0.25)}
+.gear-section{margin-bottom:18px}
+.gear-label{font-size:0.75rem;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
+.gear-list{display:flex;flex-wrap:wrap;gap:8px}
+.gear-badge{font-size:0.82rem;padding:6px 12px;border-radius:10px;background:rgba(255,255,255,0.04);color:#d1d5db;border:1px solid rgba(255,255,255,0.07)}
+.guns-section{margin-top:6px}
+.gun-row{display:flex;align-items:center;gap:12px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.05);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.gun-row.alt{background:rgba(251,191,36,0.05);border-color:rgba(251,191,36,0.18)}
+.gun-info{flex:1;min-width:0}
+.gun-name{font-size:0.92rem;font-weight:600;color:#f0f0f0}
+.gun-meta{font-size:0.75rem;color:#9ca3af;margin-top:2px}
+.gun-meta .map-name{color:#9cffdf}
+.gun-meta .alt-flag{color:#fbbf24;font-weight:600;margin-left:6px}
+.gun-code{font-family:'SF Mono','Fira Code','Consolas',monospace;font-size:0.82rem;color:#9cffdf;letter-spacing:0.5px;background:rgba(156,255,223,0.06);padding:4px 8px;border-radius:6px;display:inline-block;margin-top:6px;word-break:break-all}
+.copy-btn{flex-shrink:0;padding:8px 16px;border-radius:8px;font-size:0.82rem;font-weight:600;cursor:pointer;background:rgba(156,255,223,0.1);color:#9cffdf;border:1px solid rgba(156,255,223,0.2);transition:all 0.2s;white-space:nowrap}
+.copy-btn:hover{background:rgba(156,255,223,0.18)}
+.copy-btn.copied{background:#9cffdf;color:#0a0d12;border-color:#9cffdf}
+.loading-overlay{display:flex;align-items:center;justify-content:center;padding:40px 0;flex-direction:column;gap:16px}
+.loading-spinner{width:40px;height:40px;border:3px solid rgba(156,255,223,0.15);border-top-color:#9cffdf;border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{color:#9ca3af;font-size:0.9rem}
+.error-msg{text-align:center;padding:40px 20px;color:#f87171;font-size:0.9rem}
+footer{margin-top:40px;text-align:center;padding:30px 0;border-top:1px solid rgba(255,255,255,0.05);color:#6b7280;font-size:0.8rem}
+@media(max-width:768px){.door-grid{grid-template-columns:repeat(2,1fr)}.plan-grid{grid-template-columns:1fr}.page-title h1{font-size:1.6rem}.gun-row{flex-direction:column;align-items:stretch}.copy-btn{align-self:flex-end}}
+@media(max-width:480px){.door-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav>
+<div class="nav-inner">
+<a href="index.html" class="nav-logo">QUCHEN <span>SJZ</span></a>
+<ul class="nav-links">
+<li><a href="index.html">首页</a></li>
+<li><a href="weapons.html">改枪码</a></li>
+<li><a href="combat.html" class="active">卡战备</a></li>
+<li><a href="crafting.html">制造</a></li>
+</ul>
+</div>
+</nav>
+<main>
+<div class="page-title">
+<h1>密码门<span> & 每日绝航卡战备</span></h1>
+<p>密码门密码一览 & 每日绝航卡战备方案</p>
+</div>
+
+<div class="card">
+<div class="section-title">密码门密码一览</div>
+<div class="door-grid" id="doorGrid"></div>
+</div>
+
+<div class="card">
+<div class="section-title">每日绝航卡战备</div>
+<p class="nav-plan-update" style="margin-bottom:20px">更新时间：<b id="planUpdateTime">--</b></p>
+<div id="planArea">
+<div class="loading-overlay"><div class="loading-spinner"></div><div class="loading-text">数据加载中...</div></div>
+</div>
+</div>
+</main>
+<footer>数据来源：g.aitags.cn &nbsp;|&nbsp; <span id="updateInfo">加载中</span></footer>
+<script>
+fetch('data/kkrb-data.json')
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.update_time){
+      var t = d.update_time;
+      if(t.indexOf('T') > 0) t = t.split('T')[0];
+      document.getElementById('updateInfo').textContent = '更新于 ' + t;
+    }
+  })
+  .catch(function(){ document.getElementById('updateInfo').textContent = '更新于 2026-07-08'; });
+</script>
+<script>
+// ========== 密码门数据 ==========
+var PASSWORD_DOORS = [];
+var dataLoaded = false;
+
+function initDoorUI(){
+  var html = '';
+  PASSWORD_DOORS.forEach(function(d){
+    html += '<div class="door-card"><div class="dmap">' + d.map + '</div><div class="dpw">' + d.password + '</div><div class="dlabel">' + (d.door_name || '彩蛋密码门') + '</div></div>';
+  });
+  document.getElementById('doorGrid').innerHTML = html;
+}
+
+document.getElementById('doorGrid').innerHTML = '<div class="loading-overlay"><div class="loading-spinner"></div><div class="loading-text">密码门数据加载中...</div></div>';
+
+fetch('data/kkrb-data.json')
+  .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+  .then(function(data){
+    if(data.password_doors) PASSWORD_DOORS = data.password_doors;
+    dataLoaded = true;
+    initDoorUI();
+  })
+  .catch(function(err){
+    console.error('密码门数据加载失败:', err);
+    document.getElementById('doorGrid').innerHTML = '<div class="error-msg">数据加载失败，请稍后重试</div>';
+  });
+
+// ========== 绝航卡战备数据 ==========
+(function(){
+  var planArea = document.getElementById('planArea');
+  var timeEl = document.getElementById('planUpdateTime');
+
+  function typeClass(type){
+    if(type === '丢包') return 't-drop';
+    if(type === '野人') return 't-savage';
+    return 't-normal';
+  }
+
+  function escapeHtml(s){
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  function renderPlan(plan, idx){
+    var html = '<div class="plan-card">';
+    html += '<div class="plan-head">';
+    html += '<span class="amount-tag">' + escapeHtml(plan.budget || plan.amount || '') + '</span>';
+    html += '<span class="type-tag ' + typeClass(plan.type) + '">' + escapeHtml(plan.type || '普通') + '</span>';
+    html += '</div>';
+
+    // 装备
+    var gearParts = plan.gear || plan.gear_parts || [];
+    if (!Array.isArray(gearParts)) {
+      gearParts = gearParts.split('+').map(function(s){ return s.trim(); }).filter(Boolean);
+    }
+    html += '<div class="gear-section"><div class="gear-label">装备</div><div class="gear-list">';
+    gearParts.forEach(function(g){
+      html += '<span class="gear-badge">' + escapeHtml(g) + '</span>';
+    });
+    html += '</div></div>';
+
+    // 改枪码
+    html += '<div class="guns-section">';
+    (plan.guns || []).forEach(function(g, gi){
+      var codeStr = g.name + '-' + g.map + '-' + g.code;
+      html += '<div class="gun-row">';
+      html += '<div class="gun-info">';
+      html += '<div class="gun-name">' + escapeHtml(g.name) + '</div>';
+      html += '<div class="gun-meta"><span class="map-name">' + escapeHtml(g.map) + '</span></div>';
+      html += '<div class="gun-code">' + escapeHtml(codeStr) + '</div>';
+      html += '</div>';
+      html += '<button class="copy-btn" data-code="' + escapeHtml(codeStr) + '">复制</button>';
+      html += '</div>';
+    });
+    html += '</div>';
+
+    html += '</div>';
+    return html;
+  }
+
+  function bindCopy(){
+    planArea.querySelectorAll('.copy-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var code = this.dataset.code;
+        var self = this;
+        var done = function(){
+          self.textContent = '已复制';
+          self.classList.add('copied');
+          setTimeout(function(){ self.textContent = '复制'; self.classList.remove('copied'); }, 1500);
+        };
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(code).then(done).catch(function(){ fallbackCopy(code, done); });
+        } else {
+          fallbackCopy(code, done);
+        }
+      });
+    });
+  }
+
+  function fallbackCopy(text, cb){
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      cb();
+    } catch(e){}
+  }
+
+  fetch('data/navigation.json')
+    .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(data){
+      if(!data || !Array.isArray(data.plans) || !data.plans.length){
+        throw new Error('数据格式错误');
+      }
+      timeEl.textContent = data.update_time || '--';
+      planArea.innerHTML = '<div class="plan-grid">' + data.plans.map(renderPlan).join('') + '</div>';
+      bindCopy();
+    })
+    .catch(function(err){
+      console.error('绝航卡战备数据加载失败:', err);
+      planArea.innerHTML = '<div class="error-msg">数据加载失败，请稍后重试<br><span style="font-size:0.8rem;color:#6b7280">(' + escapeHtml(err.message) + ')</span></div>';
+      timeEl.textContent = '--';
+    });
+})();
+</script>
+</body>
+</html>

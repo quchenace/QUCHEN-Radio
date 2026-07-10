@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QUCHEN Radio Mini Player</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{
+  width:100%;height:100%;
+  overflow:hidden;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,sans-serif;
+  -webkit-app-region:drag;
+  background:transparent;
+  color:#fff;
+}
+body{
+  display:flex;
+  padding:0 10px;
+  height:100%;
+  background:rgba(20,20,28,0.82);
+  backdrop-filter:blur(16px) saturate(1.2);
+  -webkit-backdrop-filter:blur(16px) saturate(1.2);
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.08);
+  box-shadow:0 0 20px rgba(0,0,0,0.4),0 4px 12px rgba(0,0,0,0.3);
+  user-select:none;
+}
+.mini-player{display:flex;align-items:center;width:100%;gap:10px;height:100%;}
+
+/* 封面 */
+.cover-wrap{flex-shrink:0;width:36px;height:36px;border-radius:6px;overflow:hidden;background:rgba(255,255,255,0.06);}
+.cover-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+.cover-wrap .placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:16px;opacity:0.3;}
+
+/* 歌曲信息 */
+.info-wrap{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:2px;padding-right:4px;}
+.song-row{display:flex;align-items:center;gap:6px;}
+.song-name{font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#eee;}
+.playing-dot{width:6px;height:6px;border-radius:50%;background:#00C853;flex-shrink:0;display:none;box-shadow:0 0 6px rgba(0,200,83,0.6);}
+.playing-dot.active{display:inline-block;}
+.artist-name{font-size:10.5px;color:rgba(255,255,255,0.45);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* 进度条 */
+.progress-wrap{width:100%;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;margin-top:1px;}
+.progress-bar{height:100%;width:0%;background:#00C853;border-radius:2px;transition:width 0.3s ease;}
+
+/* 密码门区域 */
+.pw-row{display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:nowrap;overflow:hidden;}
+.pw-row .pw-icon{flex-shrink:0;font-size:9px;color:#9cffdf;font-weight:600;letter-spacing:0.3px;}
+.pw-row .pw-item{flex-shrink:0;font-size:9.5px;color:rgba(255,255,255,0.85);font-weight:500;white-space:nowrap;padding:1px 5px;border-radius:3px;background:rgba(156,255,223,0.1);border:1px solid rgba(156,255,223,0.12);}
+.pw-row .pw-item .pw-code{color:#9cffdf;font-weight:700;letter-spacing:1px;}
+.pw-row .pw-sep{flex-shrink:0;color:rgba(255,255,255,0.2);font-size:8px;}
+.pw-row .pw-empty{font-size:9px;color:rgba(255,255,255,0.3);}
+
+/* 密码刷新按钮 */
+.pw-refresh-btn{
+  -webkit-app-region:no-drag;
+  flex-shrink:0;width:16px;height:16px;
+  border:none;background:transparent;
+  color:rgba(255,255,255,0.35);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  border-radius:3px;transition:all 0.15s;padding:0;
+  margin-left:2px;
+}
+.pw-refresh-btn:hover{color:#9cffdf;background:rgba(156,255,223,0.12);}
+.pw-refresh-btn:active{transform:scale(0.85);}
+.pw-refresh-btn svg{width:12px;height:12px;fill:currentColor;display:block;}
+.pw-refresh-btn.spinning svg{animation:pw-spin 0.8s linear infinite;}
+@keyframes pw-spin{to{transform:rotate(360deg)}}
+.pw-refresh-btn.disabled{opacity:0.3;cursor:default;pointer-events:none;}
+.pw-refresh-error{font-size:9px;color:#f87171;white-space:nowrap;flex-shrink:0;animation:pw-fade 3s forwards;}
+@keyframes pw-fade{0%,80%{opacity:1}to{opacity:0;pointer-events:none;}}
+
+/* 按钮 */
+.controls-wrap{flex-shrink:0;display:flex;align-items:center;gap:2px;-webkit-app-region:no-drag;}
+.ctrl-btn{
+  -webkit-app-region:no-drag;
+  width:28px;height:28px;
+  border:none;background:transparent;
+  color:rgba(255,255,255,0.7);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  border-radius:6px;transition:all 0.15s;
+  padding:0;
+}
+.ctrl-btn:hover{background:rgba(255,255,255,0.1);color:#fff;}
+.ctrl-btn:active{transform:scale(0.9);}
+.ctrl-btn svg{width:16px;height:16px;fill:currentColor;display:block;}
+.ctrl-btn.play-btn{width:32px;height:32px;}
+.ctrl-btn.play-btn svg{width:18px;height:18px;}
+.ctrl-btn.disabled{opacity:0.25;pointer-events:none;}
+
+/* 音量图标（辅助） */
+.extra-icon{flex-shrink:0;display:flex;align-items:center;margin-left:2px;opacity:0.35;}
+.extra-icon svg{width:14px;height:14px;fill:#aaa;}
+</style>
+</head>
+<body>
+<div class="mini-player" id="miniPlayer">
+  <!-- 封面 -->
+  <div class="cover-wrap" id="coverWrap">
+    <img id="coverImg" src="" alt="" style="display:none"/>
+    <div class="placeholder" id="coverPlaceholder">&#9835;</div>
+  </div>
+
+  <!-- 信息 + 进度条 + 密码 -->
+  <div class="info-wrap">
+    <div class="song-row">
+      <span class="playing-dot" id="playingDot"></span>
+      <span class="song-name" id="songName">QUCHEN Radio</span>
+    </div>
+    <div class="artist-name" id="artistName">就绪</div>
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+    <!-- 密码门区域 -->
+    <div class="pw-row" id="pwRow">
+      <span class="pw-icon">密码</span>
+      <span class="pw-empty" id="pwEmpty">加载中...</span>
+      <button class="pw-refresh-btn" id="pwRefreshBtn" title="刷新密码数据">↻</button>
+    </div>
+  </div>
+
+  <!-- 音量图标 -->
+  <div class="extra-icon" title="音量"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8.5v7a4.49 4.49 0 0 0 2.5-3.5zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg></div>
+
+  <!-- 控制按钮 -->
+  <div class="controls-wrap">
+    <button class="ctrl-btn" id="prevBtn" title="上一首">
+      <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+    </button>
+    <button class="ctrl-btn play-btn" id="playBtn" title="播放/暂停">
+      <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+    <button class="ctrl-btn" id="nextBtn" title="下一首">
+      <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var currentState = { playing: false, songName: '', artist: '', cover: '', progress: 0 };
+
+  function updateUI(state) {
+    state = state || currentState;
+    currentState = state;
+
+    // 封面
+    var img = document.getElementById('coverImg');
+    var ph = document.getElementById('coverPlaceholder');
+    if (state.cover) {
+      img.src = state.cover;
+      img.style.display = 'block';
+      ph.style.display = 'none';
+    } else {
+      img.style.display = 'none';
+      ph.style.display = 'flex';
+    }
+
+    // 歌名
+    document.getElementById('songName').textContent = state.songName || 'QUCHEN Radio';
+    document.getElementById('artistName').textContent = state.artist || (state.songName ? '' : '就绪');
+
+    // 播放状态点
+    var dot = document.getElementById('playingDot');
+    dot.classList.toggle('active', !!state.playing);
+
+    // 进度条
+    var pct = Math.max(0, Math.min(100, state.progress || 0));
+    document.getElementById('progressBar').style.width = pct + '%';
+
+    // 播放按钮图标
+    var playIcon = document.getElementById('playIcon');
+    if (state.playing) {
+      playIcon.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+    } else {
+      playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+    }
+  }
+
+  /**
+   * 渲染密码门
+   */
+  function renderPasswords(data) {
+    var row = document.getElementById('pwRow');
+    var empty = document.getElementById('pwEmpty');
+    if (!data || !data.ok || !data.password_doors || data.password_doors.length === 0) {
+      empty.textContent = '密码数据暂不可用';
+      empty.style.display = '';
+      return;
+    }
+    // 清空，保留第一个 pw-icon 子节点和最后一个刷新按钮
+    var refreshBtn = document.getElementById('pwRefreshBtn');
+    while (row.children.length > 2) {
+      row.removeChild(row.children[1]);
+    }
+    empty.style.display = 'none';
+    var doors = data.password_doors;
+    doors.forEach(function(d, i) {
+      if (i > 0) {
+        var sep = document.createElement('span');
+        sep.className = 'pw-sep';
+        sep.textContent = '|';
+        row.insertBefore(sep, refreshBtn);
+      }
+      var item = document.createElement('span');
+      item.className = 'pw-item';
+      item.innerHTML = d.map + ' <span class="pw-code">' + d.password + '</span>';
+      row.insertBefore(item, refreshBtn);
+    });
+  }
+
+  /**
+   * 显示短暂错误提示
+   */
+  function showRefreshError(msg) {
+    var row = document.getElementById('pwRow');
+    var oldErr = document.querySelector('.pw-refresh-error');
+    if (oldErr) oldErr.remove();
+    var err = document.createElement('span');
+    err.className = 'pw-refresh-error';
+    err.textContent = msg || '刷新失败';
+    row.appendChild(err);
+    setTimeout(function() { if (err.parentNode) err.remove(); }, 3200);
+  }
+
+  /**
+   * 执行密码刷新
+   */
+  function doRefreshPasswords() {
+    var btn = document.getElementById('pwRefreshBtn');
+    var api = window.desktopWindow || {};
+    if (btn.classList.contains('spinning') || typeof api.refreshPasswords !== 'function') return;
+    btn.classList.add('spinning', 'disabled');
+    api.refreshPasswords().then(function(result) {
+      btn.classList.remove('spinning', 'disabled');
+      if (result && result.ok) {
+        // 重新获取最新数据
+        if (typeof api.getPasswords === 'function') {
+          api.getPasswords().then(function(data) {
+            renderPasswords(data);
+          });
+        }
+      } else {
+        showRefreshError(result && result.error ? result.error : '刷新失败');
+      }
+    }).catch(function(err) {
+      btn.classList.remove('spinning', 'disabled');
+      showRefreshError('请求失败');
+    });
+  }
+
+  // 通过 IPC 接收主进程转发的播放状态
+  var api = window.desktopWindow || {};
+  if (typeof api.onMiniPlayerState === 'function') {
+    api.onMiniPlayerState(function(state){
+      updateUI(state);
+    });
+  }
+
+  // 加载密码门数据
+  if (typeof api.getPasswords === 'function') {
+    api.getPasswords().then(function(data) {
+      renderPasswords(data);
+    }).catch(function() {
+      document.getElementById('pwEmpty').textContent = '密码加载失败';
+    });
+  } else {
+    document.getElementById('pwEmpty').textContent = '密码数据暂不可用';
+  }
+
+  // 按钮点击发送命令到主进程 -> 主窗口
+  function sendAction(action) {
+    if (typeof api.sendMiniPlayerAction === 'function') {
+      api.sendMiniPlayerAction({ action: action });
+    }
+  }
+
+  document.getElementById('playBtn').addEventListener('click', function(e){
+    e.stopPropagation();
+    sendAction('togglePlay');
+  });
+  document.getElementById('prevBtn').addEventListener('click', function(e){
+    e.stopPropagation();
+    sendAction('prevTrack');
+  });
+  document.getElementById('nextBtn').addEventListener('click', function(e){
+    e.stopPropagation();
+    sendAction('nextTrack');
+  });
+
+  // 密码刷新按钮
+  document.getElementById('pwRefreshBtn').addEventListener('click', function(e) {
+    e.stopPropagation();
+    doRefreshPasswords();
+  });
+
+  // 监听主进程推送的密码更新
+  if (typeof api.onPasswordsUpdated === 'function') {
+    api.onPasswordsUpdated(function(data) {
+      renderPasswords(data);
+    });
+  }
+
+  // 初始状态
+  updateUI(currentState);
+})();
+</script>
+</body>
+</html>

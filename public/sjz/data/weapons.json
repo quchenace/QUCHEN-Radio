@@ -1,0 +1,3756 @@
+{
+  "daily_password": {
+    "code": "AZ33931",
+    "update_time": "07-11 01:46"
+  },
+  "manufacturing": [
+    {
+      "station": "技术中心",
+      "item": "全景红点瞄准镜",
+      "hourly_profit": 3662
+    },
+    {
+      "station": "工作台",
+      "item": "5.8*42mm DVC12+P",
+      "hourly_profit": 32896
+    },
+    {
+      "station": "制药台",
+      "item": "精密头盔维修包",
+      "hourly_profit": 8499
+    },
+    {
+      "station": "防具台",
+      "item": "精英防弹背心",
+      "hourly_profit": 25181
+    }
+  ],
+  "weapons": {
+    "svth": {
+      "name": "SVTH精确射手步枪",
+      "category": "射手步枪",
+      "builds": [
+        {
+          "code": "6KFKI3801883AA47LLRBF",
+          "desc": "金枪客提交方案",
+          "value": "38W",
+          "copy_count": 7001,
+          "image": ""
+        },
+        {
+          "code": "6KFK0US092PMAH1SNTPDP",
+          "desc": "昊天同款",
+          "value": "67W",
+          "copy_count": 11474,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/06/image-9.webp"
+        },
+        {
+          "code": "6KG5VKG0FK0QAL42R380N",
+          "desc": "YJJ同款",
+          "value": "69W",
+          "copy_count": 455,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/06/image-10.webp"
+        },
+        {
+          "code": "6KFF6J80AV0Q0KA8PRGCH",
+          "desc": "天霸Mad98同款",
+          "value": "69W",
+          "copy_count": 484,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/06/image-14.webp"
+        },
+        {
+          "code": "6KFPGB00A113BF55PC7H9",
+          "desc": "",
+          "value": "71W",
+          "copy_count": 2384,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/06/image-13.webp"
+        }
+      ]
+    },
+    "rm277": {
+      "name": "RM277突击步枪",
+      "category": "突击步枪",
+      "builds": [
+        {
+          "code": "6KFP4AO0A113BF55PC7H9",
+          "desc": "金枪客提交方案",
+          "value": "13W",
+          "copy_count": 4115,
+          "image": ""
+        },
+        {
+          "code": "6KFKG9C01883AA47LLRBF",
+          "desc": "金枪客提交方案",
+          "value": "19W",
+          "copy_count": 2934,
+          "image": ""
+        },
+        {
+          "code": "6KFPG580A113BF55PC7H9",
+          "desc": "半改",
+          "value": "27W",
+          "copy_count": 5925,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/06/image-11.webp"
+        },
+        {
+          "code": "6KFLPBK01RINE2HG7DHR2",
+          "desc": "二倍",
+          "value": "34W",
+          "copy_count": 11734,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/06/image-6.webp"
+        },
+        {
+          "code": "6KFJV3802J36P5VQP998C",
+          "desc": "二倍",
+          "value": "40W",
+          "copy_count": 3326,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/06/image-8.webp"
+        },
+        {
+          "code": "6KFPG3G0A113BF55PC7H9",
+          "desc": "",
+          "value": "47W",
+          "copy_count": 2058,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/06/image-12.webp"
+        },
+        {
+          "code": "6KFLDF001883AA47LLRBF",
+          "desc": "金枪客战斗方案",
+          "value": "50W",
+          "copy_count": 2769,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/06/image-7.webp"
+        }
+      ]
+    },
+    "m82": {
+      "name": "M82狙击步枪",
+      "category": "狙击步枪",
+      "builds": [
+        {
+          "code": "6JOLIOO092PMAH1SNTPDP",
+          "desc": "",
+          "value": "57W",
+          "copy_count": 1416,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/05/image-3.webp"
+        },
+        {
+          "code": "6JTK8JO087KKF9T2HJCH4",
+          "desc": "",
+          "value": "",
+          "copy_count": 1373,
+          "image": ""
+        }
+      ]
+    },
+    "ar57": {
+      "name": "AR57突击步枪",
+      "category": "突击步枪",
+      "builds": [
+        {
+          "code": "6JOQ5E00593VB3OTQ4TKF",
+          "desc": "金枪客提交方案",
+          "value": "15W",
+          "copy_count": 765,
+          "image": ""
+        },
+        {
+          "code": "6JPCO2K024JT398JLMEUF",
+          "desc": "满腰射",
+          "value": "26W",
+          "copy_count": 7576,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/04/image-12.webp"
+        },
+        {
+          "code": "6JO0PH802008JCMHSDNLP",
+          "desc": "",
+          "value": "27W",
+          "copy_count": 11293,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/04/image-9.webp"
+        },
+        {
+          "code": "6JOB6N40D4KUUL8R5A9D9",
+          "desc": "3倍镜·高操控",
+          "value": "34W",
+          "copy_count": 13411,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/04/image-6.webp"
+        },
+        {
+          "code": "6JO0PQO02008JCMHSDNLP",
+          "desc": "",
+          "value": "40W",
+          "copy_count": 3464,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/04/image-10.webp"
+        },
+        {
+          "code": "6JPR3E801M8C3V6N6VPPV",
+          "desc": "YJJ同款·满腰射",
+          "value": "37W",
+          "copy_count": 3357,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/04/image-13.webp"
+        },
+        {
+          "code": "6JO74M803FF9VSR5S0OTO",
+          "desc": "2/4倍镜",
+          "value": "48W",
+          "copy_count": 3926,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/04/image-7.webp"
+        },
+        {
+          "code": "6JP3QE003RV6BS6LO9GEE",
+          "desc": "红点超稳",
+          "value": "",
+          "copy_count": 1246,
+          "image": ""
+        },
+        {
+          "code": "6JQ6QT406EE5N1K6SV88K",
+          "desc": "大战场满改",
+          "value": "",
+          "copy_count": 2148,
+          "image": ""
+        }
+      ]
+    },
+    "vss": {
+      "name": "VSS射手步枪",
+      "category": "射手步枪",
+      "builds": [
+        {
+          "code": "6IRTOU8003UFIEML66NPP",
+          "desc": "",
+          "value": "21W",
+          "copy_count": 1810,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/03/image-8.webp"
+        },
+        {
+          "code": "6JBHNIK0FUH1E5MQ63E4O",
+          "desc": "红点",
+          "value": "27W",
+          "copy_count": 741,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/03/image-7.webp"
+        },
+        {
+          "code": "6JAPRKC024JT398JLMEUF",
+          "desc": "",
+          "value": "39W",
+          "copy_count": 1373,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/03/image-6.webp"
+        }
+      ]
+    },
+    "fs-12": {
+      "name": "FS-12霰弹枪",
+      "category": "霰弹枪",
+      "builds": [
+        {
+          "code": "6IUMT9S08T16JCU0J1S9V",
+          "desc": "",
+          "value": "14W",
+          "copy_count": 19900,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/02/image-4.webp"
+        },
+        {
+          "code": "6IV3L3S05M97O1SEPETDL",
+          "desc": "",
+          "value": "20W",
+          "copy_count": 3890,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/02/image-2.webp"
+        },
+        {
+          "code": "6IULRG006S5HCI6L9NAJQ",
+          "desc": "性价比改装",
+          "value": "21W",
+          "copy_count": 6464,
+          "image": ""
+        },
+        {
+          "code": "6IUMTG408T16JCU0J1S9V",
+          "desc": "",
+          "value": "27W",
+          "copy_count": 8943,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/02/image-5.webp"
+        },
+        {
+          "code": "6J6QRIO05VT3P3JELESO0",
+          "desc": "83腰射大弹鼓",
+          "value": "37W",
+          "copy_count": 2728,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/02/image-24.webp"
+        },
+        {
+          "code": "6J6TTJO0AAR4RCO2FRHEQ",
+          "desc": "91腰射大弹鼓",
+          "value": "39W",
+          "copy_count": 2787,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/02/image-23.webp"
+        },
+        {
+          "code": "6IUNCFO0803DF7B35AEHU",
+          "desc": "95腰射·20发",
+          "value": "42W",
+          "copy_count": 12386,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/02/image-3.webp"
+        }
+      ]
+    },
+    "mcx-lt": {
+      "name": "MCX LT突击步枪",
+      "category": "突击步枪",
+      "builds": [
+        {
+          "code": "6IV6SLG03GFRB8J9CH4VL",
+          "desc": "低配",
+          "value": "12W",
+          "copy_count": 4770,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/01/image-21.webp"
+        },
+        {
+          "code": "6IV6SPG03GFRB8J9CH4VL",
+          "desc": "半改",
+          "value": "17W",
+          "copy_count": 22536,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/01/image-22.webp"
+        },
+        {
+          "code": "6JEJJL00ALNJ5F5V8G2KH",
+          "desc": "",
+          "value": "25W",
+          "copy_count": 1906,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/01/image-25.webp"
+        },
+        {
+          "code": "6IV6SS003GFRB8J9CH4VL",
+          "desc": "二倍满改",
+          "value": "39W",
+          "copy_count": 17348,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/01/image-23.webp"
+        },
+        {
+          "code": "6JCL2BS0EAJUM64QPC13U",
+          "desc": "",
+          "value": "42W",
+          "copy_count": 680,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/01/image-20.webp"
+        },
+        {
+          "code": "6IUS1PK0ES1V0VO630FU4",
+          "desc": "",
+          "value": "44W",
+          "copy_count": 1545,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/01/image-19.webp"
+        },
+        {
+          "code": "6IUMU6K01RR7T7R7F3TIE",
+          "desc": "林树同款",
+          "value": "54W",
+          "copy_count": 6159,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/01/image-24.webp"
+        },
+        {
+          "code": "6JA29B4013LC6NHH4S26S",
+          "desc": "稳压",
+          "value": "",
+          "copy_count": 3500,
+          "image": ""
+        },
+        {
+          "code": "6J04HIO0FFV5PHD8CRGLB",
+          "desc": "【兲】半改|正据枪|...",
+          "value": "18W",
+          "copy_count": 1252,
+          "image": ""
+        },
+        {
+          "code": "6J550O00FFV5PHD8CRGLB",
+          "desc": "【兲】高改|无镭射快...",
+          "value": "21W",
+          "copy_count": 2931,
+          "image": ""
+        }
+      ]
+    },
+    "m870": {
+      "name": "M870霰弹枪",
+      "category": "霰弹枪",
+      "builds": [
+        {
+          "code": "6K01K1S059IJNRCK57D9Q",
+          "desc": "多倍率",
+          "value": "5W",
+          "copy_count": 411,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/01/image-27.webp"
+        },
+        {
+          "code": "6JQT26402FA1JF0E0BJHI",
+          "desc": "3倍镜",
+          "value": "5W",
+          "copy_count": 579,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/01/image-26.webp"
+        }
+      ]
+    },
+    "mk4": {
+      "name": "MK4冲锋枪",
+      "category": "冲锋枪",
+      "builds": [
+        {
+          "code": "6IQV5E401NO8GR0EM4VR1",
+          "desc": "消音腰射开镜双修",
+          "value": "24W",
+          "copy_count": 15080,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/11/image-34.webp"
+        },
+        {
+          "code": "6I6FFL806UPSRBSFIDPDC",
+          "desc": "YJJ同款·腰射3连...",
+          "value": "23W",
+          "copy_count": 30101,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/11/image-29.webp"
+        },
+        {
+          "code": "6K3QSVO049H3TLFDHMKHO",
+          "desc": "全自动94腰射",
+          "value": "27W",
+          "copy_count": 1892,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/11/image-23.webp"
+        },
+        {
+          "code": "6K4P80K0F4B25FN4VC5A7",
+          "desc": "全自动满腰射",
+          "value": "38W",
+          "copy_count": 2410,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/11/image-38.webp"
+        },
+        {
+          "code": "6I5E80008R4RKTJI3FOBI",
+          "desc": "三连发枪管",
+          "value": "42W",
+          "copy_count": 3577,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/11/image-21.webp"
+        },
+        {
+          "code": "6I5FKKC0BDB1NLT9V34DG",
+          "desc": "开镜腰射双修·三连发...",
+          "value": "44W",
+          "copy_count": 2614,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/11/image-25.webp"
+        }
+      ]
+    },
+    "mini-14": {
+      "name": "Mini-14射手步枪",
+      "category": "射手步枪",
+      "builds": [
+        {
+          "code": "6I8VVA80ASAH8NM367QOA",
+          "desc": "1.5/5 可调瞄准...",
+          "value": "18W",
+          "copy_count": 8245,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/11/image-35.webp"
+        },
+        {
+          "code": "6J8ULDO0FUH1E5MQ63E4O",
+          "desc": "侧瞄红点",
+          "value": "20W",
+          "copy_count": 353,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/11/image-20.webp"
+        },
+        {
+          "code": "6H93K9802MHJ5VQFPTPUR",
+          "desc": "6/12瞄准镜",
+          "value": "23W",
+          "copy_count": 1915,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/11/image-36.webp"
+        },
+        {
+          "code": "6HQN55005QO9B7G2FG9IN",
+          "desc": "火控",
+          "value": "31W",
+          "copy_count": 2015,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/11/image-37.webp"
+        }
+      ]
+    },
+    "sks": {
+      "name": "SKS射手步枪",
+      "category": "射手步枪",
+      "builds": [
+        {
+          "code": "6FEHRUO0AV5BVPK0VDMCD",
+          "desc": "3/7倍镜",
+          "value": "34W",
+          "copy_count": 27038,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/10/image-14.webp"
+        },
+        {
+          "code": "6HQQM3002CGRPJ9ITGHGB",
+          "desc": "林树同款·火控",
+          "value": "42W",
+          "copy_count": 13319,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/10/image-13.webp"
+        },
+        {
+          "code": "6HM7D900EU90O684D8QL5",
+          "desc": "3.5倍镜",
+          "value": "51W",
+          "copy_count": 1606,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/10/image-12.webp"
+        },
+        {
+          "code": "6JJHSIG0B1RGMGBPE1GT9",
+          "desc": "3/7倍镜·XDD同...",
+          "value": "57W",
+          "copy_count": 1651,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/10/image-10.webp"
+        },
+        {
+          "code": "6FEHRVK0AV5BVPK0VDMCD",
+          "desc": "3/7倍镜",
+          "value": "61W",
+          "copy_count": 3046,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/10/image-11.webp"
+        },
+        {
+          "code": "6IAA73800ER47DGFRI62S",
+          "desc": "航天卡战备枪（带有战...",
+          "value": "22W",
+          "copy_count": 3993,
+          "image": ""
+        },
+        {
+          "code": "6JE7KLS09THICRHBNOQNB",
+          "desc": "3.5倍无枪管 稳压...",
+          "value": "33W",
+          "copy_count": 1956,
+          "image": ""
+        }
+      ]
+    },
+    "marlin": {
+      "name": "Marlin杠杆步枪",
+      "category": "特殊武器",
+      "builds": [
+        {
+          "code": "6HIEM2S094898G9NDDGRT",
+          "desc": "腰射",
+          "value": "17W",
+          "copy_count": 12083,
+          "image": ""
+        },
+        {
+          "code": "6I8JP2O0ARSDTHKAFPMVQ",
+          "desc": "100腰射",
+          "value": "21W",
+          "copy_count": 2862,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/09/image-19.webp"
+        },
+        {
+          "code": "6I8JOU40ARSDTHKAFPMVQ",
+          "desc": "99腰射",
+          "value": "24W",
+          "copy_count": 564,
+          "image": ""
+        },
+        {
+          "code": "6I8JTF00ARSDTHKAFPMVQ",
+          "desc": "",
+          "value": "25W",
+          "copy_count": 692,
+          "image": ""
+        },
+        {
+          "code": "6HJ5BG80FR6AJQIFQKVE3",
+          "desc": "2/4倍镜",
+          "value": "32W",
+          "copy_count": 15988,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/09/image-36.webp"
+        },
+        {
+          "code": "6HLN05K0CPOU5C21U0PK5",
+          "desc": "我爱马林",
+          "value": "15W",
+          "copy_count": 4632,
+          "image": ""
+        },
+        {
+          "code": "6I9C2MC05HLGIUUFSE3FU",
+          "desc": "99腰射不怕近战，自...",
+          "value": "17W",
+          "copy_count": 5689,
+          "image": ""
+        }
+      ]
+    },
+    "aks-74u": {
+      "name": "AKS-74U",
+      "category": "突击步枪",
+      "builds": [
+        {
+          "code": "6IF9CIC08C3ND23MR2PJT",
+          "desc": "",
+          "value": "6W",
+          "copy_count": 1912,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/09/image-20.webp"
+        },
+        {
+          "code": "6GRTB7002GFSJ497HHJD0",
+          "desc": "",
+          "value": "15W",
+          "copy_count": 4708,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/09/image-21.webp"
+        },
+        {
+          "code": "6I44FE80EAKEA71T5EQPI",
+          "desc": "",
+          "value": "27W",
+          "copy_count": 1862,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/09/image-22.webp"
+        }
+      ]
+    },
+    "car-15": {
+      "name": "CAR-15",
+      "category": "突击步枪",
+      "builds": [
+        {
+          "code": "6HH7K4G024CH4QGG5QQUE",
+          "desc": "",
+          "value": "8W",
+          "copy_count": 6793,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/09/image-28.webp"
+        },
+        {
+          "code": "6HH7K7K024CH4QGG5QQUE",
+          "desc": "消音·45发",
+          "value": "13W",
+          "copy_count": 9176,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/09/image-29.webp"
+        },
+        {
+          "code": "6HIF1GG068RCCIKUV1HLS",
+          "desc": "红点",
+          "value": "14W",
+          "copy_count": 2450,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/09/image-30.webp"
+        },
+        {
+          "code": "6HH7JVS024CH4QGG5QQUE",
+          "desc": "二倍镜",
+          "value": "16W",
+          "copy_count": 2988,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/09/image-31.webp"
+        },
+        {
+          "code": "6J20R6O053J1MR71E8LOK",
+          "desc": "大战场",
+          "value": "",
+          "copy_count": 1212,
+          "image": ""
+        }
+      ]
+    },
+    "qsz92g": {
+      "name": "QSZ92G",
+      "category": "手枪",
+      "builds": [
+        {
+          "code": "6IT14U0066MHHVC5Q80C6",
+          "desc": "跑刀必用",
+          "value": "8W",
+          "copy_count": 985,
+          "image": ""
+        }
+      ]
+    },
+    "desert-eagle": {
+      "name": "沙漠之鹰",
+      "category": "手枪",
+      "builds": [
+        {
+          "code": "6JONT4008BEE9MJC4N4B6",
+          "desc": "腰射颗秒",
+          "value": "6W",
+          "copy_count": 1895,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/09/image-33.webp"
+        },
+        {
+          "code": "6JONT5408BEE9MJC4N4B6",
+          "desc": "腰射颗秒",
+          "value": "11W",
+          "copy_count": 2984,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/09/image-35.webp"
+        },
+        {
+          "code": "6IK11K003KTK601F43COS",
+          "desc": "二倍",
+          "value": "18W",
+          "copy_count": 2858,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/09/image-75.webp"
+        }
+      ]
+    },
+    "g17": {
+      "name": "G17",
+      "category": "手枪",
+      "builds": [
+        {
+          "code": "6GDORHK02QIKBV894R7VJ",
+          "desc": "",
+          "value": "17W",
+          "copy_count": 1798,
+          "image": ""
+        }
+      ]
+    },
+    "m1911": {
+      "name": "M1911",
+      "category": "手枪",
+      "builds": [
+        {
+          "code": "6IT12MG066MHHVC5Q80C6",
+          "desc": "跑刀必备",
+          "value": "12W",
+          "copy_count": 2821,
+          "image": ""
+        }
+      ]
+    },
+    "mk47": {
+      "name": "MK47突击步枪",
+      "category": "冲锋枪",
+      "builds": [
+        {
+          "code": "6HK8FU807G8S9A1C445HN",
+          "desc": "低配性价比",
+          "value": "24W",
+          "copy_count": 47372,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/09/image-25.webp"
+        },
+        {
+          "code": "6HK7T1C07G8S9A1C445HN",
+          "desc": "半改",
+          "value": "33W",
+          "copy_count": 33069,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/09/image-27.webp"
+        },
+        {
+          "code": "6J3RLNS049H3TLFDHMKHO",
+          "desc": "满腰射 63后坐",
+          "value": "47W",
+          "copy_count": 4167,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/09/image-91.webp"
+        },
+        {
+          "code": "6HJHCQG05AVGGJDT0TEJ9",
+          "desc": "林树同款",
+          "value": "51W",
+          "copy_count": 33824,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/09/image-23.webp"
+        },
+        {
+          "code": "6J3RK8S049H3TLFDHMKHO",
+          "desc": "82后坐",
+          "value": "66W",
+          "copy_count": 2939,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/09/image-76.webp"
+        },
+        {
+          "code": "6J3QVRS049H3TLFDHMKHO",
+          "desc": "82后坐",
+          "value": "68W",
+          "copy_count": 3599,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/09/image-90.webp"
+        },
+        {
+          "code": "6HV5BC002UGUN7LA5AQII",
+          "desc": "林树扶贫MK47",
+          "value": "29W",
+          "copy_count": 15419,
+          "image": ""
+        }
+      ]
+    },
+    "m16a4": {
+      "name": "M16A4突击步枪",
+      "category": "突击步枪",
+      "builds": [
+        {
+          "code": "6GD1CM004J7LV61QLMNR9",
+          "desc": "瞄具自选",
+          "value": "4W",
+          "copy_count": 2613,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/09/image-32.webp"
+        },
+        {
+          "code": "6KE84NK0223NGCLVVEN6F",
+          "desc": "急停腰射",
+          "value": "9W",
+          "copy_count": 78,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/09/image-24.webp"
+        },
+        {
+          "code": "6HCCJD80C86JSJ11LU5K6",
+          "desc": "",
+          "value": "14W",
+          "copy_count": 1572,
+          "image": ""
+        },
+        {
+          "code": "6HGADSO0APGGNCBFQNVEF",
+          "desc": "",
+          "value": "18W",
+          "copy_count": 766,
+          "image": ""
+        },
+        {
+          "code": "6GRAJQS0AV5BVPK0VDMCD",
+          "desc": "",
+          "value": "29W",
+          "copy_count": 1468,
+          "image": ""
+        },
+        {
+          "code": "6I91J1G0AO5LP6T75PVN6",
+          "desc": "满腰射邪修",
+          "value": "",
+          "copy_count": 1682,
+          "image": ""
+        },
+        {
+          "code": "6J8V0S00DHE668K962NMO",
+          "desc": "火控激光高操作低后座...",
+          "value": "44W",
+          "copy_count": 956,
+          "image": ""
+        }
+      ]
+    },
+    "bizon": {
+      "name": "野牛冲锋枪",
+      "category": "冲锋枪",
+      "builds": [
+        {
+          "code": "6HGJDDK0APGGNCBFQNVEF",
+          "desc": "",
+          "value": "9W",
+          "copy_count": 14987,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/09/image-34.webp"
+        },
+        {
+          "code": "6H5AP2S0APGGNCBFQNVEF",
+          "desc": "",
+          "value": "26W",
+          "copy_count": 2831,
+          "image": ""
+        },
+        {
+          "code": "6GU764G07892UEQVS5KFL",
+          "desc": "71腰射",
+          "value": "",
+          "copy_count": 1063,
+          "image": ""
+        },
+        {
+          "code": "6GU763O07892UEQVS5KFL",
+          "desc": "62高操控",
+          "value": "",
+          "copy_count": 797,
+          "image": ""
+        }
+      ]
+    },
+    "svd": {
+      "name": "SVD",
+      "category": "射手步枪",
+      "builds": [
+        {
+          "code": "6JLHBEO06HRE2F16M6KFE",
+          "desc": "",
+          "value": "19W",
+          "copy_count": 2300,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/02/image-25.webp"
+        },
+        {
+          "code": "6GS5BGK064FJ19C5SGDFD",
+          "desc": "火控",
+          "value": "34W",
+          "copy_count": 22731,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-77.webp"
+        },
+        {
+          "code": "6JLHBGS06HRE2F16M6KFE",
+          "desc": "3倍镜·主播同款",
+          "value": "38W",
+          "copy_count": 5139,
+          "image": "https://g.aitags.cn/wp-content/uploads/2026/02/image-26.webp"
+        },
+        {
+          "code": "6G9472808OPOB8QKQ72I8",
+          "desc": "3倍镜",
+          "value": "43W",
+          "copy_count": 5365,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-78.webp"
+        },
+        {
+          "code": "6JTR41C090M5TTHNT2V2Q",
+          "desc": "火控",
+          "value": "47W",
+          "copy_count": 253,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-251.webp"
+        },
+        {
+          "code": "6H7LHIS0CCQG9TBJ18T88",
+          "desc": "3/7倍镜",
+          "value": "",
+          "copy_count": 2795,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-79.webp"
+        },
+        {
+          "code": "6H424SO0F6HDCSG3521UV",
+          "desc": "热成像2/4倍镜",
+          "value": "",
+          "copy_count": 592,
+          "image": ""
+        },
+        {
+          "code": "6H424U00F6HDCSG3521UV",
+          "desc": "3倍镜+侧瞄",
+          "value": "",
+          "copy_count": 243,
+          "image": ""
+        }
+      ]
+    },
+    "psg-1": {
+      "name": "PSG-1",
+      "category": "射手步枪",
+      "builds": [
+        {
+          "code": "6GS83R00F6HDCSG3521UV",
+          "desc": "低倍镜",
+          "value": "33W",
+          "copy_count": 4610,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-80.webp"
+        },
+        {
+          "code": "6H07HIO06GA8AHGUVS95M",
+          "desc": "HAMR组合瞄准镜",
+          "value": "35W",
+          "copy_count": 20830,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-81.webp"
+        },
+        {
+          "code": "6HCM8UK0285EKE7L5LPSH",
+          "desc": "林树同款",
+          "value": "45W",
+          "copy_count": 12249,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-155.webp"
+        },
+        {
+          "code": "6GS832C0F6HDCSG3521UV",
+          "desc": "3倍镜",
+          "value": "51W",
+          "copy_count": 2647,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-83.webp"
+        },
+        {
+          "code": "6G266EC0B47DBPRUAR75R",
+          "desc": "6/12倍镜",
+          "value": "",
+          "copy_count": 4550,
+          "image": ""
+        },
+        {
+          "code": "6IV36F804929SD2KI2HVB",
+          "desc": "高配满后座",
+          "value": "50W",
+          "copy_count": 1054,
+          "image": ""
+        }
+      ]
+    },
+    "ptr-32": {
+      "name": "PTR-32",
+      "category": "突击步枪",
+      "builds": [
+        {
+          "code": "6GCGA100AV5BVPK0VDMCD",
+          "desc": "",
+          "value": "11W",
+          "copy_count": 3890,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-84.webp"
+        },
+        {
+          "code": "6H01T1K09MTF0NSTEEU37",
+          "desc": "性价比",
+          "value": "20W",
+          "copy_count": 19130,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-85.webp"
+        },
+        {
+          "code": "6H5APTG0APGGNCBFQNVEF",
+          "desc": "",
+          "value": "23W",
+          "copy_count": 2442,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-86.webp"
+        },
+        {
+          "code": "6JBVQJ80A0LP3CJDNC5DK",
+          "desc": "二倍镜",
+          "value": "24W",
+          "copy_count": 2475,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-249.webp"
+        },
+        {
+          "code": "6HEAEKO006RSNPRI5LV8E",
+          "desc": "",
+          "value": "29W",
+          "copy_count": 4988,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-87.webp"
+        },
+        {
+          "code": "6GCGB6O0AV5BVPK0VDMCD",
+          "desc": "高配",
+          "value": "36W",
+          "copy_count": 4938,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-88.webp"
+        }
+      ]
+    },
+    "kc17": {
+      "name": "KC17",
+      "category": "突击步枪",
+      "builds": [
+        {
+          "code": "6JIK58O0BQJPAF5O1NUHB",
+          "desc": "",
+          "value": "24W",
+          "copy_count": 1356,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-154.webp"
+        },
+        {
+          "code": "6HGPMP8043TLQUSE9SMUO",
+          "desc": "性价比",
+          "value": "24W",
+          "copy_count": 21145,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-15.webp"
+        },
+        {
+          "code": "6HH8PD802AMR3AEE8LQVJ",
+          "desc": "纯粑粑配件，好压",
+          "value": "25W",
+          "copy_count": 49995,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-16.webp"
+        },
+        {
+          "code": "6HC3BB00DPQJT0NUTT0TA",
+          "desc": "低配好压",
+          "value": "25W",
+          "copy_count": 9189,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-17.webp"
+        },
+        {
+          "code": "6JGTRJ004H8VFF26I43BQ",
+          "desc": "半改",
+          "value": "36W",
+          "copy_count": 10061,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-22.webp"
+        },
+        {
+          "code": "6JJB2O40E0LL9IRHUI52L",
+          "desc": "",
+          "value": "36W",
+          "copy_count": 1348,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-19.webp"
+        },
+        {
+          "code": "6JJB3VC0E0LL9IRHUI52L",
+          "desc": "短管顶配",
+          "value": "55W",
+          "copy_count": 5065,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-18.webp"
+        },
+        {
+          "code": "6GPHOKS094898G9NDDGRT",
+          "desc": "红点稳定",
+          "value": "",
+          "copy_count": 3202,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-23.webp"
+        },
+        {
+          "code": "6GPHOQK094898G9NDDGRT",
+          "desc": "火控",
+          "value": "",
+          "copy_count": 1765,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-24.webp"
+        },
+        {
+          "code": "6GVQH580DKPR1AESPN8DT",
+          "desc": "75发大弹夹",
+          "value": "",
+          "copy_count": 5897,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-200.webp"
+        },
+        {
+          "code": "6I5R93O06368AQ40O331N",
+          "desc": "小胡的KC17",
+          "value": "34W",
+          "copy_count": 6116,
+          "image": ""
+        },
+        {
+          "code": "6J54Q1S0FFV5PHD8CRGLB",
+          "desc": "【兲】短刃枪管|30...",
+          "value": "30W",
+          "copy_count": 1958,
+          "image": ""
+        },
+        {
+          "code": "6J54QBS0FFV5PHD8CRGLB",
+          "desc": "【兲】短管|45发|...",
+          "value": "34W",
+          "copy_count": 3749,
+          "image": ""
+        },
+        {
+          "code": "6J54R7G0FFV5PHD8CRGLB",
+          "desc": "【兲】满改|快速开镜...",
+          "value": "48W",
+          "copy_count": 10205,
+          "image": ""
+        },
+        {
+          "code": "6JD9H7O0B229TMJSNVUS6",
+          "desc": "谁用谁懂",
+          "value": "41W",
+          "copy_count": 5306,
+          "image": ""
+        }
+      ]
+    },
+    "compound-bow": {
+      "name": "复合弓",
+      "category": "特殊武器",
+      "builds": [
+        {
+          "code": "6HJA00C0E890GTGEERA00",
+          "desc": "",
+          "value": "35W",
+          "copy_count": 1133,
+          "image": ""
+        },
+        {
+          "code": "6GPEAS80CQ9J5LUV083F9",
+          "desc": "开镜",
+          "value": "48W",
+          "copy_count": 4446,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-89.webp"
+        },
+        {
+          "code": "6GPEAT40CQ9J5LUV083F9",
+          "desc": "腰射复合弓",
+          "value": "43W",
+          "copy_count": 1737,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-90.webp"
+        },
+        {
+          "code": "6GPHPMS094898G9NDDGRT",
+          "desc": "开镜流",
+          "value": "",
+          "copy_count": 1690,
+          "image": ""
+        },
+        {
+          "code": "6GPHQ14094898G9NDDGRT",
+          "desc": "腰射流",
+          "value": "",
+          "copy_count": 1096,
+          "image": ""
+        }
+      ]
+    },
+    "93r": {
+      "name": "93R",
+      "category": "手枪",
+      "builds": [
+        {
+          "code": "6GQG1O006S5HCI6L9NAJQ",
+          "desc": "低配",
+          "value": "5W",
+          "copy_count": 2456,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-91.webp"
+        },
+        {
+          "code": "6FJTS2C09480JUJG6G67D",
+          "desc": "",
+          "value": "3W",
+          "copy_count": 500,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-92.webp"
+        },
+        {
+          "code": "6G7ER6G053SUNNT5TTPUV",
+          "desc": "",
+          "value": "6W",
+          "copy_count": 1344,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-93.webp"
+        },
+        {
+          "code": "6HS65C405BQM9JGML2H77",
+          "desc": "下挂激光",
+          "value": "9W",
+          "copy_count": 796,
+          "image": ""
+        }
+      ]
+    },
+    "357-revolver": {
+      "name": ".357左轮",
+      "category": "手枪",
+      "builds": [
+        {
+          "code": "6G9423008OPOB8QKQ72I8",
+          "desc": "清图必备枪管",
+          "value": "2W",
+          "copy_count": 2761,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-94.webp"
+        },
+        {
+          "code": "6G9423S08OPOB8QKQ72I8",
+          "desc": "可以当狙玩 3/7弹...",
+          "value": "24W",
+          "copy_count": 6168,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-95.webp"
+        }
+      ]
+    },
+    "g18": {
+      "name": "G18",
+      "category": "手枪",
+      "builds": [
+        {
+          "code": "6G941RG08OPOB8QKQ72I8",
+          "desc": "夺舍必备",
+          "value": "9W",
+          "copy_count": 25534,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-96.webp"
+        }
+      ]
+    },
+    "awm": {
+      "name": "AWM",
+      "category": "手枪",
+      "builds": [
+        {
+          "code": "6GQTNR0095HC4609S9G3Q",
+          "desc": "8倍镜",
+          "value": "47W",
+          "copy_count": 3322,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-97.webp"
+        },
+        {
+          "code": "6G940L008OPOB8QKQ72I8",
+          "desc": "3/7倍镜",
+          "value": "50W",
+          "copy_count": 22665,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-98.webp"
+        },
+        {
+          "code": "6G1IC4S0B47DBPRUAR75R",
+          "desc": "6/12 弹道计算",
+          "value": "",
+          "copy_count": 9324,
+          "image": ""
+        }
+      ]
+    },
+    "r93": {
+      "name": "R93",
+      "category": "狙击步枪",
+      "builds": [
+        {
+          "code": "6HG9MUK08KE3E5HTC891L",
+          "desc": "高操控",
+          "value": "20W",
+          "copy_count": 25813,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-100.webp"
+        },
+        {
+          "code": "6HG9MSK08KE3E5HTC891L",
+          "desc": "加激光",
+          "value": "23W",
+          "copy_count": 4667,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-139.webp"
+        },
+        {
+          "code": "6HC1EH403HPBMKSFVT966",
+          "desc": "",
+          "value": "25W",
+          "copy_count": 820,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-99.webp"
+        },
+        {
+          "code": "6G940RC08OPOB8QKQ72I8",
+          "desc": "8倍镜",
+          "value": "32W",
+          "copy_count": 3107,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-101.webp"
+        },
+        {
+          "code": "6G1ICBK0B47DBPRUAR75R",
+          "desc": "6/12弹道计算狙击...",
+          "value": "",
+          "copy_count": 4657,
+          "image": ""
+        },
+        {
+          "code": "6HS59ES04BJRSFF5TN2K7",
+          "desc": "超远距大狙",
+          "value": "",
+          "copy_count": 1624,
+          "image": ""
+        },
+        {
+          "code": "6J3R8M0047B0QFTR3RLF3",
+          "desc": "小胡的R9",
+          "value": "",
+          "copy_count": 278,
+          "image": ""
+        }
+      ]
+    },
+    "sv-98": {
+      "name": "SV-98",
+      "category": "狙击步枪",
+      "builds": [
+        {
+          "code": "6GRT2JK04CJIA66M6SF7D",
+          "desc": "6/12 倍镜",
+          "value": "15W",
+          "copy_count": 13732,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-140.webp"
+        },
+        {
+          "code": "6G940IC08OPOB8QKQ72I8",
+          "desc": "3/7倍镜",
+          "value": "22W",
+          "copy_count": 16659,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-102.webp"
+        }
+      ]
+    },
+    "m700": {
+      "name": "M700",
+      "category": "狙击步枪",
+      "builds": [
+        {
+          "code": "6H5AVTG04RRU205KP3F00",
+          "desc": "火控+激光",
+          "value": "22W",
+          "copy_count": 8457,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-103.webp"
+        },
+        {
+          "code": "6I39BRG04IOFAFAETLT47",
+          "desc": "灵眼3/7倍镜",
+          "value": "30W",
+          "copy_count": 11572,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-227.webp"
+        },
+        {
+          "code": "6HBP2R0027UT3MNF433RH",
+          "desc": "3/7倍镜满改秒开镜",
+          "value": "37W",
+          "copy_count": 14707,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-105.webp"
+        }
+      ]
+    },
+    "sr-25": {
+      "name": "SR-25",
+      "category": "射手步枪",
+      "builds": [
+        {
+          "code": "6GRAP2S0AV5BVPK0VDMCD",
+          "desc": "3/7倍镜",
+          "value": "46W",
+          "copy_count": 47535,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-106.webp"
+        },
+        {
+          "code": "6IG0Q5K087JQ59RQTNHKT",
+          "desc": "2/4 倍镜",
+          "value": "60W",
+          "copy_count": 3516,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-234.webp"
+        },
+        {
+          "code": "6FR7A9C05Q52M176M341F",
+          "desc": "开镜快",
+          "value": "69W",
+          "copy_count": 9258,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-107.webp"
+        },
+        {
+          "code": "6GDMVE00C56ME2PP5PQ4N",
+          "desc": "3/7 弹道计算",
+          "value": "71W",
+          "copy_count": 8152,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-108.webp"
+        },
+        {
+          "code": "6HR5BEC07N1D5ACEJ5M1A",
+          "desc": "6/12倍镜",
+          "value": "73W",
+          "copy_count": 2204,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-225.webp"
+        },
+        {
+          "code": "6G266C40B47DBPRUAR75R",
+          "desc": "3/7 弹道计算",
+          "value": "",
+          "copy_count": 8255,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-109.webp"
+        },
+        {
+          "code": "6HUE2DO0F1FA6OHOECFBN",
+          "desc": "黎明握把，开镜速度足...",
+          "value": "64W",
+          "copy_count": 3133,
+          "image": ""
+        },
+        {
+          "code": "6HJ0T7404N125H8KST73J",
+          "desc": "堵桥专用",
+          "value": "62W",
+          "copy_count": 6316,
+          "image": ""
+        }
+      ]
+    },
+    "m14": {
+      "name": "M14射手步枪",
+      "category": "射手步枪",
+      "builds": [
+        {
+          "code": "6GQ0VK00FIAS4OUQQ081T",
+          "desc": "",
+          "value": "35W",
+          "copy_count": 25466,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-215.webp"
+        },
+        {
+          "code": "6G642L80BLQ2U5DJHTI14",
+          "desc": "稳定红点 30发弹夹",
+          "value": "67W",
+          "copy_count": 32633,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-26.webp"
+        },
+        {
+          "code": "6JRNAM808UE25KS56MUBJ",
+          "desc": "",
+          "value": "70W",
+          "copy_count": 402,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-183.webp"
+        },
+        {
+          "code": "6JS3QUK0BIGQQKR21AT1J",
+          "desc": "",
+          "value": "70W",
+          "copy_count": 367,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-232.webp"
+        },
+        {
+          "code": "6JS3QS80BIGQQKR21AT1J",
+          "desc": "",
+          "value": "71W",
+          "copy_count": 386,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-228.webp"
+        },
+        {
+          "code": "6GTTAT000CR1N4NF83220",
+          "desc": "【林树同款】稳定红点...",
+          "value": "74W",
+          "copy_count": 32104,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-29.webp"
+        },
+        {
+          "code": "6GS8H6800QPFCLVBV3UT6",
+          "desc": "增高红点·爆闪·30...",
+          "value": "74W",
+          "copy_count": 4000,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-28.webp"
+        },
+        {
+          "code": "6GPJD3S01Q3CDHOR330E0",
+          "desc": "主播同款·50发大弹...",
+          "value": "74W",
+          "copy_count": 11417,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-31.webp"
+        },
+        {
+          "code": "6JGTE7O0DUH9KRK4V8A6Q",
+          "desc": "",
+          "value": "77W",
+          "copy_count": 310,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-226.webp"
+        },
+        {
+          "code": "6GGV81O0A8D1N60LQM835",
+          "desc": "增高红点·双爆闪·3...",
+          "value": "80W",
+          "copy_count": 4818,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-32.webp"
+        },
+        {
+          "code": "6GPHRH4094898G9NDDGRT",
+          "desc": "稳定红点",
+          "value": "",
+          "copy_count": 2276,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-34.webp"
+        },
+        {
+          "code": "6GPHRG4094898G9NDDGRT",
+          "desc": "稳定红点 50发",
+          "value": "",
+          "copy_count": 14261,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-35.webp"
+        }
+      ]
+    },
+    "pkm": {
+      "name": "PKM",
+      "category": "轻机枪",
+      "builds": [
+        {
+          "code": "6G94D100FHI6PKF6C3P0U",
+          "desc": "低配",
+          "value": "23W",
+          "copy_count": 16693,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-110.webp"
+        },
+        {
+          "code": "6JPTOI801NO8GR0EM4VR1",
+          "desc": "",
+          "value": "30W",
+          "copy_count": 345,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-67.webp"
+        },
+        {
+          "code": "6G94CVO0FHI6PKF6C3P0U",
+          "desc": "半改",
+          "value": "30W",
+          "copy_count": 29158,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-111.webp"
+        },
+        {
+          "code": "6G94CTS0FHI6PKF6C3P0U",
+          "desc": "低倍 增高 激光",
+          "value": "43W",
+          "copy_count": 11551,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-112.webp"
+        },
+        {
+          "code": "6G94D0C0FHI6PKF6C3P0U",
+          "desc": "3倍镜",
+          "value": "42W",
+          "copy_count": 6162,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-113.webp"
+        },
+        {
+          "code": "6G2RMU40B47DBPRUAR75R",
+          "desc": "红点稳定",
+          "value": "",
+          "copy_count": 2801,
+          "image": ""
+        },
+        {
+          "code": "6G1IC0C0B47DBPRUAR75R",
+          "desc": "3倍架点",
+          "value": "",
+          "copy_count": 3526,
+          "image": ""
+        },
+        {
+          "code": "6I3VUGK0224LCBP16637G",
+          "desc": "全面战场的神",
+          "value": "",
+          "copy_count": 2582,
+          "image": ""
+        },
+        {
+          "code": "6IANP0K010CMFGACMR1LI",
+          "desc": "腰射100 可远可近...",
+          "value": "54W",
+          "copy_count": 1423,
+          "image": ""
+        },
+        {
+          "code": "6HQSVMC01A0NA9ERAI6P9",
+          "desc": "老飞宇同款腰射PKM",
+          "value": "41W",
+          "copy_count": 1167,
+          "image": ""
+        }
+      ]
+    },
+    "m249": {
+      "name": "M249",
+      "category": "轻机枪",
+      "builds": [
+        {
+          "code": "6G94JAC08OPOB8QKQ72I8",
+          "desc": "低配",
+          "value": "17W",
+          "copy_count": 18313,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-114.webp"
+        },
+        {
+          "code": "6G94JBK08OPOB8QKQ72I8",
+          "desc": "半改",
+          "value": "26W",
+          "copy_count": 7466,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-115.webp"
+        },
+        {
+          "code": "6GQTG2C095HC4609S9G3Q",
+          "desc": "稳定红点 45发",
+          "value": "27W",
+          "copy_count": 13225,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-116.webp"
+        },
+        {
+          "code": "6G93TB408OPOB8QKQ72I8",
+          "desc": "红点 高配",
+          "value": "33W",
+          "copy_count": 3022,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-117.webp"
+        },
+        {
+          "code": "6GQTGE4095HC4609S9G3Q",
+          "desc": "消音无后坐高配",
+          "value": "36W",
+          "copy_count": 5042,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-118.webp"
+        },
+        {
+          "code": "6G5QI4C0B47DBPRUAR75R",
+          "desc": "红点 60弹夹",
+          "value": "",
+          "copy_count": 2723,
+          "image": ""
+        },
+        {
+          "code": "6G5RQU80B47DBPRUAR75R",
+          "desc": "3/7倍镜 架点",
+          "value": "",
+          "copy_count": 3511,
+          "image": ""
+        },
+        {
+          "code": "6I53TVK0BU4994ALOQGCV",
+          "desc": "满腰射",
+          "value": "29W",
+          "copy_count": 3244,
+          "image": ""
+        },
+        {
+          "code": "6I5GDMC02JH0JJ7MJJCJT",
+          "desc": "能要射 远射",
+          "value": "43W",
+          "copy_count": 1186,
+          "image": ""
+        },
+        {
+          "code": "6J54H2K0FFV5PHD8CRGLB",
+          "desc": "【兲】半改|无枪管|...",
+          "value": "25W",
+          "copy_count": 646,
+          "image": ""
+        },
+        {
+          "code": "6JD1S780FFV5PHD8CRGLB",
+          "desc": "[兲]45发满射程|...",
+          "value": "30W",
+          "copy_count": 1021,
+          "image": ""
+        }
+      ]
+    },
+    "m250": {
+      "name": "M250",
+      "category": "轻机枪",
+      "builds": [
+        {
+          "code": "6GQT9G0095HC4609S9G3Q",
+          "desc": "低配",
+          "value": "35W",
+          "copy_count": 3691,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-119.webp"
+        },
+        {
+          "code": "6ICD6PC0FKQKCMETQ06U3",
+          "desc": "",
+          "value": "41W",
+          "copy_count": 1206,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-6.webp"
+        },
+        {
+          "code": "6GJ9F9S094898G9NDDGRT",
+          "desc": "3倍镜",
+          "value": "52W",
+          "copy_count": 5312,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-120.webp"
+        },
+        {
+          "code": "6I2ECO40ADSSDHM4GDLHD",
+          "desc": "满改",
+          "value": "57W",
+          "copy_count": 2697,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-10.webp"
+        },
+        {
+          "code": "6HKN7SO0486U8A7KQ48BV",
+          "desc": "火控",
+          "value": "60W",
+          "copy_count": 3369,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-40.webp"
+        },
+        {
+          "code": "6GJ9F8C094898G9NDDGRT",
+          "desc": "满改红点 爆闪",
+          "value": "60W",
+          "copy_count": 4986,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-121.webp"
+        },
+        {
+          "code": "6GPHU14094898G9NDDGRT",
+          "desc": "3/7倍镜 架点",
+          "value": "",
+          "copy_count": 5810,
+          "image": ""
+        },
+        {
+          "code": "6GPHU24094898G9NDDGRT",
+          "desc": "红点爆闪",
+          "value": "",
+          "copy_count": 2128,
+          "image": ""
+        }
+      ]
+    },
+    "qjb201": {
+      "name": "QJB201",
+      "category": "轻机枪",
+      "builds": [
+        {
+          "code": "6HJCNB00F23GDE3MVB138",
+          "desc": "低配",
+          "value": "17W",
+          "copy_count": 6289,
+          "image": ""
+        },
+        {
+          "code": "6H81SO802HPRIBOQT1054",
+          "desc": "满腰射·125发弹鼓",
+          "value": "18W",
+          "copy_count": 7876,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-126.webp"
+        },
+        {
+          "code": "6H81S7S02HPRIBOQT1054",
+          "desc": "满腰射·125发",
+          "value": "21W",
+          "copy_count": 2018,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-125.webp"
+        },
+        {
+          "code": "6GQTJKO095HC4609S9G3Q",
+          "desc": "稳定红点 60发弹鼓",
+          "value": "34W",
+          "copy_count": 16077,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-124.webp"
+        },
+        {
+          "code": "6HLCC8O07NBAF1GEQ68ML",
+          "desc": "手感巨稳",
+          "value": "38W",
+          "copy_count": 5727,
+          "image": ""
+        },
+        {
+          "code": "6HPQTRK0BRREHBU4ROLIN",
+          "desc": "激光枪",
+          "value": "37W",
+          "copy_count": 2670,
+          "image": ""
+        },
+        {
+          "code": "6I1B2JS03OBTS1B3MURBD",
+          "desc": "全面战场 开镜快 机...",
+          "value": "",
+          "copy_count": 3488,
+          "image": ""
+        },
+        {
+          "code": "6IR7ED00BG8VNUB8BT83O",
+          "desc": "大弹鼓 开镜快 稳定",
+          "value": "",
+          "copy_count": 1104,
+          "image": ""
+        },
+        {
+          "code": "6IBVM4K0084J0LC0ORMUU",
+          "desc": "高速导气，稳定100...",
+          "value": "18W",
+          "copy_count": 2609,
+          "image": ""
+        },
+        {
+          "code": "6I7MLGK0BD3P0CPF560L7",
+          "desc": "21.4w高操控",
+          "value": "19W",
+          "copy_count": 1731,
+          "image": ""
+        },
+        {
+          "code": "6I71P7G03LM4T4FTQDNR7",
+          "desc": "40W无后座 60弹...",
+          "value": "40W无后座 60弹...",
+          "copy_count": 1727,
+          "image": ""
+        },
+        {
+          "code": "6IELJ5O0F5756FDINN44R",
+          "desc": "大弹鼓粑粑枪无后座1...",
+          "value": "29W",
+          "copy_count": 1264,
+          "image": ""
+        },
+        {
+          "code": "6IGLKGK02AMR3AEE8LQVJ",
+          "desc": "高操控镭射50m稳压...",
+          "value": "37W",
+          "copy_count": 823,
+          "image": ""
+        },
+        {
+          "code": "6JEQ8D40FFV5PHD8CRGLB",
+          "desc": "丐版|无导气|短管低...",
+          "value": "25W",
+          "copy_count": 184,
+          "image": ""
+        },
+        {
+          "code": "6JEM4UG0FFV5PHD8CRGLB",
+          "desc": "高改|高速导气|47...",
+          "value": "35W",
+          "copy_count": 515,
+          "image": ""
+        },
+        {
+          "code": "6JEM4UO0FFV5PHD8CRGLB",
+          "desc": "满改|双爆闪|短管|...",
+          "value": "49W",
+          "copy_count": 380,
+          "image": ""
+        }
+      ]
+    },
+    "m1014": {
+      "name": "M1014",
+      "category": "霰弹枪",
+      "builds": [
+        {
+          "code": "6G9406008OPOB8QKQ72I8",
+          "desc": "快速装填 修脚（鹿弹...",
+          "value": "13W",
+          "copy_count": 4639,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-129.webp"
+        },
+        {
+          "code": "6HGM94S00C2R3NB6MRBQ8",
+          "desc": "操控开镜版",
+          "value": "16W",
+          "copy_count": 1265,
+          "image": ""
+        },
+        {
+          "code": "6HGMAS400C2R3NB6MRBQ8",
+          "desc": "开镜腰射双修",
+          "value": "23W",
+          "copy_count": 1163,
+          "image": ""
+        },
+        {
+          "code": "6GQTR10095HC4609S9G3Q",
+          "desc": "3倍镜独头弹",
+          "value": "27W",
+          "copy_count": 1735,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-130.webp"
+        },
+        {
+          "code": "6I3IE7S02UFKD90G9F15O",
+          "desc": "独头",
+          "value": "",
+          "copy_count": 775,
+          "image": ""
+        }
+      ]
+    },
+    "s12k": {
+      "name": "S12K",
+      "category": "霰弹枪",
+      "builds": [
+        {
+          "code": "6GV59IS0AR9U1DEIO2NLB",
+          "desc": "96腰射",
+          "value": "12W",
+          "copy_count": 16103,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-131.webp"
+        },
+        {
+          "code": "6GT4NF80FUH1E5MQ63E4O",
+          "desc": "100腰射",
+          "value": "18W",
+          "copy_count": 12052,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-132.webp"
+        },
+        {
+          "code": "6I6H0PC08AUTCO27EF3SU",
+          "desc": "100腰射·全自动",
+          "value": "18W",
+          "copy_count": 2536,
+          "image": ""
+        },
+        {
+          "code": "6II8HQC00NO97S2MDBHQV",
+          "desc": "100腰射·全自动",
+          "value": "22W",
+          "copy_count": 1952,
+          "image": ""
+        }
+      ]
+    },
+    "725-double-barrel-shotgun": {
+      "name": "725双管霰弹枪",
+      "category": "霰弹枪",
+      "builds": [
+        {
+          "code": "6GSTI6K0CASCDOHT14M12",
+          "desc": "腰射喷",
+          "value": "11W",
+          "copy_count": 2828,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-133.webp"
+        },
+        {
+          "code": "6IALUS805M97O1SEPETDL",
+          "desc": "3倍镜",
+          "value": "12W",
+          "copy_count": 630,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-41.webp"
+        },
+        {
+          "code": "6H7GD100B728QQG242E3V",
+          "desc": "低倍镜",
+          "value": "15W",
+          "copy_count": 743,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-135.webp"
+        },
+        {
+          "code": "6I2FOU009MTCUUEK83857",
+          "desc": "可搭配龙息弹使用",
+          "value": "26W",
+          "copy_count": 690,
+          "image": ""
+        },
+        {
+          "code": "6H2R61K08F8FFPMQA1O83",
+          "desc": "3倍镜 用独头弹当狙...",
+          "value": "29W",
+          "copy_count": 4137,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-134.webp"
+        },
+        {
+          "code": "6I9R9IG01FC5JNB4NK15L",
+          "desc": "莽侠",
+          "value": "17W",
+          "copy_count": 873,
+          "image": ""
+        }
+      ]
+    },
+    "mp5": {
+      "name": "MP5",
+      "category": "冲锋枪",
+      "builds": [
+        {
+          "code": "6H8OK3S0CN2U58NL2UJC9",
+          "desc": "100腰射",
+          "value": "9W",
+          "copy_count": 37699,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-137.webp"
+        },
+        {
+          "code": "6HG7AAC024CH4QGG5QQUE",
+          "desc": "",
+          "value": "11W",
+          "copy_count": 2699,
+          "image": ""
+        },
+        {
+          "code": "6HPQQ8408JKRG8J380UM6",
+          "desc": "100+的腰射",
+          "value": "12W",
+          "copy_count": 8804,
+          "image": ""
+        },
+        {
+          "code": "6GIL8QS08H7B847DPQEJ0",
+          "desc": "100腰射 低倍镜",
+          "value": "14W",
+          "copy_count": 6202,
+          "image": ""
+        },
+        {
+          "code": "6HH0NV801NKLLR2165SIK",
+          "desc": "纯腰射",
+          "value": "",
+          "copy_count": 1381,
+          "image": ""
+        },
+        {
+          "code": "6ICVMB804JL4L6K1JGG7U",
+          "desc": "静步快",
+          "value": "10W",
+          "copy_count": 949,
+          "image": ""
+        }
+      ]
+    },
+    "p90": {
+      "name": "P90",
+      "category": "冲锋枪",
+      "builds": [
+        {
+          "code": "6GQTMSS095HC4609S9G3Q",
+          "desc": "低配",
+          "value": "15W",
+          "copy_count": 2629,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-141.webp"
+        },
+        {
+          "code": "6EHRS780C6U07V9G7JRFB",
+          "desc": "低配",
+          "value": "17W",
+          "copy_count": 15002,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-143.webp"
+        },
+        {
+          "code": "6ILGS900BBDK4EITCO7U3",
+          "desc": "",
+          "value": "26W",
+          "copy_count": 1370,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-66.webp"
+        },
+        {
+          "code": "6J5RTKK0BAC7RIM3B0293",
+          "desc": "92腰射",
+          "value": "29W",
+          "copy_count": 3544,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-50.webp"
+        },
+        {
+          "code": "6K837FC049H3TLFDHMKHO",
+          "desc": "半改",
+          "value": "30W",
+          "copy_count": 359,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-146.webp"
+        },
+        {
+          "code": "6G37DPS0DNB82S09FI5F8",
+          "desc": "增高架+红外",
+          "value": "31W",
+          "copy_count": 7738,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-145.webp"
+        },
+        {
+          "code": "6K837O4049H3TLFDHMKHO",
+          "desc": "",
+          "value": "46W",
+          "copy_count": 132,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-51.webp"
+        },
+        {
+          "code": "6HFUUG007OL1MAV3EDCT3",
+          "desc": "昊天同款·双爆闪",
+          "value": "55W",
+          "copy_count": 2430,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-149.webp"
+        },
+        {
+          "code": "6G83T180B47DBPRUAR75R",
+          "desc": "消音红点",
+          "value": "",
+          "copy_count": 1334,
+          "image": ""
+        }
+      ]
+    },
+    "vector": {
+      "name": "Vector",
+      "category": "冲锋枪",
+      "builds": [
+        {
+          "code": "6H135GK0FIOH9JJL4D8E6",
+          "desc": "低配",
+          "value": "20W",
+          "copy_count": 23094,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-150.webp"
+        },
+        {
+          "code": "6GOFEC8032SF8AON69MFA",
+          "desc": "84腰射 40发",
+          "value": "34W",
+          "copy_count": 18786,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-152.webp"
+        },
+        {
+          "code": "6H7D1180F6HDCSG3521UV",
+          "desc": "长剑 40发",
+          "value": "39W",
+          "copy_count": 11962,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-153.webp"
+        },
+        {
+          "code": "6J3NCN00FUH1E5MQ63E4O",
+          "desc": "88腰射·70发大弹...",
+          "value": "37W",
+          "copy_count": 3216,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-247.webp"
+        },
+        {
+          "code": "6IC4NSK0CBLUR0ITR0OK6",
+          "desc": "70发",
+          "value": "46W",
+          "copy_count": 1148,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-151.webp"
+        },
+        {
+          "code": "6J16SEK05VT3P3JELESO0",
+          "desc": "满腰射·带爆闪",
+          "value": "50W",
+          "copy_count": 1280,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-71.webp"
+        },
+        {
+          "code": "6IC4NIO0CBLUR0ITR0OK6",
+          "desc": "长剑长枪管·40发",
+          "value": "53W",
+          "copy_count": 1499,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-233.webp"
+        },
+        {
+          "code": "6JEN33C0477RGCFTRLQKP",
+          "desc": "满腰射·70发",
+          "value": "55W",
+          "copy_count": 890,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-166.webp"
+        },
+        {
+          "code": "6I7HVGC01ACLBIGDH55O8",
+          "desc": "性价比",
+          "value": "23W",
+          "copy_count": 2448,
+          "image": ""
+        },
+        {
+          "code": "6I94M940DE5HLO6PJ5CMG",
+          "desc": "40发",
+          "value": "",
+          "copy_count": 444,
+          "image": ""
+        },
+        {
+          "code": "6I8DKUS0CRRKK3LTS0OG9",
+          "desc": "70发",
+          "value": "",
+          "copy_count": 1893,
+          "image": ""
+        },
+        {
+          "code": "6HOTV6G03DQCE4UVNUOKT",
+          "desc": "30w稳定性价比",
+          "value": "31W",
+          "copy_count": 1129,
+          "image": ""
+        }
+      ]
+    },
+    "uzi": {
+      "name": "UZI",
+      "category": "冲锋枪",
+      "builds": [
+        {
+          "code": "6HGJBO80APGGNCBFQNVEF",
+          "desc": "卡战备必备",
+          "value": "7W",
+          "copy_count": 18138,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-46.webp"
+        },
+        {
+          "code": "6GUQ8200BPHJO1VSGS2QU",
+          "desc": "低倍镜",
+          "value": "9W",
+          "copy_count": 9961,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-156.webp"
+        },
+        {
+          "code": "6H5APE40APGGNCBFQNVEF",
+          "desc": "",
+          "value": "14W",
+          "copy_count": 3579,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-49.webp"
+        }
+      ]
+    },
+    "smg-45": {
+      "name": "SMG-45",
+      "category": "冲锋枪",
+      "builds": [
+        {
+          "code": "6HM0APO0FUGA3U57GU9N5",
+          "desc": "",
+          "value": "10W",
+          "copy_count": 10603,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-157.webp"
+        },
+        {
+          "code": "6IDK0TS0CJQQKND1U0PPI",
+          "desc": "",
+          "value": "11W",
+          "copy_count": 4880,
+          "image": ""
+        },
+        {
+          "code": "6HBE1RO079EV449EBAHBQ",
+          "desc": "",
+          "value": "23W",
+          "copy_count": 18626,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-159.webp"
+        },
+        {
+          "code": "6JDCCUC03U5CF5VKPUDO1",
+          "desc": "满腰射修脚",
+          "value": "26W",
+          "copy_count": 2921,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-158.webp"
+        },
+        {
+          "code": "6JL33N40CNGLFM3INSPTN",
+          "desc": "满腰射修脚",
+          "value": "29W",
+          "copy_count": 657,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-176.webp"
+        },
+        {
+          "code": "6JC70M00DAFJGD1JIVAUJ",
+          "desc": "满腰射修脚",
+          "value": "31W",
+          "copy_count": 866,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-174.webp"
+        },
+        {
+          "code": "6G265TK0B47DBPRUAR75R",
+          "desc": "稳定红点 40发",
+          "value": "",
+          "copy_count": 3513,
+          "image": ""
+        }
+      ]
+    },
+    "sr-3m": {
+      "name": "SR-3M",
+      "category": "冲锋枪",
+      "builds": [
+        {
+          "code": "6HEVCU000K6H9O61OI553",
+          "desc": "92腰射",
+          "value": "19W",
+          "copy_count": 13027,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-142.webp"
+        },
+        {
+          "code": "6GS6MS006U3GLSPD6DRKM",
+          "desc": "92腰射·红外",
+          "value": "23W",
+          "copy_count": 49215,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-160.webp"
+        },
+        {
+          "code": "6GT85SC0CPDJJA7GOSM58",
+          "desc": "100腰射",
+          "value": "26W",
+          "copy_count": 16742,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-171.webp"
+        },
+        {
+          "code": "6K3BLJO054Q67GH2MEM6I",
+          "desc": "半改",
+          "value": "35W",
+          "copy_count": 543,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-164.webp"
+        },
+        {
+          "code": "6IIB71S0BCDGFOIP6PCA1",
+          "desc": "移速流",
+          "value": "45W",
+          "copy_count": 4428,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-144.webp"
+        },
+        {
+          "code": "6K11E6C054Q67GH2MEM6I",
+          "desc": "",
+          "value": "54W",
+          "copy_count": 152,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-76.webp"
+        },
+        {
+          "code": "6K3BLIK054Q67GH2MEM6I",
+          "desc": "满腰射",
+          "value": "63W",
+          "copy_count": 271,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-163.webp"
+        },
+        {
+          "code": "6FO1HFC05LRE6O4FIJSJF",
+          "desc": "满腰射",
+          "value": "",
+          "copy_count": 957,
+          "image": ""
+        },
+        {
+          "code": "6HMK9O00FIES86M0909DF",
+          "desc": "",
+          "value": "",
+          "copy_count": 2377,
+          "image": ""
+        },
+        {
+          "code": "6IN5GSS0CVQ25EVB75DA5",
+          "desc": "100满腰射",
+          "value": "26W",
+          "copy_count": 1050,
+          "image": ""
+        },
+        {
+          "code": "6IC3H180AFOOM1IUVSMC2",
+          "desc": "开镜",
+          "value": "32W",
+          "copy_count": 5034,
+          "image": ""
+        },
+        {
+          "code": "6IH1FN80EPKITGBDS8KHM",
+          "desc": "麦晓雯女鬼急速流",
+          "value": "36W",
+          "copy_count": 4159,
+          "image": ""
+        }
+      ]
+    },
+    "pp-19": {
+      "name": "勇士冲锋枪",
+      "category": "冲锋枪",
+      "builds": [
+        {
+          "code": "6H8N93O0FUH1E5MQ63E4O",
+          "desc": "",
+          "value": "11W",
+          "copy_count": 4753,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-169.webp"
+        },
+        {
+          "code": "6GS6O1K06U3GLSPD6DRKM",
+          "desc": "96腰射",
+          "value": "18W",
+          "copy_count": 8943,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-168.webp"
+        },
+        {
+          "code": "6HICGU8074EP52HKUGIIC",
+          "desc": "",
+          "value": "22W",
+          "copy_count": 1366,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-170.webp"
+        },
+        {
+          "code": "6H4R62C0FIPEP8HG9QN71",
+          "desc": "腰射",
+          "value": "15W",
+          "copy_count": 2674,
+          "image": ""
+        },
+        {
+          "code": "6HMVA5O0B6TNH1F1LCG16",
+          "desc": "航天卡战备",
+          "value": "14W",
+          "copy_count": 1995,
+          "image": ""
+        }
+      ]
+    },
+    "mp7": {
+      "name": "MP7",
+      "category": "冲锋枪",
+      "builds": [
+        {
+          "code": "6IOTUFC0FKQKCMETQ06U3",
+          "desc": "92腰射·60发",
+          "value": "23W",
+          "copy_count": 10274,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-21.webp"
+        },
+        {
+          "code": "6GVQC4C0DKPR1AESPN8DT",
+          "desc": "高腰射 均衡",
+          "value": "29W",
+          "copy_count": 18577,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-172.webp"
+        },
+        {
+          "code": "6I6U22K04PC56TM4QFHON",
+          "desc": "月影镀铬枪管·60发",
+          "value": "26W",
+          "copy_count": 28165,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-224.webp"
+        },
+        {
+          "code": "6JEJ3PC0FT4DOEKA4FGKI",
+          "desc": "满腰射·60发",
+          "value": "27W",
+          "copy_count": 3200,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-175.webp"
+        },
+        {
+          "code": "6JFV9TC0C624I4NGKKDU7",
+          "desc": "满腰射40发",
+          "value": "30W",
+          "copy_count": 2293,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-69.webp"
+        },
+        {
+          "code": "6GTHT9K0862TAT8TD0V1C",
+          "desc": "无后开镜",
+          "value": "33W",
+          "copy_count": 5672,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-173.webp"
+        },
+        {
+          "code": "6GTHTI00862TAT8TD0V1C",
+          "desc": "稳定无后坐红点 40...",
+          "value": "42W",
+          "copy_count": 5303,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-177.webp"
+        },
+        {
+          "code": "6K18EMS08LONNFFS1VANV",
+          "desc": "满腰射开镜双修",
+          "value": "46W",
+          "copy_count": 840,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-20.webp"
+        },
+        {
+          "code": "6I6LL5409GU3RG52RIK0O",
+          "desc": "满腰射·MP7月影镀...",
+          "value": "47W",
+          "copy_count": 5284,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-223.webp"
+        },
+        {
+          "code": "6K01GK40ALQF2Q0DHMU6C",
+          "desc": "80腰射",
+          "value": "50W",
+          "copy_count": 239,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-36.webp"
+        },
+        {
+          "code": "6G265LC0B47DBPRUAR75R",
+          "desc": "腰射大弹鼓",
+          "value": "",
+          "copy_count": 6590,
+          "image": ""
+        },
+        {
+          "code": "6ISDL5G0DHUP7M5K9L8TQ",
+          "desc": "",
+          "value": "",
+          "copy_count": 721,
+          "image": ""
+        },
+        {
+          "code": "6G1IB940B47DBPRUAR75R",
+          "desc": "红点",
+          "value": "",
+          "copy_count": 1870,
+          "image": ""
+        }
+      ]
+    },
+    "qcq171": {
+      "name": "QCQ171",
+      "category": "冲锋枪",
+      "builds": [
+        {
+          "code": "6GV4DOS03I0RFPFTOIP1D",
+          "desc": "低倍",
+          "value": "20W",
+          "copy_count": 22910,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-178.webp"
+        },
+        {
+          "code": "6GQ1B8C0FIAS4OUQQ081T",
+          "desc": "",
+          "value": "21W",
+          "copy_count": 2048,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-127.webp"
+        },
+        {
+          "code": "6H71DL80FUH1E5MQ63E4O",
+          "desc": "性价比",
+          "value": "29W",
+          "copy_count": 20254,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-128.webp"
+        },
+        {
+          "code": "6F1OU9K00ES0HEAQBTB8O",
+          "desc": "",
+          "value": "30W",
+          "copy_count": 3199,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-136.webp"
+        },
+        {
+          "code": "6KFI5JK04NICIDBFUIQ4K",
+          "desc": "后坐力85",
+          "value": "35W",
+          "copy_count": 1028,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-252.webp"
+        },
+        {
+          "code": "6GQ1D1K0FIAS4OUQQ081T",
+          "desc": "75发大弹夹",
+          "value": "43W",
+          "copy_count": 5877,
+          "image": ""
+        },
+        {
+          "code": "6HPAT1K00EUCSUQD756VA",
+          "desc": "75发大弹夹·侧瞄",
+          "value": "43W",
+          "copy_count": 1431,
+          "image": ""
+        },
+        {
+          "code": "6HILJDG0EOFGDIS4U8RJ2",
+          "desc": "苏醒同款·3爆闪",
+          "value": "68W",
+          "copy_count": 6122,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-37.webp"
+        },
+        {
+          "code": "6H913S00637JNT80TUGEU",
+          "desc": "",
+          "value": "",
+          "copy_count": 1957,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-181.webp"
+        },
+        {
+          "code": "6HC37S00ETGA9GU3DPS1S",
+          "desc": "",
+          "value": "",
+          "copy_count": 424,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-243.webp"
+        },
+        {
+          "code": "6I3PGA40EMCQ8JDR1J193",
+          "desc": "最最便宜",
+          "value": "14W",
+          "copy_count": 2122,
+          "image": ""
+        },
+        {
+          "code": "6I2HQRG0FSFP0J1U5DTOA",
+          "desc": "便宜又好用！包的兄弟",
+          "value": "21W",
+          "copy_count": 4901,
+          "image": ""
+        },
+        {
+          "code": "6HGCPH80CPOU5C21U0PK5",
+          "desc": "好用到爆",
+          "value": "36W",
+          "copy_count": 13871,
+          "image": ""
+        },
+        {
+          "code": "6JBD3EG02PN62G8VRM0LP",
+          "desc": "40米内稳的一批",
+          "value": "36W",
+          "copy_count": 1846,
+          "image": ""
+        }
+      ]
+    },
+    "m4a1": {
+      "name": "M4A1",
+      "category": "突击步枪",
+      "builds": [
+        {
+          "code": "6FPBUPG06TRF107Q8PIO9",
+          "desc": "性价比",
+          "value": "24W",
+          "copy_count": 38580,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-184.webp"
+        },
+        {
+          "code": "6JR3D5K05BIB57QCO66E8",
+          "desc": "急停腰射",
+          "value": "25W",
+          "copy_count": 2325,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-217.webp"
+        },
+        {
+          "code": "6G94AKO0FHI6PKF6C3P0U",
+          "desc": "适合机密",
+          "value": "29W",
+          "copy_count": 53838,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-185.webp"
+        },
+        {
+          "code": "6K2ATEO0C4PRBT1BGUG84",
+          "desc": "",
+          "value": "32W",
+          "copy_count": 308,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-180.webp"
+        },
+        {
+          "code": "6H6NSSC01JPSBQR736DTT",
+          "desc": "适合绝密",
+          "value": "35W",
+          "copy_count": 23679,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-186.webp"
+        },
+        {
+          "code": "6K1NT740C4PRBT1BGUG84",
+          "desc": "30发·爆闪·高操控...",
+          "value": "41W",
+          "copy_count": 336,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-54.webp"
+        },
+        {
+          "code": "6K2C0QG0C4PRBT1BGUG84",
+          "desc": "45发·爆闪·高操控...",
+          "value": "41W",
+          "copy_count": 811,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-68.webp"
+        },
+        {
+          "code": "6HAS15S05KCC2IQITN36C",
+          "desc": "半改稳定",
+          "value": "32W",
+          "copy_count": 3193,
+          "image": ""
+        },
+        {
+          "code": "6I662R405OCPCFL108AD5",
+          "desc": "CS手感粑粑枪",
+          "value": "18W",
+          "copy_count": 2418,
+          "image": ""
+        }
+      ]
+    },
+    "akm": {
+      "name": "AKM突击步枪",
+      "category": "突击步枪",
+      "builds": [
+        {
+          "code": "6GRGLLS0FUH1E5MQ63E4O",
+          "desc": "急停腰射AK",
+          "value": "18W",
+          "copy_count": 48444,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-201.webp"
+        },
+        {
+          "code": "6GQA1LS059TG3DMAR42GO",
+          "desc": "腰射AK·消音",
+          "value": "20W",
+          "copy_count": 31526,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-197.webp"
+        },
+        {
+          "code": "6JVCFL40FKLSP2R6J3NCE",
+          "desc": "急停腰射AK",
+          "value": "21W",
+          "copy_count": 1656,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-250.webp"
+        },
+        {
+          "code": "6GPE8TC0CQ9J5LUV083F9",
+          "desc": "半改",
+          "value": "20W",
+          "copy_count": 6095,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-198.webp"
+        },
+        {
+          "code": "6HQ1JV40EFBG7BQMQVSON",
+          "desc": "低配颗秒腰射",
+          "value": "20W",
+          "copy_count": 8349,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-221.webp"
+        },
+        {
+          "code": "6GR8B1K041LPA2AOC9L5E",
+          "desc": "性价比",
+          "value": "24W",
+          "copy_count": 10388,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-199.webp"
+        },
+        {
+          "code": "6HUFOHC022MGBD8M3A0D6",
+          "desc": "小胡的AKM",
+          "value": "28W",
+          "copy_count": 5195,
+          "image": ""
+        }
+      ]
+    },
+    "qbz95-1": {
+      "name": "QBZ95-1",
+      "category": "突击步枪",
+      "builds": [
+        {
+          "code": "6I5OGTG0008N6F1TVLDSK",
+          "desc": "",
+          "value": "10W",
+          "copy_count": 10050,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-216.webp"
+        },
+        {
+          "code": "6J8OIJG040RTT8H9GDLCN",
+          "desc": "需要一点儿控枪能力",
+          "value": "16W",
+          "copy_count": 722,
+          "image": ""
+        },
+        {
+          "code": "6I4C9O800IT592244VO95",
+          "desc": "",
+          "value": "19W",
+          "copy_count": 2494,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-194.webp"
+        },
+        {
+          "code": "6J6CQSC09HPQT2KDNI453",
+          "desc": "超稳一个点",
+          "value": "23W",
+          "copy_count": 3070,
+          "image": ""
+        },
+        {
+          "code": "6K9NAEG01RINE2HG7DHR2",
+          "desc": "2/4倍镜",
+          "value": "29W",
+          "copy_count": 159,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-193.webp"
+        },
+        {
+          "code": "6GRA89G0AV5BVPK0VDMCD",
+          "desc": "稳定红点",
+          "value": "36W",
+          "copy_count": 3883,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-220.webp"
+        },
+        {
+          "code": "6HSRLD407R6TS3B0SL205",
+          "desc": "30发均衡",
+          "value": "",
+          "copy_count": 142,
+          "image": ""
+        },
+        {
+          "code": "6HSRRO007R6TS3B0SL205",
+          "desc": "二倍",
+          "value": "",
+          "copy_count": 238,
+          "image": ""
+        },
+        {
+          "code": "6HSRRQG07R6TS3B0SL205",
+          "desc": "脚架机枪·60发大弹...",
+          "value": "",
+          "copy_count": 272,
+          "image": ""
+        },
+        {
+          "code": "6HSRRS407R6TS3B0SL205",
+          "desc": "60发冲锋",
+          "value": "",
+          "copy_count": 774,
+          "image": ""
+        },
+        {
+          "code": "6I98TG80F1IHB82754MER",
+          "desc": "45发红点稳压",
+          "value": "",
+          "copy_count": 1340,
+          "image": ""
+        },
+        {
+          "code": "6IJKLFS04H57K6Q0N7Q7V",
+          "desc": "60发大弹鼓",
+          "value": "38W",
+          "copy_count": 294,
+          "image": ""
+        }
+      ]
+    },
+    "ash-12": {
+      "name": "ASh-12",
+      "category": "突击步枪",
+      "builds": [
+        {
+          "code": "6KGFPO80FKLSP2R6J3NCE",
+          "desc": "金枪客提交方案",
+          "value": "25W",
+          "copy_count": 4822,
+          "image": ""
+        },
+        {
+          "code": "6FR59P809ESH48R6SC2K8",
+          "desc": "",
+          "value": "29W",
+          "copy_count": 8801,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-138.webp"
+        },
+        {
+          "code": "6KGFT040FKLSP2R6J3NCE",
+          "desc": "双发套件",
+          "value": "33W",
+          "copy_count": 2322,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-253.webp"
+        },
+        {
+          "code": "6IG8QES0FUH1E5MQ63E4O",
+          "desc": "性价比·2/4倍镜",
+          "value": "43W",
+          "copy_count": 22445,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-229.webp"
+        },
+        {
+          "code": "6J22C140FKQKCMETQ06U3",
+          "desc": "",
+          "value": "49W",
+          "copy_count": 2734,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-248.webp"
+        },
+        {
+          "code": "6GR5TGO0FLRHHQH04AH86",
+          "desc": "2倍镜",
+          "value": "60W",
+          "copy_count": 3633,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-187.webp"
+        },
+        {
+          "code": "6IG6B580FUH1E5MQ63E4O",
+          "desc": "战斧枪管满改·2/4...",
+          "value": "62W",
+          "copy_count": 7010,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-231.webp"
+        },
+        {
+          "code": "6GE37N00EA3FRKHMS9J6U",
+          "desc": "满改",
+          "value": "62W",
+          "copy_count": 23126,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-189.webp"
+        },
+        {
+          "code": "6GH3908064HLT38PTSGJ8",
+          "desc": "满改",
+          "value": "64W",
+          "copy_count": 6451,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-161.webp"
+        },
+        {
+          "code": "6IG6B800FUH1E5MQ63E4O",
+          "desc": "长枪管满改",
+          "value": "64W",
+          "copy_count": 2240,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-230.webp"
+        },
+        {
+          "code": "6I5N8FG022N6MIGOBDDTF",
+          "desc": "满改",
+          "value": "72W",
+          "copy_count": 2470,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-191.webp"
+        },
+        {
+          "code": "6HBBG0S0CBCO6L50M4DKF",
+          "desc": "热融合全息",
+          "value": "",
+          "copy_count": 3312,
+          "image": ""
+        }
+      ]
+    },
+    "k416": {
+      "name": "K416",
+      "category": "突击步枪",
+      "builds": [
+        {
+          "code": "6GL0ARO0B47DBPRUAR75R",
+          "desc": "低配",
+          "value": "18W",
+          "copy_count": 29306,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-3.webp"
+        },
+        {
+          "code": "6H2PVAC08DID6OM54L0UO",
+          "desc": "",
+          "value": "26W",
+          "copy_count": 32738,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-4.webp"
+        },
+        {
+          "code": "6H932BS0796T4B5F7IGI0",
+          "desc": "",
+          "value": "33W",
+          "copy_count": 7946,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-8.webp"
+        },
+        {
+          "code": "6GUGEEK0AU8RU4FIO5MNK",
+          "desc": "满腰射·双爆闪",
+          "value": "36W",
+          "copy_count": 5394,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-7.webp"
+        },
+        {
+          "code": "6IG9N4O07MBP6VQA055GO",
+          "desc": "",
+          "value": "38W",
+          "copy_count": 2347,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-5.webp"
+        },
+        {
+          "code": "6HAPC840ARR6AMSPCL0NA",
+          "desc": "稳定 红点 消音 4...",
+          "value": "42W",
+          "copy_count": 13709,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-14.webp"
+        },
+        {
+          "code": "6K0KNU001B5QPHM7JFV0B",
+          "desc": "二倍",
+          "value": "44W",
+          "copy_count": 1710,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-195.webp"
+        },
+        {
+          "code": "6FTTLTK07ODLT6ETQT3GS",
+          "desc": "满改·45发",
+          "value": "45W",
+          "copy_count": 24174,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-9.webp"
+        },
+        {
+          "code": "6H5D12O0EQVN8VE61A0GD",
+          "desc": "满改",
+          "value": "43W",
+          "copy_count": 8148,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-11.webp"
+        },
+        {
+          "code": "6G1IAQS0B47DBPRUAR75R",
+          "desc": "激光红点",
+          "value": "",
+          "copy_count": 12348,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-12.webp"
+        },
+        {
+          "code": "6GC2A3S0B47DBPRUAR75R",
+          "desc": "腰射红点",
+          "value": "",
+          "copy_count": 1771,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-13.webp"
+        }
+      ]
+    },
+    "aug": {
+      "name": "AUG突击步枪",
+      "category": "突击步枪",
+      "builds": [
+        {
+          "code": "6HFTMQS0EAR06C6UBJ9VT",
+          "desc": "低配",
+          "value": "14W",
+          "copy_count": 6889,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-61.webp"
+        },
+        {
+          "code": "6GPE88S0CQ9J5LUV083F9",
+          "desc": "低配",
+          "value": "19W",
+          "copy_count": 6582,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-63.webp"
+        },
+        {
+          "code": "6HFTMTK0EAR06C6UBJ9VT",
+          "desc": "集成3倍镜",
+          "value": "20W",
+          "copy_count": 44691,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-62.webp"
+        },
+        {
+          "code": "6JI03E40ALOJG3R4BVKJS",
+          "desc": "消音·集成3倍镜·激...",
+          "value": "24W",
+          "copy_count": 24995,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-72.webp"
+        },
+        {
+          "code": "6H4GOAG024N3UV8ISDMEK",
+          "desc": "红点三倍切换 可近可...",
+          "value": "24W",
+          "copy_count": 21318,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-65.webp"
+        },
+        {
+          "code": "6H82AQC0702IAA9B580JH",
+          "desc": "低倍镜性价比",
+          "value": "28W",
+          "copy_count": 8700,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-64.webp"
+        },
+        {
+          "code": "6JORK9O060P7UDLRD1CBE",
+          "desc": "二倍",
+          "value": "32W",
+          "copy_count": 2722,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-193.webp"
+        },
+        {
+          "code": "6JV0JJG087KKF9T2HJCH4",
+          "desc": "45发",
+          "value": "46W",
+          "copy_count": 1207,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-244.webp"
+        },
+        {
+          "code": "6GM7BQS08QM0P04IG7BJ6",
+          "desc": "3/7倍镜·远距离",
+          "value": "",
+          "copy_count": 1789,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-70.webp"
+        },
+        {
+          "code": "6H73KI80BPTDMNSA9MCI3",
+          "desc": "火控·架点开镜快",
+          "value": "",
+          "copy_count": 7984,
+          "image": ""
+        },
+        {
+          "code": "6HQF18O002RC33FL8664S",
+          "desc": "热成像，中距离稳压，...",
+          "value": "",
+          "copy_count": 1266,
+          "image": ""
+        }
+      ]
+    },
+    "m7": {
+      "name": "M7战斗步枪",
+      "category": "突击步枪",
+      "builds": [
+        {
+          "code": "6HTPDTG0A6PIA75LU5T70",
+          "desc": "",
+          "value": "40W",
+          "copy_count": 4705,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-48.webp"
+        },
+        {
+          "code": "6I32ADK0195JPE5VK38LR",
+          "desc": "",
+          "value": "44W",
+          "copy_count": 42538,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-39.webp"
+        },
+        {
+          "code": "6HRED0000736PG35C0J2S",
+          "desc": "红点好用性价比",
+          "value": "47W",
+          "copy_count": 16593,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-33.webp"
+        },
+        {
+          "code": "6J7471C0A0LP3CJDNC5DK",
+          "desc": "提风枪管·二倍镜",
+          "value": "62W",
+          "copy_count": 10391,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-25.webp"
+        },
+        {
+          "code": "6J7478S0A0LP3CJDNC5DK",
+          "desc": "提风枪管·稳定红点",
+          "value": "63W",
+          "copy_count": 5792,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-30.webp"
+        },
+        {
+          "code": "6H540NK07U38RM6J9AFG9",
+          "desc": "消音·稳定红点",
+          "value": "68W",
+          "copy_count": 20603,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-53.webp"
+        },
+        {
+          "code": "6JQ43UC0FKLSP2R6J3NCE",
+          "desc": "",
+          "value": "74W",
+          "copy_count": 1183,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-38.webp"
+        },
+        {
+          "code": "6JF4T1G05VT3P3JELESO0",
+          "desc": "3.5倍镜·XDD同...",
+          "value": "75W",
+          "copy_count": 9148,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-180.webp"
+        },
+        {
+          "code": "6K5BTPS0EVDT6M6LB8UJ1",
+          "desc": "骨架枪托",
+          "value": "79W",
+          "copy_count": 2044,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-122.webp"
+        },
+        {
+          "code": "6G2RQ5G0B47DBPRUAR75R",
+          "desc": "1.5镜满改",
+          "value": "",
+          "copy_count": 26542,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-58.webp"
+        },
+        {
+          "code": "6GPHUNS094898G9NDDGRT",
+          "desc": "红点稳定",
+          "value": "",
+          "copy_count": 5941,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-59.webp"
+        },
+        {
+          "code": "6H5D3OK0D6RRJ1VFAE8B4",
+          "desc": "45发二倍负据枪",
+          "value": "",
+          "copy_count": 5561,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-60.webp"
+        },
+        {
+          "code": "6HBBH1G0CBCO6L50M4DKF",
+          "desc": "红点稳定",
+          "value": "",
+          "copy_count": 5485,
+          "image": ""
+        },
+        {
+          "code": "6HRQUGK0FJHJHHSK5V2EO",
+          "desc": "45发稳压",
+          "value": "",
+          "copy_count": 15240,
+          "image": ""
+        }
+      ]
+    },
+    "sg552": {
+      "name": "SG552",
+      "category": "突击步枪",
+      "builds": [
+        {
+          "code": "6G94APG0FHI6PKF6C3P0U",
+          "desc": "低配",
+          "value": "15W",
+          "copy_count": 22128,
+          "image": ""
+        },
+        {
+          "code": "6G94AQ80FHI6PKF6C3P0U",
+          "desc": "半改",
+          "value": "28W",
+          "copy_count": 10650,
+          "image": ""
+        },
+        {
+          "code": "6G94AQS0FHI6PKF6C3P0U",
+          "desc": "高配满改",
+          "value": "41W",
+          "copy_count": 7367,
+          "image": ""
+        }
+      ]
+    },
+    "ak-12": {
+      "name": "AK-12",
+      "category": "突击步枪",
+      "builds": [
+        {
+          "code": "6GE93140C56ME2PP5PQ4N",
+          "desc": "低配",
+          "value": "16W",
+          "copy_count": 23394,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-235.webp"
+        },
+        {
+          "code": "6H517JG0CPJECFQRAMCV3",
+          "desc": "75发·满腰射",
+          "value": "16W",
+          "copy_count": 5853,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-237.webp"
+        },
+        {
+          "code": "6J8F7D8049H3TLFDHMKHO",
+          "desc": "",
+          "value": "17W",
+          "copy_count": 401,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-240.webp"
+        },
+        {
+          "code": "6H9482404FDE6PGQOMNGT",
+          "desc": "中配",
+          "value": "25W",
+          "copy_count": 23219,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-239.webp"
+        },
+        {
+          "code": "6JJB8TO0BULINHN57BVUU",
+          "desc": "二倍镜",
+          "value": "29W",
+          "copy_count": 1434,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-238.webp"
+        },
+        {
+          "code": "6JJB8BC0BULINHN57BVUU",
+          "desc": "红点·45发",
+          "value": "30W",
+          "copy_count": 1050,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-236.webp"
+        },
+        {
+          "code": "6GE93200C56ME2PP5PQ4N",
+          "desc": "满改",
+          "value": "40W",
+          "copy_count": 9470,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-241.webp"
+        },
+        {
+          "code": "6GTVLVK08QM0P04IG7BJ6",
+          "desc": "75发大弹夹",
+          "value": "",
+          "copy_count": 6030,
+          "image": ""
+        },
+        {
+          "code": "6GL0E8C04RAATERAEOIJ1",
+          "desc": "45发弹夹",
+          "value": "",
+          "copy_count": 1549,
+          "image": ""
+        }
+      ]
+    },
+    "scar-h": {
+      "name": "SCAR-H",
+      "category": "突击步枪",
+      "builds": [
+        {
+          "code": "6HM7QGC0AR9U1DEIO2NLB",
+          "desc": "低配·20发",
+          "value": "16W",
+          "copy_count": 14905,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-209.webp"
+        },
+        {
+          "code": "6H4BJA805FIKAJMIIBQ6A",
+          "desc": "1.5/5 可调倍镜...",
+          "value": "19W",
+          "copy_count": 7131,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-213.webp"
+        },
+        {
+          "code": "6HITGQK01RBVGS0BGKPDN",
+          "desc": "30发",
+          "value": "24W",
+          "copy_count": 42245,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-214.webp"
+        },
+        {
+          "code": "6HQ6VCC0A6PIA75LU5T70",
+          "desc": "",
+          "value": "27W",
+          "copy_count": 1873,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-182.webp"
+        },
+        {
+          "code": "6IIR6E00A6PIA75LU5T70",
+          "desc": "",
+          "value": "30W",
+          "copy_count": 4065,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-196.webp"
+        },
+        {
+          "code": "6FNPB7G07FGCB0BL90FLR",
+          "desc": "满改 3/7倍镜",
+          "value": "46W",
+          "copy_count": 18657,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-211.webp"
+        },
+        {
+          "code": "6EP2A5002H0HSC9HF2E4R",
+          "desc": "满改",
+          "value": "51W",
+          "copy_count": 8453,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-210.webp"
+        },
+        {
+          "code": "6G1IA800B47DBPRUAR75R",
+          "desc": "3/7倍镜 50发弹...",
+          "value": "",
+          "copy_count": 4733,
+          "image": ""
+        },
+        {
+          "code": "6I1H3D409RP2JHJNKUQRC",
+          "desc": "30发",
+          "value": "",
+          "copy_count": 804,
+          "image": ""
+        },
+        {
+          "code": "6HN5LPS059JEUI2VCBK2T",
+          "desc": "满改2倍中近距离",
+          "value": "46W",
+          "copy_count": 3999,
+          "image": ""
+        },
+        {
+          "code": "6IETRDC047B0QFTR3RLF3",
+          "desc": "小胡的SCAR",
+          "value": "25W",
+          "copy_count": 2208,
+          "image": ""
+        },
+        {
+          "code": "6II9NVG02M2593MP3BM86",
+          "desc": "30发半改红点带激光...",
+          "value": "28W",
+          "copy_count": 5018,
+          "image": ""
+        }
+      ]
+    },
+    "g3": {
+      "name": "G3",
+      "category": "突击步枪",
+      "builds": [
+        {
+          "code": "6H09U3K0C4V15L1N4PQQG",
+          "desc": "低配",
+          "value": "19W",
+          "copy_count": 31407,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-52.webp"
+        },
+        {
+          "code": "6GVQBPS0DKPR1AESPN8DT",
+          "desc": "低配",
+          "value": "23W",
+          "copy_count": 6920,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-148.webp"
+        },
+        {
+          "code": "6G9O5S00FUH1E5MQ63E4O",
+          "desc": "50发弹夹",
+          "value": "23W",
+          "copy_count": 3212,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-205.webp"
+        },
+        {
+          "code": "6GVQBQO0DKPR1AESPN8DT",
+          "desc": "半改 稳定红点",
+          "value": "34W",
+          "copy_count": 5890,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-208.webp"
+        },
+        {
+          "code": "6GS7P7O0DP3VS1UERAHQE",
+          "desc": "高配·三倍镜",
+          "value": "37W",
+          "copy_count": 13096,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-212.webp"
+        },
+        {
+          "code": "6IH6QMS0ENS9LQ6EB2ET2",
+          "desc": "枪托可换G3伸缩·好...",
+          "value": "9W",
+          "copy_count": 2436,
+          "image": ""
+        },
+        {
+          "code": "6I9QC9801FC5JNB4NK15L",
+          "desc": "丐版 消音",
+          "value": "10W",
+          "copy_count": 3020,
+          "image": ""
+        },
+        {
+          "code": "6IBD8JC09H67CC25AJ4TP",
+          "desc": "不要枪口一样稳",
+          "value": "17W",
+          "copy_count": 1602,
+          "image": ""
+        },
+        {
+          "code": "6I8KQKG004HHFVOMGCNEB",
+          "desc": "150米稳压",
+          "value": "22W",
+          "copy_count": 5983,
+          "image": ""
+        },
+        {
+          "code": "6J0FBAS08GF96KBIE0U3A",
+          "desc": "小胡的G3",
+          "value": "35W",
+          "copy_count": 1001,
+          "image": ""
+        }
+      ]
+    },
+    "as-val": {
+      "name": "AS Val",
+      "category": "突击步枪",
+      "builds": [
+        {
+          "code": "6HBDCFS01JPSBQR736DTT",
+          "desc": "89腰射",
+          "value": "37W",
+          "copy_count": 14530,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-47.webp"
+        },
+        {
+          "code": "6GL0C5O094898G9NDDGRT",
+          "desc": "半改",
+          "value": "39W",
+          "copy_count": 62955,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-55.webp"
+        },
+        {
+          "code": "6HUQJJC0DEC5PLI24CCQR",
+          "desc": "刺客高级枪管·四连发",
+          "value": "45W",
+          "copy_count": 8772,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-56.webp"
+        },
+        {
+          "code": "6HUI36805LELD7LJQAIP3",
+          "desc": "刺客高级枪管·四连发",
+          "value": "76W",
+          "copy_count": 4216,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-57.webp"
+        },
+        {
+          "code": "6JA45VK04LB33KGUMEVKJ",
+          "desc": "2/4倍镜·73后坐...",
+          "value": "83W",
+          "copy_count": 6862,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-246.webp"
+        },
+        {
+          "code": "6HAD0AG0BG79N0F2SD6QF",
+          "desc": "红点满改",
+          "value": "82W",
+          "copy_count": 29373,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-167.webp"
+        },
+        {
+          "code": "6HI0U0S02RHQD29OCIB8S",
+          "desc": "3爆闪60操速",
+          "value": "95W",
+          "copy_count": 6000,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-218.webp"
+        },
+        {
+          "code": "6IDQ1K006G3MJVVMQ1R0D",
+          "desc": "63操速爆发高",
+          "value": "95W",
+          "copy_count": 5117,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-245.webp"
+        },
+        {
+          "code": "6GC2BI40B47DBPRUAR75R",
+          "desc": "腰射红点 3爆闪",
+          "value": "",
+          "copy_count": 2582,
+          "image": ""
+        },
+        {
+          "code": "6GC23GS0B47DBPRUAR75R",
+          "desc": "满改红点",
+          "value": "",
+          "copy_count": 18036,
+          "image": ""
+        },
+        {
+          "code": "6GL0FPK04RAATERAEOIJ1",
+          "desc": "1.5/5 可调倍镜",
+          "value": "",
+          "copy_count": 2820,
+          "image": ""
+        },
+        {
+          "code": "6HKIG8402RHQD29OCIB8S",
+          "desc": "64后座66操速单爆...",
+          "value": "79W",
+          "copy_count": 5115,
+          "image": ""
+        },
+        {
+          "code": "6HLVEM407GCCSCEMRQ3R2",
+          "desc": "半改（只有一半，图一...",
+          "value": "44W",
+          "copy_count": 3052,
+          "image": ""
+        },
+        {
+          "code": "6ID48CG03A9401HTOOKAE",
+          "desc": "秒开镜",
+          "value": "59W",
+          "copy_count": 6290,
+          "image": ""
+        },
+        {
+          "code": "6J1OP0G0EADCKVA9964DJ",
+          "desc": "三爆闪红点稳压",
+          "value": "100W",
+          "copy_count": 3634,
+          "image": ""
+        }
+      ]
+    },
+    "ci-19": {
+      "name": "腾龙突击步枪",
+      "category": "突击步枪",
+      "builds": [
+        {
+          "code": "6HNRV8C03DMVAHLDOCSS8",
+          "desc": "",
+          "value": "18W",
+          "copy_count": 15508,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-147.webp"
+        },
+        {
+          "code": "6H5C4SC0FUH1E5MQ63E4O",
+          "desc": "",
+          "value": "20W",
+          "copy_count": 3996,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-179.webp"
+        },
+        {
+          "code": "6HIS37G0BCHV462S8UUDS",
+          "desc": "",
+          "value": "20W",
+          "copy_count": 3905,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-162.webp"
+        },
+        {
+          "code": "6K929L807TTAAQ10R7K80",
+          "desc": "2/4 倍镜",
+          "value": "49W",
+          "copy_count": 1370,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-42.webp"
+        },
+        {
+          "code": "6G1JN400AV5BVPK0VDMCD",
+          "desc": "高配",
+          "value": "49W",
+          "copy_count": 28296,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-73.webp"
+        },
+        {
+          "code": "6K1HVGK049H3TLFDHMKHO",
+          "desc": "30发·满改",
+          "value": "52W",
+          "copy_count": 192,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-43.webp"
+        },
+        {
+          "code": "6K1HVO4049H3TLFDHMKHO",
+          "desc": "30发·满改",
+          "value": "52W",
+          "copy_count": 78,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-165.webp"
+        },
+        {
+          "code": "6GVGL640BUSDVQP3857JE",
+          "desc": "45发·满改",
+          "value": "53W",
+          "copy_count": 14327,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-74.webp"
+        },
+        {
+          "code": "6K1I0DG049H3TLFDHMKHO",
+          "desc": "45发·满改",
+          "value": "55W",
+          "copy_count": 257,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-219.webp"
+        },
+        {
+          "code": "6GC28TS0B47DBPRUAR75R",
+          "desc": "腰射红点",
+          "value": "",
+          "copy_count": 1469,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-44.webp"
+        },
+        {
+          "code": "6GVQK1O0DKPR1AESPN8DT",
+          "desc": "60发大弹鼓",
+          "value": "",
+          "copy_count": 12749,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-75.webp"
+        },
+        {
+          "code": "6H5D27C0D6RRJ1VFAE8B4",
+          "desc": "45发一倍",
+          "value": "",
+          "copy_count": 2151,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-45.webp"
+        }
+      ]
+    },
+    "k437": {
+      "name": "K437",
+      "category": "突击步枪",
+      "builds": [
+        {
+          "code": "6HEOI8O079EV449EBAHBQ",
+          "desc": "低配·全绿配件",
+          "value": "15W",
+          "copy_count": 7615,
+          "image": ""
+        },
+        {
+          "code": "6G7OO5K0EN3QBHGNOE3K6",
+          "desc": "低倍 激光",
+          "value": "23W",
+          "copy_count": 6629,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-204.webp"
+        },
+        {
+          "code": "6IPPEEK030UHDT32NAGBF",
+          "desc": "性价比移速流",
+          "value": "28W",
+          "copy_count": 2444,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-104.webp"
+        },
+        {
+          "code": "6H7FRR4024CH4QGG5QQUE",
+          "desc": "消音·低操控·62后...",
+          "value": "26W",
+          "copy_count": 5589,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-203.webp"
+        },
+        {
+          "code": "6JQ3PG00FKLSP2R6J3NCE",
+          "desc": "红点 高性价比·很稳",
+          "value": "27W",
+          "copy_count": 52654,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-202.webp"
+        },
+        {
+          "code": "6JMFNEC0BIGQQKR21AT1J",
+          "desc": "",
+          "value": "29W",
+          "copy_count": 284,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-190.webp"
+        },
+        {
+          "code": "6IIB9Q403MDF84DA42RH4",
+          "desc": "性价比改装",
+          "value": "31W",
+          "copy_count": 6079,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-242.webp"
+        },
+        {
+          "code": "6JMFNG80BIGQQKR21AT1J",
+          "desc": "",
+          "value": "33W",
+          "copy_count": 488,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-192.webp"
+        },
+        {
+          "code": "6K3G24O01RINE2HG7DHR2",
+          "desc": "二倍",
+          "value": "39W",
+          "copy_count": 1087,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-188.webp"
+        },
+        {
+          "code": "6GC8GPK03BMVKRT548UV5",
+          "desc": "高配·45发",
+          "value": "38W",
+          "copy_count": 19166,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-206.webp"
+        },
+        {
+          "code": "6HDCNF002PV0ALV15I55G",
+          "desc": "满改红点·30发",
+          "value": "45W",
+          "copy_count": 5775,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-207.webp"
+        },
+        {
+          "code": "6H5DI4405RLQ9R0EBIRB2",
+          "desc": "满改",
+          "value": "49W",
+          "copy_count": 5267,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/07/image-123.webp"
+        },
+        {
+          "code": "6K435QK0EVDT6M6LB8UJ1",
+          "desc": "1.5/5可调倍镜·...",
+          "value": "51W",
+          "copy_count": 232,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/08/image-47.webp"
+        },
+        {
+          "code": "6K4363O0EVDT6M6LB8UJ1",
+          "desc": "昊天同款",
+          "value": "53W",
+          "copy_count": 552,
+          "image": "https://g.aitags.cn/wp-content/uploads/2025/08/image-48.webp"
+        },
+        {
+          "code": "6G2RG3O0B47DBPRUAR75R",
+          "desc": "稳定火控",
+          "value": "",
+          "copy_count": 5482,
+          "image": ""
+        }
+      ]
+    }
+  },
+  "total_weapons": 65,
+  "total_builds": 476,
+  "scrape_time": "2026-07-08 09:45",
+  "scrape_source": "https://g.aitags.cn"
+}

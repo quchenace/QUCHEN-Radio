@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, shell, screen, session, globalShortcut, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, screen, session, globalShortcut, dialog, Tray, Menu } = require('electron');
 const net = require('net');
 const path = require('path');
 const fs = require('fs');
@@ -7,6 +7,10 @@ const { execFile, spawn } = require('child_process');
 let mainWindow = null;
 let localServer = null;
 let mainServerPort = 0;
+let tray = null;
+let thumbarPlayState = { playing: false, songName: '', artist: '' };
+let miniPlayerWindow = null;
+let miniPlayerState = { playing: false, songName: '', artist: '', cover: '', progress: 0 };
 let desktopLyricsWindow = null;
 let desktopLyricsState = {};
 let desktopLyricsUserBounds = null;
@@ -29,12 +33,12 @@ const WINDOWED_SCALE = 3 / 4;
 const WINDOWED_MARGIN = 32;
 const MIN_WINDOWED_WIDTH = 960;
 const MIN_WINDOWED_HEIGHT = 540;
-const APP_NAME = 'Mineradio';
-const APP_USER_MODEL_ID = 'com.mineradio.desktop';
+const APP_NAME = 'QUCHEN Radio';
+const APP_USER_MODEL_ID = 'com.quchenradio.desktop';
 const APP_ICON_ICO = path.join(__dirname, '..', 'build', 'icon.ico');
-const NETEASE_LOGIN_PARTITION = 'persist:mineradio-netease-login';
+const NETEASE_LOGIN_PARTITION = 'persist:quchenradio-netease-login';
 const NETEASE_LOGIN_URL = 'https://music.163.com/#/login';
-const QQ_LOGIN_PARTITION = 'persist:mineradio-qqmusic-login';
+const QQ_LOGIN_PARTITION = 'persist:quchenradio-qqmusic-login';
 const QQ_LOGIN_URL = 'https://y.qq.com/n/ryqq/profile';
 
 const CHROMIUM_PERFORMANCE_SWITCHES = [
@@ -128,20 +132,20 @@ function sendWindowState(win) {
   win.webContents.send('desktop-window-state', getWindowState(win));
 }
 
-function sendGlobalHotkeyAction(action) {
+function quchenradioSendGlobalHotkeyAction(action) {
   if (!mainWindow || mainWindow.isDestroyed() || !action) return;
-  mainWindow.webContents.send('mineradio-global-hotkey', { action });
+  mainWindow.webContents.send('quchenradio-global-hotkey', { action });
 }
 
-function unregisterMineradioGlobalHotkeys() {
+function unregisterQUCHENRadioGlobalHotkeys() {
   for (const accelerator of registeredGlobalHotkeys.keys()) {
     try { globalShortcut.unregister(accelerator); } catch (e) {}
   }
   registeredGlobalHotkeys.clear();
 }
 
-function configureMineradioGlobalHotkeys(bindings = []) {
-  unregisterMineradioGlobalHotkeys();
+function configureQUCHENRadioGlobalHotkeys(bindings = []) {
+  unregisterQUCHENRadioGlobalHotkeys();
   const results = [];
   const seen = new Set();
   for (const item of Array.isArray(bindings) ? bindings : []) {
@@ -151,7 +155,7 @@ function configureMineradioGlobalHotkeys(bindings = []) {
     seen.add(accelerator);
     let registered = false;
     try {
-      registered = globalShortcut.register(accelerator, () => sendGlobalHotkeyAction(action));
+      registered = globalShortcut.register(accelerator, () => quchenradioSendGlobalHotkeyAction(action));
     } catch (error) {
       registered = false;
     }
@@ -274,8 +278,8 @@ function getUpdateDownloadDir() {
 
 function shouldEnsureDesktopShortcut() {
   if (process.platform !== 'win32') return false;
-  if (process.env.MINERADIO_NO_DESKTOP_SHORTCUT === '1') return false;
-  return app.isPackaged || process.env.MINERADIO_CREATE_DESKTOP_SHORTCUT === '1';
+  if (process.env.QUCHEN_RADIO_NO_DESKTOP_SHORTCUT === '1') return false;
+  return app.isPackaged || process.env.QUCHEN_RADIO_CREATE_DESKTOP_SHORTCUT === '1';
 }
 
 function ensureDesktopShortcut() {
@@ -287,7 +291,7 @@ function ensureDesktopShortcut() {
       target,
       cwd: path.dirname(target),
       args: '',
-      description: 'Mineradio desktop music player',
+      description: 'QUCHEN Radio desktop music player',
       icon: fs.existsSync(APP_ICON_ICO) ? APP_ICON_ICO : target,
       iconIndex: 0,
       appUserModelId: APP_USER_MODEL_ID,
@@ -817,13 +821,13 @@ $ErrorActionPreference = "SilentlyContinue"
 Add-Type @"
 using System;
 using System.Runtime.InteropServices;
-public class MineradioMousePoll {
+public class QUCHENRadioMousePoll {
   [DllImport("user32.dll")] public static extern short GetAsyncKeyState(int vKey);
 }
 "@
 $prev = $false
 while ($true) {
-  $down = (([MineradioMousePoll]::GetAsyncKeyState(4) -band 0x8000) -ne 0)
+  $down = (([QUCHENRadioMousePoll]::GetAsyncKeyState(4) -band 0x8000) -ne 0)
   if ($down -and -not $prev) {
     [Console]::Out.WriteLine("MMB")
     [Console]::Out.Flush()
@@ -871,14 +875,14 @@ function stopDesktopLyricsMousePoller() {
 function broadcastDesktopLyricsLockState() {
   const locked = desktopLyricsState.clickThrough !== false;
   if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send('mineradio-desktop-lyrics-lock-state', { locked });
+    mainWindow.webContents.send('quchenradio-desktop-lyrics-lock-state', { locked });
   }
   sendDesktopLyricsState();
 }
 
 function broadcastDesktopLyricsEnabledState(enabled) {
   if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send('mineradio-desktop-lyrics-enabled-state', { enabled: !!enabled });
+    mainWindow.webContents.send('quchenradio-desktop-lyrics-enabled-state', { enabled: !!enabled });
   }
 }
 
@@ -893,7 +897,7 @@ function positionDesktopLyricsWindow(payload = desktopLyricsState, options = {})
 
 function sendDesktopLyricsState() {
   if (!desktopLyricsWindow || desktopLyricsWindow.isDestroyed()) return;
-  desktopLyricsWindow.webContents.send('mineradio-desktop-lyrics-state', desktopLyricsState);
+  desktopLyricsWindow.webContents.send('quchenradio-desktop-lyrics-state', desktopLyricsState);
 }
 
 function createDesktopLyricsWindow(payload = {}) {
@@ -929,7 +933,7 @@ function createDesktopLyricsWindow(payload = {}) {
     focusable: false,
     skipTaskbar: true,
     show: false,
-    title: 'Mineradio Desktop Lyrics',
+    title: 'QUCHEN Radio Desktop Lyrics',
     webPreferences: {
       preload: path.join(__dirname, 'overlay-preload.js'),
       contextIsolation: true,
@@ -987,11 +991,11 @@ function attachWallpaperToWorkerW(win) {
   const hwnd = nativeWindowHandleDecimal(win);
   const script = `
 $ErrorActionPreference = "Stop"
-if (-not ("MineradioNativeWin" -as [type])) {
+if (-not ("QUCHENRadioNativeWin" -as [type])) {
 Add-Type @"
 using System;
 using System.Runtime.InteropServices;
-public class MineradioNativeWin {
+public class QUCHENRadioNativeWin {
   public delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
   [DllImport("user32.dll", SetLastError=true)] public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
   [DllImport("user32.dll", SetLastError=true)] public static extern IntPtr FindWindowEx(IntPtr parent, IntPtr childAfter, string className, string windowName);
@@ -1002,23 +1006,23 @@ public class MineradioNativeWin {
 }
 "@
 }
-$progman = [MineradioNativeWin]::FindWindow("Progman", $null)
+$progman = [QUCHENRadioNativeWin]::FindWindow("Progman", $null)
 $result = [IntPtr]::Zero
-[MineradioNativeWin]::SendMessageTimeout($progman, 0x052C, [IntPtr]::Zero, [IntPtr]::Zero, 0, 1000, [ref]$result) | Out-Null
+[QUCHENRadioNativeWin]::SendMessageTimeout($progman, 0x052C, [IntPtr]::Zero, [IntPtr]::Zero, 0, 1000, [ref]$result) | Out-Null
 $script:workerw = [IntPtr]::Zero
-$enum = [MineradioNativeWin+EnumWindowsProc]{
+$enum = [QUCHENRadioNativeWin+EnumWindowsProc]{
   param([IntPtr]$top, [IntPtr]$param)
-  $shell = [MineradioNativeWin]::FindWindowEx($top, [IntPtr]::Zero, "SHELLDLL_DefView", $null)
+  $shell = [QUCHENRadioNativeWin]::FindWindowEx($top, [IntPtr]::Zero, "SHELLDLL_DefView", $null)
   if ($shell -ne [IntPtr]::Zero) {
-    $script:workerw = [MineradioNativeWin]::FindWindowEx([IntPtr]::Zero, $top, "WorkerW", $null)
+    $script:workerw = [QUCHENRadioNativeWin]::FindWindowEx([IntPtr]::Zero, $top, "WorkerW", $null)
   }
   return $true
 }
-[MineradioNativeWin]::EnumWindows($enum, [IntPtr]::Zero) | Out-Null
+[QUCHENRadioNativeWin]::EnumWindows($enum, [IntPtr]::Zero) | Out-Null
 if ($script:workerw -eq [IntPtr]::Zero) { $script:workerw = $progman }
 $target = [IntPtr]::new([Int64]${hwnd})
-[MineradioNativeWin]::SetParent($target, $script:workerw) | Out-Null
-[MineradioNativeWin]::SetWindowPos($target, [IntPtr]::Zero, 0, 0, 0, 0, 0x0013) | Out-Null
+[QUCHENRadioNativeWin]::SetParent($target, $script:workerw) | Out-Null
+[QUCHENRadioNativeWin]::SetWindowPos($target, [IntPtr]::Zero, 0, 0, 0, 0, 0x0013) | Out-Null
 `;
   execFile('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', script], {
     windowsHide: true,
@@ -1036,7 +1040,7 @@ function positionWallpaperWindow() {
 
 function sendWallpaperState() {
   if (!wallpaperWindow || wallpaperWindow.isDestroyed()) return;
-  wallpaperWindow.webContents.send('mineradio-wallpaper-state', wallpaperState);
+  wallpaperWindow.webContents.send('quchenradio-wallpaper-state', wallpaperState);
 }
 
 function createWallpaperWindow(payload = {}) {
@@ -1058,7 +1062,7 @@ function createWallpaperWindow(payload = {}) {
     focusable: false,
     skipTaskbar: true,
     show: false,
-    title: 'Mineradio Wallpaper',
+    title: 'QUCHEN Radio Wallpaper',
     webPreferences: {
       preload: path.join(__dirname, 'overlay-preload.js'),
       contextIsolation: true,
@@ -1121,16 +1125,16 @@ ipcMain.handle('desktop-window-close', (event) => {
   getSenderWindow(event)?.close();
 });
 
-ipcMain.handle('mineradio-hotkeys-configure-global', (_event, bindings) => {
-  return configureMineradioGlobalHotkeys(bindings);
+ipcMain.handle('quchenradio-hotkeys-configure-global', (_event, bindings) => {
+  return configureQUCHENRadioGlobalHotkeys(bindings);
 });
 
-ipcMain.handle('mineradio-export-json-file', async (event, payload = {}) => {
+ipcMain.handle('quchenradio-export-json-file', async (event, payload = {}) => {
   try {
     const owner = getSenderWindow(event);
-    const defaultName = String(payload.defaultName || 'mineradio-export.json').replace(/[\\/:*?"<>|]+/g, '-');
+    const defaultName = String(payload.defaultName || 'quchenradio-export.json').replace(/[\\/:*?"<>|]+/g, '-');
     const result = await dialog.showSaveDialog(owner, {
-      title: '导出 Mineradio 存档',
+      title: '导出 QUCHEN Radio 存档',
       defaultPath: defaultName.toLowerCase().endsWith('.json') ? defaultName : `${defaultName}.json`,
       filters: [{ name: 'JSON', extensions: ['json'] }],
     });
@@ -1143,11 +1147,11 @@ ipcMain.handle('mineradio-export-json-file', async (event, payload = {}) => {
   }
 });
 
-ipcMain.handle('mineradio-import-json-file', async (event) => {
+ipcMain.handle('quchenradio-import-json-file', async (event) => {
   try {
     const owner = getSenderWindow(event);
     const result = await dialog.showOpenDialog(owner, {
-      title: '导入 Mineradio 存档',
+      title: '导入 QUCHEN Radio 存档',
       properties: ['openFile'],
       filters: [{ name: 'JSON', extensions: ['json'] }],
     });
@@ -1176,7 +1180,7 @@ ipcMain.handle('qq-music-clear-login', async () => {
   return clearQQMusicLoginSession();
 });
 
-ipcMain.handle('mineradio-open-update-installer', async (_event, filePath) => {
+ipcMain.handle('quchenradio-open-update-installer', async (_event, filePath) => {
   try {
     const target = path.resolve(String(filePath || ''));
     const updateDir = path.resolve(getUpdateDownloadDir());
@@ -1191,7 +1195,7 @@ ipcMain.handle('mineradio-open-update-installer', async (_event, filePath) => {
   }
 });
 
-ipcMain.handle('mineradio-restart-app', async () => {
+ipcMain.handle('quchenradio-restart-app', async () => {
   try {
     app.relaunch();
     app.exit(0);
@@ -1201,7 +1205,7 @@ ipcMain.handle('mineradio-restart-app', async () => {
   }
 });
 
-ipcMain.handle('mineradio-desktop-lyrics-set-enabled', async (_event, enabled, payload) => {
+ipcMain.handle('quchenradio-desktop-lyrics-set-enabled', async (_event, enabled, payload) => {
   try {
     if (enabled) {
       createDesktopLyricsWindow(payload || {});
@@ -1215,7 +1219,7 @@ ipcMain.handle('mineradio-desktop-lyrics-set-enabled', async (_event, enabled, p
   }
 });
 
-ipcMain.handle('mineradio-desktop-lyrics-update', async (_event, payload) => {
+ipcMain.handle('quchenradio-desktop-lyrics-update', async (_event, payload) => {
   try {
     const nextState = { ...desktopLyricsState, ...(payload || {}) };
     if (nextState.enabled) {
@@ -1232,11 +1236,11 @@ ipcMain.handle('mineradio-desktop-lyrics-update', async (_event, payload) => {
   }
 });
 
-ipcMain.handle('mineradio-desktop-lyrics-set-dragging', async () => {
+ipcMain.handle('quchenradio-desktop-lyrics-set-dragging', async () => {
   return { ok: true };
 });
 
-ipcMain.handle('mineradio-desktop-lyrics-set-pointer-capture', async (_event, active) => {
+ipcMain.handle('quchenradio-desktop-lyrics-set-pointer-capture', async (_event, active) => {
   try {
     desktopLyricsPointerCapture = !!active;
     applyDesktopLyricsMouseBehavior();
@@ -1246,7 +1250,7 @@ ipcMain.handle('mineradio-desktop-lyrics-set-pointer-capture', async (_event, ac
   }
 });
 
-ipcMain.handle('mineradio-desktop-lyrics-set-hot-bounds', async (_event, bounds) => {
+ipcMain.handle('quchenradio-desktop-lyrics-set-hot-bounds', async (_event, bounds) => {
   try {
     const left = clampNumber(bounds && bounds.left, -2000, 4000, 0);
     const top = clampNumber(bounds && bounds.top, -2000, 4000, 0);
@@ -1259,7 +1263,7 @@ ipcMain.handle('mineradio-desktop-lyrics-set-hot-bounds', async (_event, bounds)
   }
 });
 
-ipcMain.handle('mineradio-desktop-lyrics-set-lock-state', async (_event, locked) => {
+ipcMain.handle('quchenradio-desktop-lyrics-set-lock-state', async (_event, locked) => {
   try {
     desktopLyricsState = { ...desktopLyricsState, clickThrough: !!locked };
     if (desktopLyricsState.clickThrough !== false) desktopLyricsPointerCapture = false;
@@ -1271,7 +1275,7 @@ ipcMain.handle('mineradio-desktop-lyrics-set-lock-state', async (_event, locked)
   }
 });
 
-ipcMain.handle('mineradio-desktop-lyrics-move-by', async (_event, dx, dy) => {
+ipcMain.handle('quchenradio-desktop-lyrics-move-by', async (_event, dx, dy) => {
   try {
     if (!desktopLyricsWindow || desktopLyricsWindow.isDestroyed()) return { ok: false, error: 'NO_DESKTOP_LYRICS_WINDOW' };
     if (desktopLyricsState.clickThrough !== false) return { ok: false, error: 'DESKTOP_LYRICS_LOCKED' };
@@ -1289,7 +1293,7 @@ ipcMain.handle('mineradio-desktop-lyrics-move-by', async (_event, dx, dy) => {
   }
 });
 
-ipcMain.handle('mineradio-wallpaper-set-enabled', async (_event, enabled, payload) => {
+ipcMain.handle('quchenradio-wallpaper-set-enabled', async (_event, enabled, payload) => {
   try {
     if (enabled) createWallpaperWindow(payload || {});
     else closeWallpaperWindow();
@@ -1299,7 +1303,7 @@ ipcMain.handle('mineradio-wallpaper-set-enabled', async (_event, enabled, payloa
   }
 });
 
-ipcMain.handle('mineradio-wallpaper-update', async (_event, payload) => {
+ipcMain.handle('quchenradio-wallpaper-update', async (_event, payload) => {
   try {
     wallpaperState = { ...wallpaperState, ...(payload || {}) };
     if (wallpaperState.enabled) {
@@ -1327,7 +1331,7 @@ async function createWindow() {
   process.env.PORT = String(port);
   process.env.COOKIE_FILE = path.join(app.getPath('userData'), '.cookie');
   process.env.QQ_COOKIE_FILE = path.join(app.getPath('userData'), '.qq-cookie');
-  process.env.MINERADIO_UPDATE_DIR = getUpdateDownloadDir();
+  process.env.QUCHEN_RADIO_UPDATE_DIR = getUpdateDownloadDir();
   try {
     const legacyQQCookie = path.join(__dirname, '..', '.qq-cookie');
     if (fs.existsSync(legacyQQCookie)) {
@@ -1446,8 +1450,336 @@ if (!gotSingleInstanceLock) {
     });
     screen.on('display-added', () => scheduleWindowStateSend(mainWindow));
     screen.on('display-removed', () => scheduleWindowStateSend(mainWindow));
-    await createWindow();
+    // ====================================================================
+//  系统托盘
+// ====================================================================
+
+/**
+ * 创建系统托盘
+ */
+function createTray() {
+  if (tray) {
+    tray.destroy();
+    tray = null;
+  }
+
+  const iconPath = APP_ICON_ICO;
+  if (!fs.existsSync(iconPath)) return;
+
+  tray = new Tray(iconPath);
+  tray.setToolTip('QUCHEN Radio');
+  updateTrayContextMenu();
+  tray.on('double-click', () => {
+    if (!mainWindow || mainWindow.isDestroyed()) return;
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    if (!mainWindow.isVisible()) mainWindow.show();
+    mainWindow.focus();
   });
+}
+
+/**
+ * 更新托盘右键菜单和悬浮提示
+ */
+function updateTrayContextMenu() {
+  if (!tray) return;
+
+  const isPlaying = thumbarPlayState.playing;
+  const songName = thumbarPlayState.songName || '';
+  const artist = thumbarPlayState.artist || '';
+
+  const tooltip = songName
+    ? `QUCHEN Radio - ${songName}${artist ? ' - ' + artist : ''}`
+    : 'QUCHEN Radio';
+  tray.setToolTip(tooltip);
+
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: songName ? `${songName}${artist ? ' — ' + artist : ''}` : '未在播放',
+      enabled: false,
+    },
+    { type: 'separator' },
+    {
+      label: isPlaying ? '暂停' : '播放',
+      click: () => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.webContents.send('quchenradio-thumbar-action', { action: 'togglePlay' });
+        }
+      },
+    },
+    {
+      label: '上一首',
+      click: () => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.webContents.send('quchenradio-thumbar-action', { action: 'prevTrack' });
+        }
+      },
+    },
+    {
+      label: '下一首',
+      click: () => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.webContents.send('quchenradio-thumbar-action', { action: 'nextTrack' });
+        }
+      },
+    },
+    { type: 'separator' },
+    {
+      label: '显示主窗口',
+      click: () => {
+        if (!mainWindow || mainWindow.isDestroyed()) return;
+        if (mainWindow.isMinimized()) mainWindow.restore();
+        if (!mainWindow.isVisible()) mainWindow.show();
+        mainWindow.focus();
+      },
+    },
+    { type: 'separator' },
+    {
+      label: '退出',
+      click: () => { app.quit(); },
+    },
+  ]);
+  tray.setContextMenu(contextMenu);
+}
+
+/**
+ * 处理来自渲染进程的播放状态更新（用于托盘）
+ */
+ipcMain.handle('quchenradio-playback-state', (_event, state) => {
+  thumbarPlayState = {
+    playing: !!state.playing,
+    songName: typeof state.songName === 'string' ? state.songName : '',
+    artist: typeof state.artist === 'string' ? state.artist : '',
+  };
+  updateTrayContextMenu();
+});
+
+/**
+ * 创建嵌入任务栏上方区域的迷你播放器窗口
+ */
+function createMiniPlayer() {
+  if (miniPlayerWindow && !miniPlayerWindow.isDestroyed()) {
+    return;
+  }
+
+  const WIDTH = 440;
+  const HEIGHT = 100;
+
+  miniPlayerWindow = new BrowserWindow({
+    width: WIDTH,
+    height: HEIGHT,
+    show: false,
+    frame: false,
+    transparent: true,
+    backgroundColor: '#00000000',
+    hasShadow: false,
+    alwaysOnTop: true,
+    skipTaskbar: true,
+    resizable: false,
+    focusable: false,
+    type: 'toolbar',
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false,
+      backgroundThrottling: false,
+    },
+  });
+
+  // 定位到屏幕右下角任务栏上方
+  function positionMiniPlayer() {
+    if (!miniPlayerWindow || miniPlayerWindow.isDestroyed()) return;
+    const display = screen.getPrimaryDisplay();
+    const workArea = display.workArea;
+    const x = workArea.x + workArea.width - WIDTH - 12;
+    const y = workArea.y + workArea.height - HEIGHT - 8;
+    miniPlayerWindow.setPosition(Math.round(x), Math.round(y));
+  }
+
+  positionMiniPlayer();
+  screen.on('display-metrics-changed', positionMiniPlayer);
+
+  miniPlayerWindow.on('closed', () => {
+    screen.removeListener('display-metrics-changed', positionMiniPlayer);
+    miniPlayerWindow = null;
+  });
+
+  // 加载迷你播放器页面
+  const miniPlayerPath = path.join(__dirname, '..', 'public', 'mini-player.html');
+  miniPlayerWindow.loadFile(miniPlayerPath);
+
+  // 加载完成后发送当前状态
+  miniPlayerWindow.webContents.once('did-finish-load', () => {
+    sendMiniPlayerState();
+    miniPlayerWindow.showInactive();
+  });
+}
+
+/**
+ * 向迷你播放器窗口发送播放状态
+ */
+function sendMiniPlayerState() {
+  if (!miniPlayerWindow || miniPlayerWindow.isDestroyed()) return;
+  miniPlayerWindow.webContents.send('quchenradio-miniplayer-state', miniPlayerState);
+}
+
+/**
+ * 处理渲染进程发来的迷你播放器状态更新
+ */
+ipcMain.handle('quchenradio-miniplayer-update', (_event, state) => {
+  miniPlayerState = {
+    playing: !!state.playing,
+    songName: typeof state.songName === 'string' ? state.songName : '',
+    artist: typeof state.artist === 'string' ? state.artist : '',
+    cover: typeof state.cover === 'string' ? state.cover : '',
+    progress: typeof state.progress === 'number' ? state.progress : 0,
+  };
+  sendMiniPlayerState();
+});
+
+/**
+ * 处理迷你播放器发来的控制指令，转发给主窗口
+ */
+ipcMain.handle('quchenradio-miniplayer-action', (_event, payload) => {
+  if (!mainWindow || mainWindow.isDestroyed() || !payload || !payload.action) return;
+  mainWindow.webContents.send('quchenradio-thumbar-action', payload);
+});
+
+/**
+ * 返回每日密码门数据（从 kkrb-data.json 读取）
+ */
+ipcMain.handle('quchenradio-get-passwords', async () => {
+  try {
+    const dataPath = path.join(__dirname, '..', 'public', 'sjz', 'data', 'kkrb-data.json');
+    const raw = fs.readFileSync(dataPath, 'utf8');
+    const data = JSON.parse(raw);
+    return {
+      ok: true,
+      password_doors: data.password_doors || [],
+      update_time: data.update_time || '',
+    };
+  } catch (e) {
+    console.warn('Failed to read kkrb-data.json:', e.message);
+    return { ok: false, password_doors: [], update_time: '' };
+  }
+});
+
+/**
+ * 刷新密码门数据：运行 sjz-scraper.py 爬虫，完成后重新读取并推送
+ */
+ipcMain.handle('quchenradio-refresh-passwords', async () => {
+  const scraperPath = path.join(__dirname, '..', 'sjz-scraper.py');
+  if (!fs.existsSync(scraperPath)) {
+    return { ok: false, error: '爬虫脚本未找到: sjz-scraper.py' };
+  }
+
+  return new Promise((resolve) => {
+    const timeout = setTimeout(() => {
+      child.kill();
+      resolve({ ok: false, error: '刷新超时（30 秒）' });
+    }, 30000);
+
+    const child = spawn('python', [scraperPath], {
+      cwd: path.join(__dirname, '..'),
+      stdio: ['ignore', 'pipe', 'pipe'],
+      windowsHide: true,
+    });
+
+    let stdout = '';
+    let stderr = '';
+
+    child.stdout.on('data', (chunk) => { stdout += chunk.toString('utf8'); });
+    child.stderr.on('data', (chunk) => { stderr += chunk.toString('utf8'); });
+
+    child.on('close', async (code) => {
+      clearTimeout(timeout);
+      const success = code === 0;
+      // 读取最新数据
+      let password_doors = [];
+      let update_time = '';
+      try {
+        const dataPath = path.join(__dirname, '..', 'public', 'sjz', 'data', 'kkrb-data.json');
+        const raw = fs.readFileSync(dataPath, 'utf8');
+        const data = JSON.parse(raw);
+        password_doors = data.password_doors || [];
+        update_time = data.update_time || '';
+      } catch (e) {
+        console.warn('Failed to re-read kkrb-data.json after refresh:', e.message);
+      }
+
+      // 如果迷你播放器还在，推送最新数据
+      if (miniPlayerWindow && !miniPlayerWindow.isDestroyed()) {
+        try {
+          miniPlayerWindow.webContents.send('quchenradio-passwords-updated', {
+            ok: success,
+            password_doors,
+            update_time,
+          });
+        } catch (e) {
+          console.warn('Failed to push passwords to mini-player:', e.message);
+        }
+      }
+
+      resolve({
+        ok: success,
+        exitCode: code,
+        stdout: stdout.trim(),
+        stderr: stderr.trim(),
+        password_doors,
+        update_time,
+        error: success ? null : (stderr.trim() || `进程退出码 ${code}`),
+      });
+    });
+
+    child.on('error', (err) => {
+      clearTimeout(timeout);
+      resolve({ ok: false, error: err.message || '无法启动爬虫进程' });
+    });
+  });
+});
+
+/**
+ * 打开 sjz（三角洲工具站）页面
+ */
+ipcMain.handle('quchenradio-open-sjz', async () => {
+  try {
+    const port = mainServerPort || process.env.PORT || 3000;
+    const sjzWindow = new BrowserWindow({
+      width: 1200,
+      height: 800,
+      minWidth: 800,
+      minHeight: 600,
+      show: false,
+      title: 'QUCHEN 三角洲工具站',
+      autoHideMenuBar: true,
+      icon: APP_ICON_ICO,
+      webPreferences: {
+        preload: path.join(__dirname, 'overlay-preload.js'),
+        contextIsolation: true,
+        nodeIntegration: false,
+        sandbox: false,
+        backgroundThrottling: false,
+      },
+    });
+    sjzWindow.once('ready-to-show', () => {
+      sjzWindow.show();
+    });
+    sjzWindow.loadURL(`http://127.0.0.1:${port}/sjz/index.html`);
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message || 'SJZ_OPEN_FAILED' };
+  }
+});
+
+  // 在主进程就绪后初始化系统托盘
+  await createWindow();
+
+  // 窗口创建完成后创建系统托盘和迷你播放器
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    createTray();
+    createMiniPlayer();
+  }
+});
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -1459,8 +1791,9 @@ if (!gotSingleInstanceLock) {
   });
 
   app.on('before-quit', () => {
-    unregisterMineradioGlobalHotkeys();
+    unregisterQUCHENRadioGlobalHotkeys();
     closeOverlayWindows();
+    if (tray) { tray.destroy(); tray = null; }
     if (localServer && localServer.close) localServer.close();
   });
 }

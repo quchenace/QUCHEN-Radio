@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>制造推荐 - QUCHEN SJZ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0d12;color:#e0e0e0;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;line-height:1.6}
+nav{background:rgba(15,18,25,0.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(156,255,223,0.08);position:sticky;top:0;z-index:100}
+.nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px 24px}
+.nav-logo{font-size:1.3rem;font-weight:800;color:#9cffdf;text-decoration:none;letter-spacing:-0.5px}
+.nav-logo span{color:#7bbfaa;font-weight:600}
+.nav-links{display:flex;gap:28px;list-style:none}
+.nav-links a{color:#9ca3af;text-decoration:none;font-size:0.9rem;font-weight:500;transition:color 0.2s;padding:4px 0}
+.nav-links a:hover,.nav-links a.active{color:#9cffdf}
+.nav-links a.primary-link{color:#9cffdf;font-weight:600}
+main{max-width:1200px;margin:0 auto;padding:40px 24px}
+.page-title{margin-bottom:32px}
+.page-title h1{font-size:2rem;font-weight:800;color:#fff;letter-spacing:-1px}
+.page-title h1 span{color:#9cffdf}
+.page-title p{color:#9ca3af;font-size:0.9rem;margin-top:6px}
+.tabs{display:flex;gap:8px;margin-bottom:28px;flex-wrap:wrap}
+.tab{padding:10px 22px;border-radius:10px;font-size:0.9rem;font-weight:600;cursor:pointer;background:rgba(255,255,255,0.03);color:#9ca3af;border:1px solid rgba(255,255,255,0.06);transition:all 0.2s;user-select:none}
+.tab:hover{color:#9cffdf;border-color:rgba(156,255,223,0.2)}
+.tab.active{background:rgba(156,255,223,0.1);color:#9cffdf;border-color:rgba(156,255,223,0.3)}
+.stats-bar{display:flex;gap:24px;margin-bottom:24px;flex-wrap:wrap}
+.stat-item{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px 20px;min-width:130px}
+.stat-item .stat-label{font-size:0.75rem;color:#6b7280;text-transform:uppercase;margin-bottom:4px}
+.stat-item .stat-value{font-size:1.3rem;font-weight:700;color:#9cffdf}
+.ranking-table{width:100%;border-collapse:collapse;font-size:0.9rem}
+.ranking-table th{text-align:left;padding:12px 14px;color:#9ca3af;font-weight:500;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.ranking-table td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.04)}
+.ranking-table tr:hover{background:rgba(156,255,223,0.02)}
+.rank-num{font-weight:700;font-size:0.95rem;color:#fff}
+.rank-num.top{color:#9cffdf}
+.profit{color:#9cffdf;font-weight:600;font-size:0.95rem}
+.item-name{font-weight:600;color:#f0f0f0}
+.item-level{font-size:0.8rem;padding:3px 10px;border-radius:10px;background:rgba(156,255,223,0.08);color:#9cffdf;display:inline-block}
+.card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:28px}
+.empty-msg{text-align:center;padding:40px;color:#6b7280;font-size:0.95rem}
+footer{margin-top:40px;text-align:center;padding:30px 0;border-top:1px solid rgba(255,255,255,0.05);color:#6b7280;font-size:0.8rem}
+@media(max-width:768px){.stats-bar{gap:12px}.stat-item{min-width:100px;padding:12px}}
+</style>
+</head>
+<body>
+<nav>
+<div class="nav-inner">
+<a href="index.html" class="nav-logo">QUCHEN <span>SJZ</span></a>
+<ul class="nav-links">
+<li><a href="index.html">首页</a></li>
+<li><a href="weapons.html">改枪码</a></li>
+<li><a href="combat.html">卡战备</a></li>
+<li><a href="crafting.html" class="active">制造</a></li>
+</ul>
+</div>
+</nav>
+<main>
+<div class="page-title">
+<h1>制造<span>推荐</span></h1>
+<p>各制造台 TOP5 产品推荐 · 利润排行 · 数据实时更新</p>
+</div>
+<div class="tabs" id="tabs"></div>
+<div class="card">
+<div class="stats-bar" id="statsBar"></div>
+<div id="tableArea"></div>
+</div>
+</main>
+<footer>数据来源：g.aitags.cn &nbsp;|&nbsp; <span id="updateInfo">加载中</span></footer>
+<script>
+// 更新底部时间戳
+fetch('data/kkrb-data.json')
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.update_time){
+      var t = d.update_time;
+      if(t.indexOf('T') > 0) t = t.split('T')[0];
+      document.getElementById('updateInfo').textContent = '更新于 ' + t;
+    }
+  })
+  .catch(function(){ document.getElementById('updateInfo').textContent = '更新于 2026-07-08'; });
+</script>
+<script>
+// 从外部 JSON 动态加载数据
+var MANUFACTURING = {};
+var TABS = [];
+var DEFAULT_TAB = '工作台';
+var dataLoaded = false;
+
+function renderTabs(){
+  var html = '';
+  TABS.forEach(function(t){
+    html += '<span class="tab' + (t === DEFAULT_TAB ? ' active' : '') + '" data-tab="' + t + '">' + t + '</span>';
+  });
+  document.getElementById('tabs').innerHTML = html;
+}
+
+function renderTable(tabName){
+  var items = MANUFACTURING[tabName];
+  var statsBar = document.getElementById('statsBar');
+  var tableArea = document.getElementById('tableArea');
+
+  if(!items || items.length === 0){
+    statsBar.innerHTML = '';
+    tableArea.innerHTML = '<div class="empty-msg">暂无制造数据</div>';
+    return;
+  }
+
+  var topItem = items[0];
+  var totalHourly = 0;
+  items.forEach(function(it){ totalHourly += it.hourly_profit; });
+
+  statsBar.innerHTML = '<div class="stat-item"><div class="stat-label">TOP1 小时利润</div><div class="stat-value">' + topItem.hourly_profit.toLocaleString() + '</div></div>' +
+    '<div class="stat-item"><div class="stat-label">TOP5 合计小时利润</div><div class="stat-value">' + totalHourly.toLocaleString() + '</div></div>';
+
+  var html = '<table class="ranking-table"><thead><tr><th>排名</th><th>物品名称</th><th>小时利润</th></tr></thead><tbody>';
+  items.forEach(function(it){
+    html += '<tr><td class="rank-num' + (it.rank <= 3 ? ' top' : '') + '">' + it.rank + '</td>';
+    html += '<td class="item-name">' + it.item + '</td>';
+    html += '<td class="profit">' + it.hourly_profit.toLocaleString() + '</td></tr>';
+  });
+  html += '</tbody></table>';
+  tableArea.innerHTML = html;
+}
+
+document.getElementById('tabs').addEventListener('click', function(e){
+  if(e.target.classList.contains('tab')){
+    document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+    e.target.classList.add('active');
+    renderTable(e.target.dataset.tab);
+  }
+});
+
+// 加载数据
+document.getElementById('tableArea').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;padding:60px 0;flex-direction:column;gap:16px"><div style="width:40px;height:40px;border:3px solid rgba(156,255,223,0.15);border-top-color:#9cffdf;border-radius:50%;animation:spin 0.8s linear infinite"></div><div style="color:#9ca3af;font-size:0.9rem">数据加载中...</div></div>';
+
+fetch('data/kkrb-data.json')
+  .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+  .then(function(data){
+    if(data.manufacturing_hourly){
+      if(Array.isArray(data.manufacturing_hourly)){
+        // 扁平列表按 station 分组
+        data.manufacturing_hourly.forEach(function(it){
+          if(!MANUFACTURING[it.station]) MANUFACTURING[it.station] = [];
+          MANUFACTURING[it.station].push(it);
+        });
+        TABS = Object.keys(MANUFACTURING);
+      } else {
+        MANUFACTURING = data.manufacturing_hourly;
+        TABS = Object.keys(MANUFACTURING);
+      }
+      if(TABS.indexOf('工作台') >= 0) DEFAULT_TAB = '工作台';
+      else if(TABS.length > 0) DEFAULT_TAB = TABS[0];
+    }
+    dataLoaded = true;
+    renderTabs();
+    renderTable(DEFAULT_TAB);
+  })
+  .catch(function(err){
+    console.error('制造数据加载失败:', err);
+    document.getElementById('tableArea').innerHTML = '<div style="text-align:center;padding:40px;color:#f87171;font-size:1rem">数据加载失败，请稍后重试</div>';
+  });
+</script>
+</body>
+</html>

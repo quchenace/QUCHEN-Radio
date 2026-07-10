@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QUCHEN 三角洲工具站</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0d12;color:#e0e0e0;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;line-height:1.6}
+nav{background:rgba(15,18,25,0.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(156,255,223,0.08);position:sticky;top:0;z-index:100}
+.nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px 24px}
+.nav-logo{font-size:1.3rem;font-weight:800;color:#9cffdf;text-decoration:none;letter-spacing:-0.5px}
+.nav-logo span{color:#7bbfaa;font-weight:600}
+.nav-links{display:flex;gap:28px;list-style:none}
+.nav-links a{color:#9ca3af;text-decoration:none;font-size:0.9rem;font-weight:500;transition:color 0.2s;padding:4px 0}
+.nav-links a:hover,.nav-links a.active{color:#9cffdf}
+.nav-links a.primary-link{color:#9cffdf;font-weight:600}
+main{max-width:1200px;margin:0 auto;padding:40px 24px}
+.hero{text-align:center;padding:60px 0 50px}
+.hero h1{font-size:2.6rem;font-weight:800;color:#fff;letter-spacing:-1px;margin-bottom:12px}
+.hero h1 span{color:#9cffdf}
+.hero p{font-size:1.1rem;color:#9ca3af;margin-bottom:8px}
+.hero .date{font-size:0.85rem;color:#6b7280;margin-top:4px}
+.pw-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:40px}
+.pw-card{border-radius:16px;padding:32px 24px;text-align:center;position:relative;overflow:hidden;transition:transform 0.25s,box-shadow 0.25s}
+.pw-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.4)}
+.pw-card .map-name{font-size:1.1rem;font-weight:600;color:rgba(255,255,255,0.9);margin-bottom:16px}
+.pw-card .password{font-size:4.5rem;font-weight:800;letter-spacing:8px;color:#fff;line-height:1;margin-bottom:12px;text-shadow:0 0 40px rgba(156,255,223,0.3)}
+.pw-card .label{font-size:0.85rem;color:rgba(255,255,255,0.6);margin-bottom:6px}
+.pw-card .update{font-size:0.75rem;color:rgba(255,255,255,0.4)}
+.pw-card.card-dam{background:linear-gradient(135deg,#1a3a5c 0%,#152740 100%);border:1px solid rgba(100,180,255,0.15)}
+.pw-card.card-valley{background:linear-gradient(135deg,#1a3c28 0%,#152a1e 100%);border:1px solid rgba(100,220,140,0.15)}
+.pw-card.card-bucks{background:linear-gradient(135deg,#2a1a3c 0%,#1f152a 100%);border:1px solid rgba(160,120,220,0.15)}
+.pw-card.card-space{background:linear-gradient(135deg,#1a283c 0%,#151f2a 100%);border:1px solid rgba(120,160,200,0.15)}
+.pw-card.card-prison{background:linear-gradient(135deg,#3c1a1a 0%,#2a1515 100%);border:1px solid rgba(220,120,120,0.15)}
+.pw-card.card-az3{background:linear-gradient(135deg,#3c2a1a 0%,#2a1f15 100%);border:1px solid rgba(220,180,100,0.15)}
+footer{margin-top:60px;text-align:center;padding:30px 0;border-top:1px solid rgba(255,255,255,0.05);color:#6b7280;font-size:0.8rem}
+.quick-links{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:40px}
+.quick-links a{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:10px;background:rgba(156,255,223,0.08);color:#9cffdf;text-decoration:none;font-weight:500;font-size:0.9rem;border:1px solid rgba(156,255,223,0.12);transition:all 0.2s}
+.quick-links a:hover{background:rgba(156,255,223,0.14);border-color:rgba(156,255,223,0.25)}
+@media(max-width:768px){.pw-grid{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:1.8rem}.pw-card .password{font-size:3rem;letter-spacing:4px}}
+@media(max-width:480px){.pw-grid{grid-template-columns:1fr}.nav-links{gap:16px}}
+</style>
+</head>
+<body>
+<nav>
+<div class="nav-inner">
+<a href="index.html" class="nav-logo">QUCHEN <span>SJZ</span></a>
+<ul class="nav-links">
+<li><a href="index.html" class="active">首页</a></li>
+<li><a href="weapons.html">改枪码</a></li>
+<li><a href="combat.html">卡战备</a></li>
+<li><a href="crafting.html">制造</a></li>
+<li><a href="strategy.html">跑刀攻略</a></li>
+</ul>
+</div>
+</nav>
+<main>
+<section class="hero">
+<h1>QUCHEN <span>三角洲工具站</span></h1>
+<p>每日密码 · 改枪码 · 卡战备 · 制造推荐</p>
+<p class="date">数据更新：<span id="updateTime">--</span> <button id="sjzRefreshBtn" class="sjz-refresh-btn" title="手动刷新数据">↻</button></p>
+</section>
+<div class="quick-links">
+<a href="weapons.html">改枪码大全</a>
+<a href="combat.html">卡战备计算器</a>
+<a href="crafting.html">制造推荐</a>
+</div>
+<section class="pw-grid" id="pwGrid"></section>
+</main>
+<footer>
+<p>数据来源：kkrb.net / g.aitags.cn &nbsp;|&nbsp; 仅供游戏参考，请以游戏内实际为准</p>
+</footer>
+<style>
+.loading-overlay{display:flex;align-items:center;justify-content:center;padding:60px 0;flex-direction:column;gap:16px}
+.loading-spinner{width:40px;height:40px;border:3px solid rgba(156,255,223,0.15);border-top-color:#9cffdf;border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{color:#9ca3af;font-size:0.9rem}
+.error-msg{text-align:center;padding:40px;color:#f87171;font-size:1rem}
+
+/* 刷新按钮 */
+.sjz-refresh-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:22px;height:22px;padding:0;margin-left:6px;
+  border:1px solid rgba(156,255,223,0.2);border-radius:4px;
+  background:rgba(156,255,223,0.08);color:#9cffdf;
+  cursor:pointer;font-size:14px;line-height:1;
+  transition:all 0.15s;vertical-align:middle;
+}
+.sjz-refresh-btn:hover{background:rgba(156,255,223,0.2);border-color:rgba(156,255,223,0.4);}
+.sjz-refresh-btn:active{transform:scale(0.9);}
+.sjz-refresh-btn.spinning{pointer-events:none;}
+.sjz-refresh-btn.spinning{animation:sjz-spin 0.8s linear infinite;}
+@keyframes sjz-spin{to{transform:rotate(360deg)}}
+.sjz-refresh-err{display:inline-block;font-size:0.8rem;color:#f87171;margin-left:8px;vertical-align:middle;}
+</style>
+<script>
+(function(){
+  const grid = document.getElementById('pwGrid');
+  const timeEl = document.getElementById('updateTime');
+
+  grid.innerHTML = '<div class="loading-overlay"><div class="loading-spinner"></div><div class="loading-text">数据加载中...</div></div>';
+
+  fetch('data/kkrb-data.json')
+    .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(data){
+      if(!data || !data.password_doors){
+        throw new Error('数据格式错误');
+      }
+      timeEl.textContent = data.update_time || '--';
+      grid.innerHTML = '';
+      const cardClasses = ['card-dam','card-valley','card-bucks','card-space','card-prison','card-az3'];
+      data.password_doors.forEach(function(d, i){
+        const card = document.createElement('div');
+        card.className = 'pw-card ' + (cardClasses[i] || '');
+        card.innerHTML = '<div class="map-name">' + d.map + '</div><div class="password">' + d.password + '</div><div class="label">彩蛋密码门</div><div class="update">更新于 ' + (data.update_time || '--') + '</div>';
+        grid.appendChild(card);
+      });
+    })
+    .catch(function(err){
+      console.error('数据加载失败:', err);
+      grid.innerHTML = '<div class="error-msg">数据加载失败，请稍后重试</div>';
+      timeEl.textContent = '--';
+    });
+
+  // === 刷新按钮 ===
+  var refreshBtn = document.getElementById('sjzRefreshBtn');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', function() {
+      if (refreshBtn.classList.contains('spinning')) return;
+      refreshBtn.classList.add('spinning');
+      // 清除已有错误
+      var oldErr = document.querySelector('.sjz-refresh-err');
+      if (oldErr) oldErr.remove();
+
+      function done(success, errMsg) {
+        refreshBtn.classList.remove('spinning');
+        if (!success) {
+          var errEl = document.createElement('span');
+          errEl.className = 'sjz-refresh-err';
+          errEl.textContent = errMsg || '刷新失败';
+          refreshBtn.parentNode.appendChild(errEl);
+          setTimeout(function() { if (errEl.parentNode) errEl.remove(); }, 4000);
+        }
+      }
+
+      // 尝试通过 Electron IPC 刷新
+      var api = window.desktopOverlay;
+      if (api && typeof api.refreshPasswords === 'function') {
+        api.refreshPasswords().then(function(result) {
+          if (result && result.ok) {
+            // 重新加载数据
+            grid.innerHTML = '<div class="loading-overlay"><div class="loading-spinner"></div><div class="loading-text">刷新中...</div></div>';
+            fetch('data/kkrb-data.json?_t=' + Date.now())
+              .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+              .then(function(data){
+                if(!data || !data.password_doors) throw new Error('数据格式错误');
+                timeEl.textContent = data.update_time || '--';
+                grid.innerHTML = '';
+                var cardClasses = ['card-dam','card-valley','card-bucks','card-space','card-prison','card-az3'];
+                data.password_doors.forEach(function(d, i){
+                  var card = document.createElement('div');
+                  card.className = 'pw-card ' + (cardClasses[i] || '');
+                  card.innerHTML = '<div class="map-name">' + d.map + '</div><div class="password">' + d.password + '</div><div class="label">彩蛋密码门</div><div class="update">更新于 ' + (data.update_time || '--') + '</div>';
+                  grid.appendChild(card);
+                });
+                done(true);
+              })
+              .catch(function(err){
+                done(false, '数据加载失败');
+                console.error(err);
+              });
+          } else {
+            done(false, result && result.error ? result.error : '刷新失败');
+          }
+        }).catch(function() {
+          done(false, '请求失败');
+        });
+      } else {
+        // 非 Electron 环境：直接尝试 fetch 一个刷新端点（如 HTTP 接口），暂时跳过
+        done(false, '刷新仅桌面版可用');
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>

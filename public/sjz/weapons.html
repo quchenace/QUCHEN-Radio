@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>改枪码大全 - QUCHEN SJZ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0d12;color:#e0e0e0;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;line-height:1.6}
+nav{background:rgba(15,18,25,0.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(156,255,223,0.08);position:sticky;top:0;z-index:100}
+.nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px 24px}
+.nav-logo{font-size:1.3rem;font-weight:800;color:#9cffdf;text-decoration:none;letter-spacing:-0.5px}
+.nav-logo span{color:#7bbfaa;font-weight:600}
+.nav-links{display:flex;gap:28px;list-style:none}
+.nav-links a{color:#9ca3af;text-decoration:none;font-size:0.9rem;font-weight:500;transition:color 0.2s;padding:4px 0}
+.nav-links a:hover,.nav-links a.active{color:#9cffdf}
+.nav-links a.primary-link{color:#9cffdf;font-weight:600}
+main{max-width:1200px;margin:0 auto;padding:40px 24px}
+.page-title{margin-bottom:32px}
+.page-title h1{font-size:2rem;font-weight:800;color:#fff;letter-spacing:-1px}
+.page-title h1 span{color:#9cffdf}
+.page-title p{color:#9ca3af;font-size:0.9rem;margin-top:6px}
+.search-box{position:relative;margin-bottom:24px}
+.search-box input{width:100%;padding:14px 20px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#fff;font-size:1rem;outline:none;transition:border-color 0.2s}
+.search-box input:focus{border-color:#9cffdf}
+.search-box input::placeholder{color:#6b7280}
+.cat-tags{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px}
+.cat-tag{padding:7px 16px;border-radius:20px;font-size:0.85rem;font-weight:500;cursor:pointer;background:rgba(255,255,255,0.04);color:#9ca3af;border:1px solid rgba(255,255,255,0.06);transition:all 0.2s;user-select:none}
+.cat-tag:hover,.cat-tag.active{background:rgba(156,255,223,0.1);color:#9cffdf;border-color:rgba(156,255,223,0.25)}
+.result-count{color:#9ca3af;font-size:0.85rem;margin-bottom:20px}
+.weapon-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:24px;margin-bottom:16px;transition:border-color 0.2s}
+.weapon-card:hover{border-color:rgba(156,255,223,0.15)}
+.weapon-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.weapon-name{font-size:1.15rem;font-weight:700;color:#fff}
+.weapon-cat{font-size:0.75rem;padding:4px 10px;border-radius:12px;background:rgba(156,255,223,0.1);color:#9cffdf;font-weight:500}
+.builds-table{width:100%;border-collapse:collapse;font-size:0.9rem}
+.builds-table th{text-align:left;padding:10px 12px;color:#9ca3af;font-weight:500;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.builds-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.04)}
+.build-row{cursor:pointer;transition:background 0.15s}
+.build-row:hover{background:rgba(156,255,223,0.03)}
+.code-cell{font-family:'SF Mono','Fira Code',monospace;font-size:0.85rem;color:#9cffdf;letter-spacing:0.5px}
+.desc-cell{color:#9ca3af;font-size:0.85rem}
+.value-cell{color:#fbbf24;font-weight:600;font-size:0.85rem}
+.count-cell{color:#6b7280;font-size:0.8rem}
+.image-cell{text-align:center}
+.image-cell img{max-width:280px;max-height:180px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);margin-top:6px}
+.expand-row{display:none}
+.expand-row.show{display:table-row}
+.expand-row td{padding:8px 12px 16px}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#9cffdf;color:#0a0d12;padding:10px 24px;border-radius:10px;font-weight:600;font-size:0.9rem;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none}
+.toast.show{opacity:1}
+footer{margin-top:40px;text-align:center;padding:30px 0;border-top:1px solid rgba(255,255,255,0.05);color:#6b7280;font-size:0.8rem}
+@media(max-width:768px){.builds-table{font-size:0.78rem}.code-cell{font-size:0.72rem}.image-cell img{max-width:200px}}
+</style>
+</head>
+<body>
+<nav>
+<div class="nav-inner">
+<a href="index.html" class="nav-logo">QUCHEN <span>SJZ</span></a>
+<ul class="nav-links">
+<li><a href="index.html">首页</a></li>
+<li><a href="weapons.html" class="active">改枪码</a></li>
+<li><a href="combat.html">卡战备</a></li>
+<li><a href="crafting.html">制造</a></li>
+</ul>
+</div>
+</nav>
+<main>
+<div class="page-title">
+<h1>改枪码<span>大全</span></h1>
+<p>共收录 65 把武器 · 476 套改装方案 · 数据来源 g.aitags.cn</p>
+</div>
+<div class="search-box">
+<input type="text" id="searchInput" placeholder="搜索武器名称或改枪方案描述...">
+</div>
+<div class="cat-tags" id="catTags"></div>
+<div class="result-count" id="resultCount"></div>
+<div id="weaponList"></div>
+</main>
+<div class="toast" id="toast">已复制到剪贴板</div>
+<footer>数据来源：g.aitags.cn &nbsp;|&nbsp; 更新于 2026-07-08</footer>
+
+<script>
+// 从外部 JSON 动态加载武器数据
+var WEAPONS_DATA = {};
+var CATS = ['全部','突击步枪','冲锋枪','射手步枪','狙击步枪','手枪','轻机枪','霰弹枪','特殊武器'];
+var currentCat = '全部';
+var allWeaponKeys = [];
+var dataLoaded = false;
+
+function getWeaponList(filter){
+  var keys = allWeaponKeys;
+  if(filter && filter !== '全部') keys = keys.filter(function(k){return WEAPONS_DATA[k].category === filter});
+  return keys.map(function(k){return WEAPONS_DATA[k]});
+}
+
+function renderCats(){
+  var html = '';
+  CATS.forEach(function(c){
+    html += '<span class="cat-tag' + (c === currentCat ? ' active' : '') + '" data-cat="' + c + '">' + c + '</span>';
+  });
+  document.getElementById('catTags').innerHTML = html;
+}
+
+function renderList(weapons){
+  var html = '';
+  weapons.forEach(function(w){
+    html += '<div class="weapon-card"><div class="weapon-header"><span class="weapon-name">' + w.name + '</span><span class="weapon-cat">' + w.category + '</span></div><table class="builds-table"><thead><tr><th>改枪码</th><th>描述</th><th>价值</th><th>复制次数</th></tr></thead><tbody>';
+    w.builds.forEach(function(b, bi){
+      var hasImg = b.image && b.image.length > 0;
+      html += '<tr class="build-row' + (hasImg ? ' has-image' : '') + '" data-img="' + (b.image || '') + '" data-code="' + b.code + '"><td class="code-cell">' + b.code + '</td><td class="desc-cell">' + (b.desc || '-') + '</td><td class="value-cell">' + (b.value || '-') + '</td><td class="count-cell">' + b.copy_count.toLocaleString() + '</td></tr>';
+    });
+    html += '</tbody></table></div>';
+  });
+  var list = document.getElementById('weaponList');
+  list.innerHTML = html;
+  document.getElementById('resultCount').textContent = '共 ' + weapons.length + ' 把武器';
+
+  // 绑定点击事件
+  list.querySelectorAll('.build-row').forEach(function(row){
+    row.addEventListener('click', function(){
+      var code = this.dataset.code;
+      copyCode(code);
+    });
+    var imgUrl = row.dataset.img;
+    if(imgUrl){
+      row.addEventListener('dblclick', function(e){
+        e.stopPropagation();
+        var existing = row.nextElementSibling;
+        if(existing && existing.classList.contains('expand-row')){
+          existing.classList.toggle('show');
+          return;
+        }
+        var tr = document.createElement('tr');
+        tr.className = 'expand-row show';
+        tr.innerHTML = '<td colspan="4" class="image-cell"><img src="' + imgUrl + '" alt="配件精校图" loading="lazy" onerror="this.style.display=\'none\'"></td>';
+        row.parentNode.insertBefore(tr, row.nextSibling);
+      });
+    }
+  });
+}
+
+function copyCode(code){
+  navigator.clipboard.writeText(code).then(function(){
+    var toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(function(){ toast.classList.remove('show'); }, 1500);
+  });
+}
+
+function filterAndRender(){
+  if(!dataLoaded) return;
+  var search = document.getElementById('searchInput').value.toLowerCase();
+  var list = getWeaponList(currentCat);
+  if(search){
+    list = list.filter(function(w){
+      if(w.name.toLowerCase().indexOf(search) !== -1) return true;
+      return w.builds.some(function(b){ return b.desc.toLowerCase().indexOf(search) !== -1 || b.code.toLowerCase().indexOf(search) !== -1 });
+    });
+  }
+  renderList(list);
+}
+
+// 绑定事件（延迟到数据加载后）
+document.getElementById('searchInput').addEventListener('input', function(){ if(dataLoaded) filterAndRender(); });
+document.getElementById('catTags').addEventListener('click', function(e){
+  if(!dataLoaded) return;
+  if(e.target.classList.contains('cat-tag')){
+    currentCat = e.target.dataset.cat;
+    renderCats();
+    filterAndRender();
+  }
+});
+
+// 显示 loading
+document.getElementById('weaponList').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;padding:60px 0;flex-direction:column;gap:16px"><div style="width:40px;height:40px;border:3px solid rgba(156,255,223,0.15);border-top-color:#9cffdf;border-radius:50%;animation:spin 0.8s linear infinite"></div><div style="color:#9ca3af;font-size:0.9rem">数据加载中...</div></div>';
+
+fetch('data/weapons.json')
+  .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+  .then(function(data){
+    WEAPONS_DATA = data.weapons || data;
+    allWeaponKeys = Object.keys(WEAPONS_DATA);
+    dataLoaded = true;
+    renderCats();
+    filterAndRender();
+  })
+  .catch(function(err){
+    console.error('武器数据加载失败:', err);
+    document.getElementById('weaponList').innerHTML = '<div style="text-align:center;padding:40px;color:#f87171;font-size:1rem">数据加载失败，请稍后重试</div>';
+  });
+</script>
+</body>
+</html>
