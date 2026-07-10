@@ -387,7 +387,7 @@ Function QUCHENRadioNormalizeInstallDir
   ${EndIf}
 
   StrLen $1 "$0"
-  StrCpy $2 "$0" 10 -10
+  StrCpy $2 "$0" 12 -12
   ${If} $1 < 10
   ${OrIf} $2 != "\QUCHENRadio"
   ${AndIf} $2 != "\quchenradio"
@@ -749,8 +749,8 @@ Function QUCHENRadioValidateInstallDir
   ${EndIf}
 
   StrLen $0 "$INSTDIR"
-  StrCpy $1 "$INSTDIR" 10 -10
-  ${If} $0 < 10
+  StrCpy $1 "$INSTDIR" 12 -12
+  ${If} $0 < 12
   ${OrIf} $1 != "\QUCHENRadio"
   ${AndIf} $1 != "\quchenradio"
     MessageBox MB_ICONSTOP|MB_OK "安装目录必须是独立的 QUCHEN Radio 文件夹。请选择一个上级目录，安装器会自动创建 QUCHEN Radio 子文件夹。"
@@ -940,7 +940,7 @@ Function un.QUCHENRadioNormalizeInstallDir
   ${EndIf}
 
   StrLen $1 "$0"
-  StrCpy $2 "$0" 10 -10
+  StrCpy $2 "$0" 12 -12
   ${If} $1 < 10
   ${OrIf} $2 != "\QUCHENRadio"
   ${AndIf} $2 != "\quchenradio"
