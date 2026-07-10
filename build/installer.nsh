@@ -267,70 +267,70 @@ Function QUCHENRadioUseFirstAvailableInstallDir
     StrCpy $INSTDIR "D:\QUCHENRadio"
     Return
   driveE:
-    StrCpy $INSTDIR "E:\QUCHEN Radio"
+    StrCpy $INSTDIR "E:\QUCHENRadio"
     Return
   driveF:
-    StrCpy $INSTDIR "F:\QUCHEN Radio"
+    StrCpy $INSTDIR "F:\QUCHENRadio"
     Return
   driveG:
-    StrCpy $INSTDIR "G:\QUCHEN Radio"
+    StrCpy $INSTDIR "G:\QUCHENRadio"
     Return
   driveH:
-    StrCpy $INSTDIR "H:\QUCHEN Radio"
+    StrCpy $INSTDIR "H:\QUCHENRadio"
     Return
   driveI:
-    StrCpy $INSTDIR "I:\QUCHEN Radio"
+    StrCpy $INSTDIR "I:\QUCHENRadio"
     Return
   driveJ:
-    StrCpy $INSTDIR "J:\QUCHEN Radio"
+    StrCpy $INSTDIR "J:\QUCHENRadio"
     Return
   driveK:
-    StrCpy $INSTDIR "K:\QUCHEN Radio"
+    StrCpy $INSTDIR "K:\QUCHENRadio"
     Return
   driveL:
-    StrCpy $INSTDIR "L:\QUCHEN Radio"
+    StrCpy $INSTDIR "L:\QUCHENRadio"
     Return
   driveM:
-    StrCpy $INSTDIR "M:\QUCHEN Radio"
+    StrCpy $INSTDIR "M:\QUCHENRadio"
     Return
   driveN:
-    StrCpy $INSTDIR "N:\QUCHEN Radio"
+    StrCpy $INSTDIR "N:\QUCHENRadio"
     Return
   driveO:
-    StrCpy $INSTDIR "O:\QUCHEN Radio"
+    StrCpy $INSTDIR "O:\QUCHENRadio"
     Return
   driveP:
-    StrCpy $INSTDIR "P:\QUCHEN Radio"
+    StrCpy $INSTDIR "P:\QUCHENRadio"
     Return
   driveQ:
-    StrCpy $INSTDIR "Q:\QUCHEN Radio"
+    StrCpy $INSTDIR "Q:\QUCHENRadio"
     Return
   driveR:
-    StrCpy $INSTDIR "R:\QUCHEN Radio"
+    StrCpy $INSTDIR "R:\QUCHENRadio"
     Return
   driveS:
-    StrCpy $INSTDIR "S:\QUCHEN Radio"
+    StrCpy $INSTDIR "S:\QUCHENRadio"
     Return
   driveT:
-    StrCpy $INSTDIR "T:\QUCHEN Radio"
+    StrCpy $INSTDIR "T:\QUCHENRadio"
     Return
   driveU:
-    StrCpy $INSTDIR "U:\QUCHEN Radio"
+    StrCpy $INSTDIR "U:\QUCHENRadio"
     Return
   driveV:
-    StrCpy $INSTDIR "V:\QUCHEN Radio"
+    StrCpy $INSTDIR "V:\QUCHENRadio"
     Return
   driveW:
-    StrCpy $INSTDIR "W:\QUCHEN Radio"
+    StrCpy $INSTDIR "W:\QUCHENRadio"
     Return
   driveX:
-    StrCpy $INSTDIR "X:\QUCHEN Radio"
+    StrCpy $INSTDIR "X:\QUCHENRadio"
     Return
   driveY:
-    StrCpy $INSTDIR "Y:\QUCHEN Radio"
+    StrCpy $INSTDIR "Y:\QUCHENRadio"
     Return
   driveZ:
-    StrCpy $INSTDIR "Z:\QUCHEN Radio"
+    StrCpy $INSTDIR "Z:\QUCHENRadio"
     Return
 FunctionEnd
 
@@ -375,14 +375,14 @@ Function QUCHENRadioNormalizeInstallDir
   ${If} $1 == 2
     StrCpy $2 "$0" 1 1
     ${If} $2 == ":"
-      StrCpy $0 "$0\QUCHEN Radio"
+      StrCpy $0 "$0\QUCHENRadio"
     ${EndIf}
   ${ElseIf} $1 == 3
     StrCpy $2 "$0" 1 1
     StrCpy $3 "$0" 1 2
     ${If} $2 == ":"
     ${AndIf} $3 == "\"
-      StrCpy $0 "$0QUCHEN Radio"
+      StrCpy $0 "$0QUCHENRadio"
     ${EndIf}
   ${EndIf}
 
@@ -391,7 +391,7 @@ Function QUCHENRadioNormalizeInstallDir
   ${If} $1 < 10
   ${OrIf} $2 != "\QUCHENRadio"
   ${AndIf} $2 != "\quchenradio"
-    StrCpy $0 "$0\QUCHEN Radio"
+    StrCpy $0 "$0\QUCHENRadio"
   ${EndIf}
   Exch $0
 FunctionEnd
@@ -928,14 +928,14 @@ Function un.QUCHENRadioNormalizeInstallDir
   ${If} $1 == 2
     StrCpy $2 "$0" 1 1
     ${If} $2 == ":"
-      StrCpy $0 "$0\QUCHEN Radio"
+      StrCpy $0 "$0\QUCHENRadio"
     ${EndIf}
   ${ElseIf} $1 == 3
     StrCpy $2 "$0" 1 1
     StrCpy $3 "$0" 1 2
     ${If} $2 == ":"
     ${AndIf} $3 == "\"
-      StrCpy $0 "$0QUCHEN Radio"
+      StrCpy $0 "$0QUCHENRadio"
     ${EndIf}
   ${EndIf}
 
@@ -944,7 +944,7 @@ Function un.QUCHENRadioNormalizeInstallDir
   ${If} $1 < 10
   ${OrIf} $2 != "\QUCHENRadio"
   ${AndIf} $2 != "\quchenradio"
-    StrCpy $0 "$0\QUCHEN Radio"
+    StrCpy $0 "$0\QUCHENRadio"
   ${EndIf}
   Exch $0
 FunctionEnd
