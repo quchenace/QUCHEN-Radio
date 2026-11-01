@@ -16,8 +16,4 @@ contextBridge.exposeInMainWorld('desktopOverlay', {
   setLyricsLockState: (locked) => ipcRenderer.invoke('quchenradio-desktop-lyrics-set-lock-state', !!locked),
   moveLyricsBy: (dx, dy) => ipcRenderer.invoke('quchenradio-desktop-lyrics-move-by', Number(dx) || 0, Number(dy) || 0),
   closeLyrics: () => ipcRenderer.invoke('quchenradio-desktop-lyrics-set-enabled', false, {}),
-
-  // === sjz 工具站 ===
-  getPasswords: () => ipcRenderer.invoke('quchenradio-get-passwords'),
-  refreshPasswords: () => ipcRenderer.invoke('quchenradio-refresh-passwords'),
 });

@@ -36,29 +36,31 @@ function resolveRcedit(projectDir) {
   }
   candidates.push(path.join(projectDir, 'node_modules', 'electron-winstaller', 'vendor', 'rcedit.exe'));
   var hit = candidates.find(function(candidate) { return candidate && fs.existsSync(candidate); });
-  if (!hit) throw new Error('No usable rcedit executable was found for QUCHEN Radio icon injection.');
+  if (!hit) throw new Error('No usable rcedit executable was found for QUCHENRadio icon injection.');
   return hit;
 }
 
 module.exports = async function afterPack(context) {
   if (context.electronPlatformName !== 'win32') return;
 
-  const appName = context.packager.appInfo.productFilename || 'QUCHEN Radio';
+  const appName = context.packager.appInfo.productFilename || 'QUCHENRadio';
+  const productName = context.packager.appInfo.productName || appName;
+  const companyName = context.packager.appInfo.companyName || productName;
   const exePath = path.join(context.appOutDir, `${appName}.exe`);
   const iconPath = path.join(context.packager.info.buildResourcesDir, 'icon.ico');
   const rceditPath = resolveRcedit(context.packager.projectDir);
 
-  if (!fs.existsSync(exePath)) throw new Error(`QUCHEN Radio executable was not found: ${exePath}`);
-  if (!fs.existsSync(iconPath)) throw new Error(`QUCHEN Radio icon was not found: ${iconPath}`);
+  if (!fs.existsSync(exePath)) throw new Error(`QUCHENRadio executable was not found: ${exePath}`);
+  if (!fs.existsSync(iconPath)) throw new Error(`QUCHENRadio icon was not found: ${iconPath}`);
 
   const version = context.packager.appInfo.version;
-  console.log(`  • injecting QUCHEN Radio resources  rcedit=${rceditPath}`);
+  console.log(`  • injecting QUCHENRadio resources  rcedit=${rceditPath}`);
   execFileSync(rceditPath, [
     exePath,
     '--set-icon', iconPath,
-    '--set-version-string', 'FileDescription', 'QUCHEN Radio',
-    '--set-version-string', 'ProductName', 'QUCHEN Radio',
-    '--set-version-string', 'CompanyName', 'QUCHEN Radio',
+    '--set-version-string', 'FileDescription', productName,
+    '--set-version-string', 'ProductName', productName,
+    '--set-version-string', 'CompanyName', companyName,
     '--set-version-string', 'OriginalFilename', `${appName}.exe`,
     '--set-file-version', version,
     '--set-product-version', version

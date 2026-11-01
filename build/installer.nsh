@@ -37,7 +37,27 @@
 !include nsDialogs.nsh
 !include WinMessages.nsh
 
-!define QUCHEN_RADIO_INSTALL_MARKER ".quchenradio-install-root"
+!ifndef QUCHENRADIO_INSTALL_DIR_NAME
+  !define QUCHENRADIO_INSTALL_DIR_NAME "QUCHENRadio"
+!endif
+!ifndef QUCHENRADIO_INSTALL_DIR_NAME_LOWER
+  !define QUCHENRADIO_INSTALL_DIR_NAME_LOWER "quchenradio"
+!endif
+!ifndef QUCHENRADIO_INSTALL_MARKER
+  !define QUCHENRADIO_INSTALL_MARKER ".quchenradio-install-root"
+!endif
+!ifndef QUCHENRADIO_MARKER_APP_ID
+  !define QUCHENRADIO_MARKER_APP_ID "com.quchenradio.desktop"
+!endif
+!ifndef QUCHENRADIO_INSTALL_BRAND
+  !define QUCHENRADIO_INSTALL_BRAND "QUCHENRADIO"
+!endif
+!ifndef QUCHENRADIO_INSTALL_TITLE
+  !define QUCHENRADIO_INSTALL_TITLE "QUCHENRadio 安装"
+!endif
+!ifndef QUCHENRADIO_INSTALL_NOTICE
+  !define QUCHENRADIO_INSTALL_NOTICE ""
+!endif
 
 !ifndef BUILD_UNINSTALLER
   Var QUCHENRadioWelcomePage
@@ -60,10 +80,10 @@
 !macroend
 
 !macro customInstall
-  FileOpen $0 "$INSTDIR\${QUCHEN_RADIO_INSTALL_MARKER}" w
+  FileOpen $0 "$INSTDIR\${QUCHENRADIO_INSTALL_MARKER}" w
   ${IfNot} ${Errors}
     FileWrite $0 "QUCHEN Radio install root$\r$\n"
-    FileWrite $0 "appId=com.quchenradio.desktop$\r$\n"
+    FileWrite $0 "appId=${QUCHENRADIO_MARKER_APP_ID}$\r$\n"
     FileClose $0
   ${EndIf}
 !macroend
@@ -260,77 +280,77 @@ Function QUCHENRadioUseFirstAvailableInstallDir
   IfFileExists "X:\*.*" driveX 0
   IfFileExists "Y:\*.*" driveY 0
   IfFileExists "Z:\*.*" driveZ 0
-  StrCpy $INSTDIR "C:\QUCHENRadio"
+  StrCpy $INSTDIR "C:\${QUCHENRADIO_INSTALL_DIR_NAME}"
   Return
 
   driveD:
-    StrCpy $INSTDIR "D:\QUCHENRadio"
+    StrCpy $INSTDIR "D:\${QUCHENRADIO_INSTALL_DIR_NAME}"
     Return
   driveE:
-    StrCpy $INSTDIR "E:\QUCHENRadio"
+    StrCpy $INSTDIR "E:\${QUCHENRADIO_INSTALL_DIR_NAME}"
     Return
   driveF:
-    StrCpy $INSTDIR "F:\QUCHENRadio"
+    StrCpy $INSTDIR "F:\${QUCHENRADIO_INSTALL_DIR_NAME}"
     Return
   driveG:
-    StrCpy $INSTDIR "G:\QUCHENRadio"
+    StrCpy $INSTDIR "G:\${QUCHENRADIO_INSTALL_DIR_NAME}"
     Return
   driveH:
-    StrCpy $INSTDIR "H:\QUCHENRadio"
+    StrCpy $INSTDIR "H:\${QUCHENRADIO_INSTALL_DIR_NAME}"
     Return
   driveI:
-    StrCpy $INSTDIR "I:\QUCHENRadio"
+    StrCpy $INSTDIR "I:\${QUCHENRADIO_INSTALL_DIR_NAME}"
     Return
   driveJ:
-    StrCpy $INSTDIR "J:\QUCHENRadio"
+    StrCpy $INSTDIR "J:\${QUCHENRADIO_INSTALL_DIR_NAME}"
     Return
   driveK:
-    StrCpy $INSTDIR "K:\QUCHENRadio"
+    StrCpy $INSTDIR "K:\${QUCHENRADIO_INSTALL_DIR_NAME}"
     Return
   driveL:
-    StrCpy $INSTDIR "L:\QUCHENRadio"
+    StrCpy $INSTDIR "L:\${QUCHENRADIO_INSTALL_DIR_NAME}"
     Return
   driveM:
-    StrCpy $INSTDIR "M:\QUCHENRadio"
+    StrCpy $INSTDIR "M:\${QUCHENRADIO_INSTALL_DIR_NAME}"
     Return
   driveN:
-    StrCpy $INSTDIR "N:\QUCHENRadio"
+    StrCpy $INSTDIR "N:\${QUCHENRADIO_INSTALL_DIR_NAME}"
     Return
   driveO:
-    StrCpy $INSTDIR "O:\QUCHENRadio"
+    StrCpy $INSTDIR "O:\${QUCHENRADIO_INSTALL_DIR_NAME}"
     Return
   driveP:
-    StrCpy $INSTDIR "P:\QUCHENRadio"
+    StrCpy $INSTDIR "P:\${QUCHENRADIO_INSTALL_DIR_NAME}"
     Return
   driveQ:
-    StrCpy $INSTDIR "Q:\QUCHENRadio"
+    StrCpy $INSTDIR "Q:\${QUCHENRADIO_INSTALL_DIR_NAME}"
     Return
   driveR:
-    StrCpy $INSTDIR "R:\QUCHENRadio"
+    StrCpy $INSTDIR "R:\${QUCHENRADIO_INSTALL_DIR_NAME}"
     Return
   driveS:
-    StrCpy $INSTDIR "S:\QUCHENRadio"
+    StrCpy $INSTDIR "S:\${QUCHENRADIO_INSTALL_DIR_NAME}"
     Return
   driveT:
-    StrCpy $INSTDIR "T:\QUCHENRadio"
+    StrCpy $INSTDIR "T:\${QUCHENRADIO_INSTALL_DIR_NAME}"
     Return
   driveU:
-    StrCpy $INSTDIR "U:\QUCHENRadio"
+    StrCpy $INSTDIR "U:\${QUCHENRADIO_INSTALL_DIR_NAME}"
     Return
   driveV:
-    StrCpy $INSTDIR "V:\QUCHENRadio"
+    StrCpy $INSTDIR "V:\${QUCHENRADIO_INSTALL_DIR_NAME}"
     Return
   driveW:
-    StrCpy $INSTDIR "W:\QUCHENRadio"
+    StrCpy $INSTDIR "W:\${QUCHENRADIO_INSTALL_DIR_NAME}"
     Return
   driveX:
-    StrCpy $INSTDIR "X:\QUCHENRadio"
+    StrCpy $INSTDIR "X:\${QUCHENRADIO_INSTALL_DIR_NAME}"
     Return
   driveY:
-    StrCpy $INSTDIR "Y:\QUCHENRadio"
+    StrCpy $INSTDIR "Y:\${QUCHENRADIO_INSTALL_DIR_NAME}"
     Return
   driveZ:
-    StrCpy $INSTDIR "Z:\QUCHENRadio"
+    StrCpy $INSTDIR "Z:\${QUCHENRADIO_INSTALL_DIR_NAME}"
     Return
 FunctionEnd
 
@@ -371,27 +391,29 @@ Function QUCHENRadioNormalizeInstallDir
   Push "$0"
   Call QUCHENRadioTrimInstallDir
   Pop $0
+  StrLen $4 "${QUCHENRADIO_INSTALL_DIR_NAME}"
   StrLen $1 "$0"
   ${If} $1 == 2
     StrCpy $2 "$0" 1 1
     ${If} $2 == ":"
-      StrCpy $0 "$0\QUCHENRadio"
+      StrCpy $0 "$0\${QUCHENRADIO_INSTALL_DIR_NAME}"
     ${EndIf}
   ${ElseIf} $1 == 3
     StrCpy $2 "$0" 1 1
     StrCpy $3 "$0" 1 2
     ${If} $2 == ":"
     ${AndIf} $3 == "\"
-      StrCpy $0 "$0QUCHENRadio"
+      StrCpy $0 "$0${QUCHENRADIO_INSTALL_DIR_NAME}"
     ${EndIf}
   ${EndIf}
 
   StrLen $1 "$0"
-  StrCpy $2 "$0" 12 -12
-  ${If} $1 < 10
-  ${OrIf} $2 != "\QUCHENRadio"
-  ${AndIf} $2 != "\quchenradio"
-    StrCpy $0 "$0\QUCHENRadio"
+  IntOp $5 $4 + 1
+  StrCpy $2 "$0" $5 -$5
+  ${If} $1 < $5
+  ${OrIf} $2 != "\${QUCHENRADIO_INSTALL_DIR_NAME}"
+  ${AndIf} $2 != "\${QUCHENRADIO_INSTALL_DIR_NAME_LOWER}"
+    StrCpy $0 "$0\${QUCHENRADIO_INSTALL_DIR_NAME}"
   ${EndIf}
   Exch $0
 FunctionEnd
@@ -416,7 +438,7 @@ Function QUCHENRadioInstallDirLooksOwned
   Exch $0
   StrCpy $1 "0"
 
-  IfFileExists "$0\${QUCHEN_RADIO_INSTALL_MARKER}" 0 +2
+  IfFileExists "$0\${QUCHENRADIO_INSTALL_MARKER}" 0 +2
     StrCpy $1 "1"
 
   StrCpy $0 "$1"
@@ -446,7 +468,7 @@ Function QUCHENRadioExistingInstallPathCanBeAdopted
   ${EndIf}
 
   IfFileExists "$2\*.*" 0 done
-  IfFileExists "$2\${QUCHEN_RADIO_INSTALL_MARKER}" adopt 0
+  IfFileExists "$2\${QUCHENRADIO_INSTALL_MARKER}" adopt 0
   IfFileExists "$2\${PRODUCT_FILENAME}.exe" adopt 0
   IfFileExists "$2\resources\app.asar" adopt 0
   IfFileExists "$2\resources\app\package.json" adopt 0
@@ -628,7 +650,7 @@ Function QUCHENRadioOldInstallPathNeedsQuarantine
     Goto done
   ${EndIf}
 
-  IfFileExists "$2\${QUCHEN_RADIO_INSTALL_MARKER}" done 0
+  IfFileExists "$2\${QUCHENRADIO_INSTALL_MARKER}" done 0
   Push "$2"
   Call QUCHENRadioExistingInstallPathCanBeAdopted
   Pop $4
@@ -710,7 +732,7 @@ Function QUCHENRadioDeleteLegacyUninstallerFileIfMissingMarker
     Call QUCHENRadioTrimInstallDir
     Pop $1
     ${If} $1 != ""
-      IfFileExists "$1\${QUCHEN_RADIO_INSTALL_MARKER}" done 0
+      IfFileExists "$1\${QUCHENRADIO_INSTALL_MARKER}" done 0
       DetailPrint "Remove legacy QUCHEN Radio uninstaller file: $1"
       Delete "$1\Uninstall ${PRODUCT_FILENAME}.exe"
     ${EndIf}
@@ -742,17 +764,19 @@ Function QUCHENRadioValidateInstallDir
       ${If} $2 == "1"
       ${AndIf} $3 != "1"
       ${AndIf} $4 != "1"
-        MessageBox MB_ICONSTOP|MB_OK "检测到这台电脑还有 D-Z 盘，QUCHEN Radio 不安装到 C 盘。请改选 D 盘或其它非 C 盘的 QUCHEN Radio 文件夹。$\r$\n$\r$\n如果电脑只有 C 盘，安装器会自动放行 C:\QUCHENRadio。"
+        MessageBox MB_ICONSTOP|MB_OK "检测到这台电脑还有 D-Z 盘，QUCHENRadio 不安装到 C 盘。请改选 D 盘或其它非 C 盘的 QUCHEN Radio 文件夹。$\r$\n$\r$\n如果电脑只有 C 盘，安装器会自动放行 C:\QUCHENRadio。"
         Abort
       ${EndIf}
     ${EndIf}
   ${EndIf}
 
   StrLen $0 "$INSTDIR"
-  StrCpy $1 "$INSTDIR" 12 -12
-  ${If} $0 < 12
-  ${OrIf} $1 != "\QUCHENRadio"
-  ${AndIf} $1 != "\quchenradio"
+  StrLen $2 "${QUCHENRADIO_INSTALL_DIR_NAME}"
+  IntOp $2 $2 + 1
+  StrCpy $1 "$INSTDIR" $2 -$2
+  ${If} $0 < $2
+  ${OrIf} $1 != "\${QUCHENRADIO_INSTALL_DIR_NAME}"
+  ${AndIf} $1 != "\${QUCHENRADIO_INSTALL_DIR_NAME_LOWER}"
     MessageBox MB_ICONSTOP|MB_OK "安装目录必须是独立的 QUCHEN Radio 文件夹。请选择一个上级目录，安装器会自动创建 QUCHEN Radio 子文件夹。"
     Abort
   ${EndIf}
@@ -801,12 +825,12 @@ Function QUCHENRadioWelcomeShow
   CreateFont $QUCHENRadioBodyFont "Microsoft YaHei UI" 9 400
   CreateFont $QUCHENRadioSmallFont "Microsoft YaHei UI" 8 400
 
-  ${NSD_CreateLabel} 22u 20u 82u 10u "QUCHEN RADIO"
+  ${NSD_CreateLabel} 22u 20u 120u 10u "${QUCHENRADIO_INSTALL_BRAND}"
   Pop $0
   SendMessage $0 ${WM_SETFONT} $QUCHENRadioSmallFont 1
   SetCtlColors $0 "3257F7" "FFFFFF"
 
-  ${NSD_CreateLabel} 22u 42u 226u 30u "QUCHEN Radio 安装"
+  ${NSD_CreateLabel} 22u 42u 226u 30u "${QUCHENRADIO_INSTALL_TITLE}"
   Pop $0
   SendMessage $0 ${WM_SETFONT} $QUCHENRadioHeroFont 1
   SetCtlColors $0 "111217" "FFFFFF"
@@ -815,7 +839,7 @@ Function QUCHENRadioWelcomeShow
   Pop $0
   SetCtlColors $0 "" "3257F7"
 
-  ${NSD_CreateLabel} 22u 96u 238u 24u "为这台电脑安装 QUCHEN Radio。默认安装到 D:\QUCHENRadio，下一步可以自由选择其它位置。"
+  ${NSD_CreateLabel} 22u 96u 238u 24u "为这台电脑安装 ${PRODUCT_NAME}。默认安装到 D:\${QUCHENRADIO_INSTALL_DIR_NAME}，下一步可以自由选择其它位置。"
   Pop $0
   SendMessage $0 ${WM_SETFONT} $QUCHENRadioBodyFont 1
   SetCtlColors $0 "4B5263" "FFFFFF"
@@ -825,11 +849,18 @@ Function QUCHENRadioWelcomeShow
   SendMessage $0 ${WM_SETFONT} $QUCHENRadioTitleFont 1
   SetCtlColors $0 "3257F7" "FFFFFF"
 
+  !ifdef QUCHENRADIO_INTERNAL_BETA
+    ${NSD_CreateLabel} 22u 150u 238u 28u "${QUCHENRADIO_INSTALL_NOTICE}"
+    Pop $0
+    SendMessage $0 ${WM_SETFONT} $QUCHENRadioSmallFont 1
+    SetCtlColors $0 "B42318" "FFFFFF"
+  !endif
+
   nsDialogs::Show
 FunctionEnd
 
 Function QUCHENRadioDirectoryBrowse
-  nsDialogs::SelectFolderDialog "选择 QUCHEN Radio 安装文件夹" "$INSTDIR"
+  nsDialogs::SelectFolderDialog "选择 ${PRODUCT_NAME} 安装文件夹" "$INSTDIR"
   Pop $0
   ${If} $0 != error
   ${AndIf} $0 != ""
@@ -880,7 +911,7 @@ Function QUCHENRadioDirectoryShow
   SendMessage $0 ${WM_SETFONT} $QUCHENRadioSmallFont 1
   ${NSD_OnClick} $0 QUCHENRadioDirectoryBrowse
 
-  ${NSD_CreateLabel} 22u 122u 238u 12u "默认推荐：D:\QUCHENRadio；选盘符会自动建文件夹。"
+  ${NSD_CreateLabel} 22u 122u 238u 12u "默认推荐：D:\${QUCHENRADIO_INSTALL_DIR_NAME}；选盘符会自动建文件夹。"
   Pop $0
   SendMessage $0 ${WM_SETFONT} $QUCHENRadioSmallFont 1
   SetCtlColors $0 "6B7280" "FFFFFF"
@@ -912,7 +943,7 @@ Function un.QUCHENRadioInstallDirLooksOwned
   Exch $0
   StrCpy $1 "0"
 
-  IfFileExists "$0\${QUCHEN_RADIO_INSTALL_MARKER}" 0 +2
+  IfFileExists "$0\${QUCHENRADIO_INSTALL_MARKER}" 0 +2
     StrCpy $1 "1"
 
   StrCpy $0 "$1"
@@ -924,27 +955,29 @@ Function un.QUCHENRadioNormalizeInstallDir
   Push "$0"
   Call un.QUCHENRadioTrimInstallDir
   Pop $0
+  StrLen $4 "${QUCHENRADIO_INSTALL_DIR_NAME}"
   StrLen $1 "$0"
   ${If} $1 == 2
     StrCpy $2 "$0" 1 1
     ${If} $2 == ":"
-      StrCpy $0 "$0\QUCHENRadio"
+      StrCpy $0 "$0\${QUCHENRADIO_INSTALL_DIR_NAME}"
     ${EndIf}
   ${ElseIf} $1 == 3
     StrCpy $2 "$0" 1 1
     StrCpy $3 "$0" 1 2
     ${If} $2 == ":"
     ${AndIf} $3 == "\"
-      StrCpy $0 "$0QUCHENRadio"
+      StrCpy $0 "$0${QUCHENRADIO_INSTALL_DIR_NAME}"
     ${EndIf}
   ${EndIf}
 
   StrLen $1 "$0"
-  StrCpy $2 "$0" 12 -12
-  ${If} $1 < 10
-  ${OrIf} $2 != "\QUCHENRadio"
-  ${AndIf} $2 != "\quchenradio"
-    StrCpy $0 "$0\QUCHENRadio"
+  IntOp $5 $4 + 1
+  StrCpy $2 "$0" $5 -$5
+  ${If} $1 < $5
+  ${OrIf} $2 != "\${QUCHENRADIO_INSTALL_DIR_NAME}"
+  ${AndIf} $2 != "\${QUCHENRADIO_INSTALL_DIR_NAME_LOWER}"
+    StrCpy $0 "$0\${QUCHENRADIO_INSTALL_DIR_NAME}"
   ${EndIf}
   Exch $0
 FunctionEnd
