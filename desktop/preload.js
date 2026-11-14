@@ -1,5 +1,41 @@
 const { contextBridge, ipcRenderer, clipboard } = require('electron');
 
+let quchenAiRequestSequence = 0;
+function onQuchenAiEvent(channel, callback) {
+  if (typeof callback !== 'function') return () => {};
+  const listener = (_event, payload) => callback(payload || {});
+  ipcRenderer.on(channel, listener);
+  return () => ipcRenderer.removeListener(channel, listener);
+}
+
+contextBridge.exposeInMainWorld('quchenAi', {
+  listModels: (options) => ipcRenderer.invoke('quchenradio-ai-models', {
+    baseUrl: String(options && options.baseUrl || ''),
+    apiKey: String(options && options.apiKey || ''),
+  }),
+  startChat: (options) => {
+    quchenAiRequestSequence += 1;
+    const requestId = `qai-${Date.now().toString(36)}-${quchenAiRequestSequence.toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+    ipcRenderer.send('quchenradio-ai-chat', {
+      requestId,
+      baseUrl: String(options && options.baseUrl || ''),
+      apiKey: String(options && options.apiKey || ''),
+      model: String(options && options.model || ''),
+      messages: (Array.isArray(options && options.messages) ? options.messages : []).map((message) => ({
+        role: String(message && message.role || 'user'),
+        content: String(message && message.content != null ? message.content : ''),
+      })),
+    });
+    return requestId;
+  },
+  cancelChat: (requestId) => ipcRenderer.send('quchenradio-ai-cancel', {
+    requestId: String(requestId || ''),
+  }),
+  onChunk: (callback) => onQuchenAiEvent('quchenradio-ai-chunk', callback),
+  onDone: (callback) => onQuchenAiEvent('quchenradio-ai-done', callback),
+  onError: (callback) => onQuchenAiEvent('quchenradio-ai-error', callback),
+});
+
 contextBridge.exposeInMainWorld('desktopWindow', {
   isDesktop: true,
   minimize: () => ipcRenderer.invoke('desktop-window-minimize'),

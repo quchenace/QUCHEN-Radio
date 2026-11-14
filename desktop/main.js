@@ -17,8 +17,8 @@ const { BuiltInPlaylistLibrary } = require('./built-in-playlist-library');
 const { SlideshowLibrary, installSlideshowIpc } = require('./slideshow-library');
 const { registerMediaSchemes } = require('./media-schemes');
 const { createDesktopPreferences } = require('./desktop-preferences');
-const quchenAiHost = require('./quchen-ai-host');
-ipcMain.handle('quchenradio-ai-service', () => quchenAiHost.getAiServiceState());
+const { installQuchenAiIpc } = require('./quchen-ai-client');
+const quchenAiBridge = installQuchenAiIpc({ ipcMain });
 const { startupQuery } = require('./startup-assets');
 const { WallpaperEngineRuntime } = require('./wallpaper-engine-runtime');
 const { FullDesktopModeRuntime } = require('./full-desktop-mode-runtime');
@@ -6425,16 +6425,6 @@ if (!gotSingleInstanceLock) {
     screen.on('display-added', handleDisplayLayoutChanged);
     screen.on('display-removed', handleDisplayLayoutChanged);
     await createWindow();
-    // QuChen AI 本地服务托管：随音乐 App 拉起 Ollama 与 AI 控制台（headless），AI 区直接复用 8099 API
-    try {
-      quchenAiHost.ensureAiServices().then((state) => {
-        console.log('[QuChenAI] AI 服务状态：' + JSON.stringify(state));
-      }).catch((err) => {
-        console.warn('[QuChenAI] AI 服务启动异常：' + (err && err.message ? err.message : err));
-      });
-    } catch (err) {
-      console.warn('[QuChenAI] AI 服务托管初始化失败：' + (err && err.message ? err.message : err));
-    }
   }).catch((e) => reportWindowCreationFailure('Main', e));
 
   app.on('activate', () => {
@@ -6450,7 +6440,7 @@ if (!gotSingleInstanceLock) {
 
   app.on('before-quit', (event) => {
     appQuitting = true;
-    quchenAiHost.stopAiServices(); // 回收由音乐 App 拉起的 AI 子服务（外部已有实例不受影响）
+    quchenAiBridge.dispose();
     if (appQuitCleanupComplete) return;
     event.preventDefault();
     if (appQuitCleanupPromise) return;

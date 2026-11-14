@@ -1,6 +1,6 @@
 # QUCHEN Radio（含 QuChen AI 融合版）
 
-> 本仓库为 QUCHEN Radio 桌面版源码（resources/app）。v2.1.0 起已将本地 AI 套件 **QuChen AI** 整体融入：安装 QUCHEN Radio 即同时获得「音乐播放器 + 本地智能助手」双能力，AI 与音乐同一应用不可分割。
+> 本仓库为 QUCHEN Radio 桌面版源码（resources/app）。应用包含音乐播放器和 AI 聊天；AI 聊天直接调用本机 QuChen-AI 的 OpenAI 兼容 API，不再安装或托管第二套模型服务。
 
 ---
 
@@ -8,10 +8,11 @@
 
 QUCHEN Radio 是一款 Windows 桌面音乐播放器（Electron），前身移植自 Mineradio / QUCHEN Radio 定制版，保留 QUCHEN 定制能力（AI 3D 视觉、cuefield 混音、五平台音源、QQ 源等）。
 
-**v2.1.0 融合 QuChen AI 后新增能力**：
-- 本地大模型推理（Ollama 绿色版，全部模型落在 D 盘）
-- AI 聊天、知识库问答、模型商店 / 模型管理、办公面板、控制台日志、服务管控、主题切换、联网检索、一键自检等十大功能页
-- 数据不出本机，无需联网账号，隐私安全
+**AI 聊天能力**：
+- 从 QuChen-AI 获取本地模型和已配置的外部 provider 模型
+- 多会话、多轮上下文、流式输出、停止生成和错误提示
+- 默认连接 `http://127.0.0.1:8791`，可在聊天页修改地址和可选 API key
+- Radio 不启动 Ollama、Open WebUI 或其他 AI 后台
 
 ---
 
@@ -24,67 +25,39 @@ QUCHEN Radio 是一款 Windows 桌面音乐播放器（Electron），前身移�
 - 汽水音乐登录：登录态与 Cookie 已对齐上游 Mineradio v2.3.17
 - cuefield 混音、AI 3D 视觉等 QUCHEN 定制能力保留
 
-### AI 侧（融合新增）
-1. **AI 聊天**：多轮对话，支持图片输入、思维链展示、会话历史管理
-2. **知识库**：本地向量检索问答（嵌入模型 bge-small-zh），问答基于知识库原文
-3. **模型商店 / 模型管理**：浏览可安装模型、查看已安装模型、删除模型
-4. **办公面板**：Office 实时面板
-5. **控制台 & 日志**：AI 服务最近日志、运行状态
-6. **服务管控**：Ollama / Open WebUI / 官网 / 音乐服务 / 控制台启停与状态
-7. **主题**：深色 / 浅色 / 动态跟随，双端一致
-8. **联网检索**：Bing RSS 网关搜索
-9. **一键自检**：19 项检查覆盖服务 / 知识库 / 会话 / 联网 / 模型 / 主题等
-10. **模型明细**：Ollama 已加载模型与 GPU 利用率
-
-> 功能入口需通过密码门解锁（见「安装与使用」）。
+### AI 侧
+1. **模型列表**：读取 QuChen-AI `/v1/models`。
+2. **流式聊天**：调用 `/v1/chat/completions`，兼容 SSE 和非流式 JSON 响应。
+3. **多轮上下文**：发送当前会话历史，支持多个本地会话。
+4. **生成控制**：按请求 ID 关联输出，可停止生成并在窗口关闭时中止请求。
+5. **连接配置**：支持本机或远程 HTTP/HTTPS QuChen-AI 地址及可选 API key。
 
 ---
 
 ## 三、AI 功能架构
 
 ```
-┌──────────────────────────────────────────────────────────────┐
-│ QUCHEN Radio（Electron 42.4.1）                              │
-│  desktop/main.js                                             │
-│   ├─ 音乐服务（Node，127.0.0.1:3000，端口占用自动漂移）        │
-│   └─ quchen-ai-host.js（AI 托管）                            │
-│       ├─ Ollama       127.0.0.1:11434（模型 D:\ai-stack\models）│
-│       └─ AI 控制台    127.0.0.1:8099（--headless 服务形态）    │
-└──────────────┬───────────────────────────────────────────────┘
-               │ 同机本地调用（复用，端口占用不重复拉起）
-┌──────────────▼───────────────────────────────────────────────┐
-│ QuChen AI（D:\ai-stack）                                     │
-│  ├─ app/           8099 控制台（startWebServer，headless 模式）│
-│  ├─ ollama/        Ollama 绿色版（ollama.exe serve）           │
-│  ├─ models/        本地模型库（blobs + manifests + 嵌入模型）  │
-│  ├─ openwebui-src/ Open WebUI 改造后端（uvicorn，8081 网关反代）│
-│  ├─ openwebui-venv/ 后端 Python 环境                         │
-│  ├─ data/          Open WebUI 数据（webui.db）、知识库、日志  │
-│  ├─ website/       官网静态服务 8090（不随启动）              │
-│  └─ config/env.json 统一配置                                  │
-└──────────────────────────────────────────────────────────────┘
+QUCHEN Radio 渲染进程
+  → preload.js 暴露的最小 window.quchenAi 接口
+  → Electron 主进程 quchen-ai-client.js
+  → QuChen-AI /v1/models 与 /v1/chat/completions
 ```
 
-- **端口约定**：Ollama `11434`、AI 控制台 `8099`、Open WebUI 后端 `8081`（经控制台网关反代，音乐 App 直连 8099 即可）、官网 `8090`、音乐服务 `3000`（占用时漂移）。
-- **服务托管**：音乐主进程随应用拉起 Ollama 与 AI 控制台（`quchen-ai-host.js`）；端口已被外部占用时直接复用、不重复拉起；退出只回收本进程拉起的子进程，不影响单独使用 QuChen AI 桌面端。
-- **密码门机制**：进入 AI 功能页需输入访问密码（访问码以 base64 混淆存储于前端，非明文），验证通过后以 `sessionStorage` 保持本会话解锁状态。
-- **模型**：预装 `qwen3:8b`、`deepseek-r1:8b`、`qwen3:1.7b`，另可拉取 `gemma2:9b`、`gemma3:4b`、`llama3.1:8b` 等；知识库向量化使用本地嵌入模型 bge-small-zh。
+- 渲染进程不直接获得 Node.js 或通用网络请求能力，`contextIsolation` 保持开启。
+- 主进程使用请求 ID 转发 chunk、done 和 error；停止生成或销毁窗口会取消对应请求。
+- 音乐服务仍使用本机动态端口；AI 不再使用 `11434`、`8099` 或 `D:\ai-stack`。
 
 ---
 
-## 四、数据落盘策略（强制不占 C 盘）
+## 四、数据落盘策略
 
 | 数据 | 路径 | 说明 |
 |---|---|---|
-| AI 模型库 | `D:\ai-stack\models` | Ollama 通过 `OLLAMA_MODELS` 强制指向 |
-| Ollama 服务 | `D:\ai-stack\ollama` | 绿色版，无系统服务 |
-| Open WebUI 数据 | `D:\ai-stack\data\openwebui`（webui.db 等） | 知识库 / 会话权威源 |
-| 知识库文件 | `D:\ai-stack\data\knowledge` | — |
-| 配置 | `D:\ai-stack\config\env.json` | 统一配置，日志写 D 盘 |
+| AI 会话与连接设置 | Radio 的 Chromium localStorage | 模型文件仍由 QuChen-AI 管理 |
 | 音乐缓存 | 优先 `D:\QUCHENRadioCache` | 不可用时兜底 userData\cache |
-| AI_STACK_BASE | 默认 `D:\ai-stack` | 可用环境变量 `QUCHEN_AI_BASE` / `AI_STACK_BASE` 覆盖 |
+| 应用设置 | `%APPDATA%\QUCHEN Radio` | Electron userData |
 
-> 说明：AI 全部数据强制落在 D 盘；音乐缓存优先 D 盘。运行期仍有少量 C 盘写点（userData 默认 `%APPDATA%\QUCHENRadio`、壁纸原生临时目录 `%LOCALAPPDATA%\QUCHENRadio\native-helper-temp`），如需绝对零 C 盘可在后续版本将二者重定向至 D 盘。
+> Radio 不下载或保存 AI 模型，也不创建 `D:\ai-stack`。
 
 ---
 
@@ -92,11 +65,10 @@ QUCHEN Radio 是一款 Windows 桌面音乐播放器（Electron），前身移�
 
 1. **前置**：Windows 10+；安装包为 NSIS 安装程序（可选择安装目录）。
 2. **安装**：运行 `QUCHEN-Radio-Setup-<version>.exe` 完成安装。
-3. **AI 依赖**：首次使用 AI 功能需本机存在 `D:\ai-stack`（模型、Ollama、Open WebUI 数据均在其中）。程序启动时会自动检测并拉起服务；若目录不存在，请在装有 QuChen AI 数据的机器上迁移该目录，或配置 `QUCHEN_AI_BASE` 指向实际路径。
+3. **AI 依赖**：使用 AI 聊天前启动 QuChen-AI，并在其中加载本地模型或配置外部 provider。
 4. **使用**：
    - 音乐：本地音乐库 / 内置歌单 / 多平台音源正常使用；
-   - AI：点击「QuChen AI」入口 → 输入访问密码解锁 → 进入十大功能页；
-   - 关闭应用时自动停止由本应用拉起的 AI 服务，不残留进程。
+   - AI：点击「AI」入口，刷新模型后即可聊天；需要时在「连接设置」中修改 QuChen-AI 地址。
 
 ---
 
@@ -107,20 +79,19 @@ QUCHEN Radio 是一款 Windows 桌面音乐播放器（Electron），前身移�
 | 桌面框架 | Electron 42.4.1（asar=false，源码落盘） |
 | 更新 | electron-updater 6.8.11 |
 | 音乐后端 | Node.js（`desktop/main.js` 主进程 + `server.js`，端口 3000 探测漂移） |
-| AI 推理 | Ollama（绿色版，11434） |
-| AI 管控 | QuChen AI 控制台（8099，headless） |
-| AI 网页后端 | Open WebUI 改造版（uvicorn，8081，经网关反代） |
+| AI 客户端 | Electron 主进程 Node.js HTTP/SSE 客户端 |
+| AI API | QuChen-AI OpenAI 兼容接口（默认 127.0.0.1:8791） |
 | 前端 | 原生 JS + HTML/CSS（`public/`），Linear / Raycast 风格 UI |
 
 ```
 D:\111\QUCHENRadio\resources\app\
 ├── desktop\                 # Electron 主进程模块
-│   ├── main.js              # 主入口：音乐服务 + AI 托管 + IPC
-│   ├── quchen-ai-host.js    # AI 服务托管（Ollama + 8099 控制台）
+│   ├── main.js              # 主入口：音乐服务 + AI IPC
+│   ├── quchen-ai-client.js  # QuChen-AI HTTP/SSE 客户端与请求桥
 │   ├── preload.js           # 预加载
 │   └── *.js                 # 本地音乐库 / 内置歌单 / 壁纸引擎等
 ├── public/                  # 前端资源
-│   └── js\modules\13-quchen-ai\00-quchen-ai.js   # AI 功能页（密码门+十大功能）
+│   └── js\modules\13-quchen-ai\00-quchen-ai.js   # AI 多会话聊天页
 ├── build/                   # electron-builder 资源（icon、installer.nsh、tools）
 ├── docs/                    # 项目文档（README / RELEASE / THIRD_PARTY_PORTS）
 ├── dist/                    # 构建输出（生成物，不入库）
@@ -147,7 +118,7 @@ npm start          # 或 npx electron .
 ### 打包
 ```bash
 cd resources/app
-npm run dist       # electron-builder --win nsis
+npm run dist       # electron-builder --win nsis --publish never
 ```
 - 产物输出：`dist\QUCHEN-Radio-Setup-<version>.exe`（`artifactName` 已在 package.json 配置）
 - 构建配置：`package.json > build`（appId=com.quchenradio.desktop、nsis 可选安装目录、afterPack 图标注入等）
@@ -155,7 +126,7 @@ npm run dist       # electron-builder --win nsis
 
 ### 发布（GitHub Releases）
 - 仓库：`quchenace/QUCHEN-Radio`（electron-builder `publish` 已配置 github provider）
-- 发布流程：`npm run dist -p always`（或 `electron-builder --publish always`，需有效 GitHub Token）
+- 发布流程：`npx electron-builder --win nsis --publish always`（需有效 GitHub Token）
 - 发布说明：见 `docs/RELEASE-<version>.md`，版本号需与 `package.json` 同步
 
 ---

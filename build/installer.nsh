@@ -238,13 +238,20 @@ Function QUCHENRadioTintCommonControls
 FunctionEnd
 
 Function QUCHENRadioUsePreferredInstallDir
-  ${GetParameters} $R0
-  ClearErrors
-  ${GetOptions} $R0 "/D=" $R1
-  ${IfNot} ${Errors}
-  ${AndIf} $R1 != ""
-    StrCpy $INSTDIR "$R1"
-  ${Else}
+  System::Call 'kernel32::GetCommandLineW()w.r0'
+  StrCpy $R0 $0
+  StrCpy $R1 ""
+  StrLen $R2 $R0
+  StrCpy $R3 0
+  ${While} $R3 < $R2
+    StrCpy $R4 $R0 3 $R3
+    ${If} $R4 == "/D="
+      StrCpy $R1 "/D="
+      ${ExitWhile}
+    ${EndIf}
+    IntOp $R3 $R3 + 1
+  ${EndWhile}
+  ${If} $R1 == ""
     Call QUCHENRadioUseRegisteredInstallDir
     Pop $R2
     ${If} $R2 != "1"
