@@ -1,0 +1,9 @@
+version: 3.1.1
+files:
+  - url: https://github.com/quchenace/QUCHEN-Radio/releases/download/v3.1.1/QUCHEN-Radio-Setup-3.1.1.exe
+    sha512: Ond68mNJThwSZuxwVbWdqzorCicvS1gZyH/5MJ9Ckbfu/LBw1wVxfjrQtClIof+yQOD/TALBAatuOQ5jQZp1dQ==
+    size: 120722178
+path: https://github.com/quchenace/QUCHEN-Radio/releases/download/v3.1.1/QUCHEN-Radio-Setup-3.1.1.exe
+sha512: Ond68mNJThwSZuxwVbWdqzorCicvS1gZyH/5MJ9Ckbfu/LBw1wVxfjrQtClIof+yQOD/TALBAatuOQ5jQZp1dQ==
+size: 120722178
+releaseDate: '2026-11-15T11:30:00.000Z'
