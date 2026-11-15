@@ -70,7 +70,7 @@
   <p id="msg" class="msg"></p>
 
   <div class="foot">
-    <span id="hint">账号服务 127.0.0.1:8788</span>
+    <span id="hint">账号服务 frp-any.com:19549</span>
     <button id="quit" type="button">退出</button>
   </div>
 </div>
@@ -131,7 +131,7 @@
         rejected: '注册申请未通过，请联系管理员。',
         banned: '账号已被停用，请联系管理员。',
         locked: '尝试次数过多，请稍后再试。',
-        unreachable: '连不上账号服务（127.0.0.1:8788），请确认服务已启动。',
+        unreachable: '连不上账号服务（frp-any.com:19549），请确认服务已启动。',
         bad_request: '请填写有效的邮箱与密码。',
       };
       show(map[code] || (res && res.message) || '登录失败，请重试。', 'err');
