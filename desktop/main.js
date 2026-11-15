@@ -20,6 +20,7 @@ const { createDesktopPreferences } = require('./desktop-preferences');
 const { installQuchenAiIpc } = require('./quchen-ai-client');
 const quchenAiBridge = installQuchenAiIpc({ ipcMain });
 const { startupQuery } = require('./startup-assets');
+const { AccountGate } = require('./account-gate');
 const { WallpaperEngineRuntime } = require('./wallpaper-engine-runtime');
 const { FullDesktopModeRuntime } = require('./full-desktop-mode-runtime');
 const {
@@ -6053,6 +6054,147 @@ function showMainWindowSafely(win, reason) {
   return true;
 }
 
+// ====================================================================
+//  QuChen 账号登录墙（未登录不渲染主界面）
+// ====================================================================
+const ACCOUNT_GATE_ENABLED = process.env.QUCHEN_ACCOUNT_GATE_DISABLED !== '1';
+const accountGate = new AccountGate('radio', {
+  baseUrl: process.env.QUCHEN_AUTH_BASE || undefined,
+  enabled: ACCOUNT_GATE_ENABLED,
+  deviceName: APP_NAME,
+});
+let accountLoginWindow = null;
+let accountGateResolve = null;
+
+function accountStatePayload() {
+  const st = accountGate.reason();
+  return Object.assign({}, st, { app: 'radio', base: accountGate.baseUrl });
+}
+
+function isAccountLoginSender(event) {
+  return Boolean(accountLoginWindow && !accountLoginWindow.isDestroyed &&
+    event && event.sender === accountLoginWindow.webContents);
+}
+
+function openAccountLoginWindow() {
+  if (accountLoginWindow && !accountLoginWindow.isDestroyed()) {
+    accountLoginWindow.show();
+    accountLoginWindow.focus();
+    return accountLoginWindow;
+  }
+  const iconFile = fs.existsSync(APP_ICON_ICO) ? APP_ICON_ICO : undefined;
+  const win = new BrowserWindow({
+    width: 440,
+    height: 600,
+    useContentSize: true,
+    resizable: false,
+    maximizable: false,
+    fullscreenable: false,
+    backgroundColor: '#0d1420',
+    title: '登录 QuChen 账号',
+    icon: iconFile,
+    show: false,
+    webPreferences: {
+      preload: path.join(__dirname, 'account-preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false,
+      backgroundThrottling: false,
+    },
+  });
+  win.setMenuBarVisibility(false);
+  win.loadFile(path.join(__dirname, 'account-login.html')).catch((error) => {
+    console.warn('[AccountGate] login page load failed:', error && error.message || error);
+  });
+  win.once('ready-to-show', () => { if (!win.isDestroyed()) win.show(); });
+  win.on('closed', () => {
+    if (accountLoginWindow === win) accountLoginWindow = null;
+    const resolve = accountGateResolve;
+    accountGateResolve = null;
+    if (resolve) resolve(accountGate.unlocked());
+  });
+  accountLoginWindow = win;
+  return win;
+}
+
+function finishAccountGate(unlocked) {
+  const resolve = accountGateResolve;
+  accountGateResolve = null;
+  if (accountLoginWindow && !accountLoginWindow.isDestroyed()) accountLoginWindow.close();
+  if (resolve) resolve(Boolean(unlocked));
+}
+
+async function ensureAccountUnlocked() {
+  if (!ACCOUNT_GATE_ENABLED) return true;
+  try { await accountGate.ensureFresh(); } catch (_) { /* 离线宽限由 unlocked() 判定 */ }
+  if (accountGate.unlocked()) return true;
+  writeStartupState('account-gate', Object.assign({}, accountGate.reason(), { at: Date.now() }));
+  openAccountLoginWindow();
+  return await new Promise((resolve) => { accountGateResolve = resolve; });
+}
+
+ipcMain.handle('quchen-account:state', (event) => {
+  if (!isAccountLoginSender(event)) return { unlocked: false, why: 'forbidden' };
+  return accountStatePayload();
+});
+
+ipcMain.handle('quchen-account:retry', async (event) => {
+  if (!isAccountLoginSender(event)) return { unlocked: false, why: 'forbidden' };
+  try { await accountGate.ensureFresh(); } catch (_) { /* ignore */ }
+  return accountStatePayload();
+});
+
+ipcMain.handle('quchen-account:login', async (event, payload) => {
+  if (!isAccountLoginSender(event)) return { ok: false, code: 'forbidden', message: '非法调用来源' };
+  const email = String((payload && payload.email) || '').trim();
+  const password = String((payload && payload.password) || '');
+  if (!email || !password) {
+    return { ok: false, code: 'bad_request', message: '请填写邮箱与密码' };
+  }
+  try {
+    await accountGate.login(email, password);
+    writeStartupState('account-gate-unlocked', Object.assign({}, accountGate.reason(), { at: Date.now() }));
+    finishAccountGate(true);
+    return { ok: true, state: accountStatePayload() };
+  } catch (error) {
+    return {
+      ok: false,
+      code: (error && error.code) || 'login_failed',
+      status: (error && error.status) || 0,
+      message: (error && error.message) || String(error),
+    };
+  }
+});
+
+ipcMain.handle('quchen-account:logout', async (event) => {
+  if (!isAccountLoginSender(event)) return { unlocked: false, why: 'forbidden' };
+  await accountGate.logout();
+  return accountStatePayload();
+});
+
+ipcMain.handle('quchen-account:quit', (event) => {
+  if (!isAccountLoginSender(event)) return false;
+  app.quit();
+  return true;
+});
+
+ipcMain.handle('quchen-account:main-state', (event) => {
+  if (!isTrustedMainWindowIpc(event)) return { unlocked: false, why: 'forbidden' };
+  return accountStatePayload();
+});
+
+// 主界面退出登录：清会话后重启进程，回到登录墙（主界面不再渲染）
+ipcMain.handle('quchen-account:main-logout', async (event) => {
+  if (!isTrustedMainWindowIpc(event)) return { ok: false, error: 'UNTRUSTED_SENDER' };
+  await accountGate.logout();
+  writeStartupState('account-logout', { at: Date.now() });
+  setTimeout(() => {
+    app.relaunch();
+    app.exit(0);
+  }, 150);
+  return { ok: true };
+});
+
 async function loadMainWindowWithRetry(win) {
   const port = mainServerPort || process.env.PORT || 3000;
   const baseUrl = `http://127.0.0.1:${port}`;
@@ -6340,6 +6482,14 @@ async function createWindowOnce() {
         console.warn('[StartupWindow] startup shell skipped:', error.message || error);
       }
     });
+  }
+
+  const accountUnlocked = await ensureAccountUnlocked();
+  if (!accountUnlocked) {
+    writeStartupState('account-gate-abort', { at: Date.now(), why: accountGate.reason().why });
+    if (!win.isDestroyed()) win.destroy();
+    app.quit();
+    return null;
   }
 
   await ensureLocalServerStarted();

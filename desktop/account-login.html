@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>登录 QuChen 账号</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: "Microsoft YaHei UI", "Segoe UI", system-ui, sans-serif;
+    background: radial-gradient(1200px 600px at 20% -10%, #1d4e6b 0%, #0d1420 55%, #070b12 100%);
+    color: #e8eef6;
+    display: flex; align-items: center; justify-content: center;
+    -webkit-user-select: none; user-select: none;
+    overflow: hidden;
+  }
+  .wrap { width: 100%; max-width: 380px; padding: 28px; }
+  .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; background: #47d1a0; box-shadow: 0 0 14px #47d1a0aa; }
+  h1 { font-size: 19px; font-weight: 600; margin: 0; letter-spacing: .5px; }
+  .sub { font-size: 12.5px; color: #8ea3b8; margin: 4px 0 22px; }
+  label { display: block; font-size: 12.5px; color: #9fb2c6; margin: 0 0 6px; }
+  input {
+    width: 100%; padding: 11px 12px; font-size: 14px; color: #e8eef6;
+    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.13);
+    border-radius: 9px; outline: none; transition: border-color .15s, background .15s;
+  }
+  input:focus { border-color: #47d1a0; background: rgba(71,209,160,.08); }
+  .field { margin-bottom: 14px; }
+  button.primary {
+    width: 100%; margin-top: 6px; padding: 11px 12px; font-size: 14.5px; font-weight: 600;
+    color: #05221a; background: linear-gradient(180deg, #63e3b3, #37c795);
+    border: 0; border-radius: 9px; cursor: pointer; transition: filter .15s, transform .06s;
+  }
+  button.primary:hover { filter: brightness(1.06); }
+  button.primary:active { transform: translateY(1px); }
+  button.primary:disabled { filter: grayscale(.45); cursor: default; }
+  .msg { min-height: 18px; font-size: 12.5px; margin: 12px 0 0; line-height: 1.5; }
+  .msg.err { color: #ff8f8f; }
+  .msg.ok { color: #7fe3bb; }
+  .msg.warn { color: #ffcf7a; }
+  .foot { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; font-size: 12px; color: #7d90a4; }
+  .foot button {
+    background: none; border: 0; color: #7d90a4; font-size: 12px; cursor: pointer; padding: 4px 6px; border-radius: 6px;
+  }
+  .foot button:hover { color: #cfe0f0; background: rgba(255,255,255,.06); }
+  .spin { display: inline-block; width: 12px; height: 12px; border: 2px solid #05221a55; border-top-color: #05221a; border-radius: 50%; animation: sp .7s linear infinite; vertical-align: -2px; margin-right: 6px; }
+  @keyframes sp { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><span class="dot"></span><h1>QUCHEN Radio</h1></div>
+  <p class="sub">未登录不加载主界面。使用 QuChen 账号进入。</p>
+
+  <form id="form" autocomplete="off">
+    <div class="field">
+      <label for="email">邮箱</label>
+      <input id="email" type="email" placeholder="you@example.com" spellcheck="false" required>
+    </div>
+    <div class="field">
+      <label for="password">密码</label>
+      <input id="password" type="password" placeholder="••••••••" required>
+    </div>
+    <button id="submit" class="primary" type="submit">登录</button>
+  </form>
+
+  <p id="msg" class="msg"></p>
+
+  <div class="foot">
+    <span id="hint">账号服务 127.0.0.1:8788</span>
+    <button id="quit" type="button">退出</button>
+  </div>
+</div>
+<script>
+(function () {
+  const form = document.getElementById('form');
+  const btn = document.getElementById('submit');
+  const msg = document.getElementById('msg');
+  const hint = document.getElementById('hint');
+  const email = document.getElementById('email');
+  const password = document.getElementById('password');
+  const api = window.quchenAccount || null;
+
+  function show(text, kind) {
+    msg.textContent = text || '';
+    msg.className = 'msg' + (kind ? ' ' + kind : '');
+  }
+  function busy(on) {
+    btn.disabled = on;
+    btn.innerHTML = on ? '<span class="spin"></span>正在登录' : '登录';
+  }
+
+  async function bootstrap() {
+    if (!api) { show('登录窗初始化失败：preload 未加载。', 'err'); return; }
+    try {
+      const st = await api.state();
+      if (st && st.email) email.value = st.email;
+      if (st && st.unlocked) { show('已有有效会话，正在进入…', 'ok'); return; }
+      if (st && st.why === 'grace_expired') {
+        show('离线凭证已超过 30 天，请重新登录。', 'warn');
+      } else if (st && st.why === 'revoked') {
+        show('该设备的登录已在别处失效，请重新登录。', 'warn');
+      }
+    } catch (e) {
+      show('无法读取本地会话：' + (e && e.message || e), 'err');
+    }
+    setTimeout(function () { (email.value ? password : email).focus(); }, 60);
+  }
+
+  form.addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    if (!api) return;
+    const e = email.value.trim();
+    const p = password.value;
+    if (!e || !p) { show('请填写邮箱与密码。', 'err'); return; }
+    busy(true);
+    show('正在验证…');
+    try {
+      const res = await api.login(e, p);
+      if (res && res.ok) {
+        show('登录成功，正在进入…', 'ok');
+        return;
+      }
+      const code = (res && res.code) || 'login_failed';
+      const map = {
+        bad_credentials: '邮箱或密码不正确。',
+        pending_approval: '账号待管理员审批，通过后即可登录。',
+        rejected: '注册申请未通过，请联系管理员。',
+        banned: '账号已被停用，请联系管理员。',
+        locked: '尝试次数过多，请稍后再试。',
+        unreachable: '连不上账号服务（127.0.0.1:8788），请确认服务已启动。',
+        bad_request: '请填写有效的邮箱与密码。',
+      };
+      show(map[code] || (res && res.message) || '登录失败，请重试。', 'err');
+    } catch (err) {
+      show('登录异常：' + (err && err.message || err), 'err');
+    } finally {
+      busy(false);
+    }
+  });
+
+  document.getElementById('quit').addEventListener('click', function () {
+    if (api) api.quit();
+  });
+
+  bootstrap();
+})();
+</script>
+</body>
+</html>

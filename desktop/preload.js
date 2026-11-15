@@ -189,3 +189,9 @@ window.addEventListener('DOMContentLoaded', () => {
   document.documentElement.classList.add('desktop-shell-root');
   document.body.classList.add('desktop-shell');
 });
+
+// QuChen 账号：主界面只读状态 + 退出登录（退出后重启回到登录墙）
+contextBridge.exposeInMainWorld('quchenAccount', {
+  state: () => ipcRenderer.invoke('quchen-account:main-state'),
+  logout: () => ipcRenderer.invoke('quchen-account:main-logout'),
+});
