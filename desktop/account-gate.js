@@ -8,7 +8,7 @@
  *
  *   login()       -> POST {base}/api/auth/login     落盘 access/refresh
  *   refresh()     -> POST {base}/api/auth/refresh   轮换 refresh
- *   unlocked()    -> 令牌有效，或在 30 天离线宽限期内
+ *   unlocked()    -> 令牌有效，或在 7 天离线宽限期内
  *   logout()      -> POST {base}/api/auth/logout    清空本地会话
  *
  * 零第三方依赖，只用 node:http(s) / fs / os / path。
@@ -22,7 +22,7 @@ const https = require('node:https');
 const { URL } = require('node:url');
 
 const DEFAULT_BASE = process.env.QUCHEN_AUTH_BASE || 'https://frp-any.com:19549';
-const OFFLINE_GRACE_DAYS = 30;
+const OFFLINE_GRACE_DAYS = 7;   // 离线宽限收紧：默认 7 天；服务端下发更严格时以服务端为准
 const REFRESH_SKEW = 24 * 3600;   // access 快到期时提前续
 
 function sessionDir() {
@@ -172,6 +172,28 @@ class AccountGate {
   }
 
   // ---------- 联网动作 ----------
+  /** 发送邮箱验证码（purpose: register / reset / login）。 */
+  async sendCode(email, purpose = 'register') {
+    const target = String(email || '').trim().toLowerCase();
+    if (!target) throw new AccountError(400, 'bad_request', '请填写邮箱');
+    return postJSON(this.baseUrl, '/api/auth/send-code', { email: target, purpose });
+  }
+
+  /**
+   * 邮箱验证码注册。服务端开了 require_approval 时返回 status='pending'，
+   * 账号要先经管理员审批才能登录；未开审批时 status='active'，可立即 login()。
+   */
+  async register(email, code, password) {
+    const target = String(email || '').trim().toLowerCase();
+    return postJSON(this.baseUrl, '/api/auth/register', {
+      email: target,
+      code: String(code || '').trim(),
+      password: String(password || ''),
+      device_id: this.app,
+      device_name: this.deviceName,
+    });
+  }
+
   async login(email, password) {
     const data = await postJSON(this.baseUrl, '/api/auth/login', {
       email,
@@ -192,6 +214,8 @@ class AccountGate {
       last_verified: now,
       revoked: false,
     };
+    const gd = Number(data.offline_grace_days);
+    if (Number.isFinite(gd) && gd >= 0 && gd < this.graceDays) this.graceDays = gd;
     this._save(state);
     return { ...state };
   }

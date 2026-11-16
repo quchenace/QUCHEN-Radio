@@ -6166,6 +6166,51 @@ ipcMain.handle('quchen-account:login', async (event, payload) => {
   }
 });
 
+// 注册：先发邮箱验证码，再带验证码建号（服务端 require_approval=1 时注册后待审批）
+ipcMain.handle('quchen-account:send-code', async (event, payload) => {
+  if (!isAccountLoginSender(event)) return { ok: false, code: 'forbidden', message: '非法调用来源' };
+  const email = String((payload && payload.email) || '').trim();
+  if (!email) return { ok: false, code: 'bad_request', message: '请填写邮箱' };
+  try {
+    const data = await accountGate.sendCode(email, (payload && payload.purpose) || 'register');
+    return {
+      ok: true,
+      ttl: data.ttl,
+      resend_after: data.resend_after,
+      message: data.message,
+      dev_code: data.dev_code,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      code: (error && error.code) || 'send_failed',
+      status: (error && error.status) || 0,
+      message: (error && error.message) || String(error),
+    };
+  }
+});
+
+ipcMain.handle('quchen-account:register', async (event, payload) => {
+  if (!isAccountLoginSender(event)) return { ok: false, code: 'forbidden', message: '非法调用来源' };
+  const email = String((payload && payload.email) || '').trim();
+  const code = String((payload && payload.code) || '').trim();
+  const password = String((payload && payload.password) || '');
+  if (!email || !code || !password) {
+    return { ok: false, code: 'bad_request', message: '请填写邮箱、验证码与密码' };
+  }
+  try {
+    const data = await accountGate.register(email, code, password);
+    return { ok: true, status: data.status, message: data.message };
+  } catch (error) {
+    return {
+      ok: false,
+      code: (error && error.code) || 'register_failed',
+      status: (error && error.status) || 0,
+      message: (error && error.message) || String(error),
+    };
+  }
+});
+
 ipcMain.handle('quchen-account:logout', async (event) => {
   if (!isAccountLoginSender(event)) return { unlocked: false, why: 'forbidden' };
   await accountGate.logout();
